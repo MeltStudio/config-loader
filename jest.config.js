@@ -1,7 +1,9 @@
-const config = require("@meltstudio/jest-config/jest-server.js");
-
 module.exports = {
-  ...config,
+  preset: "ts-jest",
+  collectCoverage: true,
+  coveragePathIgnorePatterns: [".*snap$", "/node_modules/", "/dist/"],
+  testEnvironment: "node",
+  testMatch: ["**/tests/*.spec.ts", "**/tests/**/*.spec.ts"],
   collectCoverageFrom: ["!src/types/**/*.ts", "src/**/*"],
   coverageThreshold: {
     global: {

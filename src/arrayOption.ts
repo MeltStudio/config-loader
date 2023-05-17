@@ -1,13 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ArrayOptionVal = Array<any>;
-class ArrayOptionWrapper {
-  public readonly val: ArrayOptionVal;
+import { OptionKind } from "./types";
 
+class ArrayValueContainer {
+  public readonly val: Array<any>;
   public readonly item: OptionKind;
 
-  constructor(item: OptionKind, val: ArrayOptionVal) {
+  constructor(item: OptionKind, val: Array<any>) {
     this.val = val;
     this.item = item;
   }
 }
-export default ArrayOptionWrapper;
+
+export default ArrayValueContainer;

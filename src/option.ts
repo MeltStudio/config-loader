@@ -5,6 +5,7 @@ import yaml from "js-yaml";
 import type { OptionKind } from "./types";
 // import ArrayOption from "./arrayOption";
 import ConfigNode from "./configNode";
+import ArrayValueContainer from "./arrayOption";
 
 export type Value = boolean | string | number | object;
 export type DefaultValue = Value | (() => string) | (() => number);
@@ -86,7 +87,7 @@ class OptionBase {
         fs.readFileSync(sourceFile, "utf-8")
       ) as ConfigFileData;
       const val = this.findInObject(data || {}, path);
-      if (val instanceof ArrayOption) {
+      if (val instanceof ArrayValueContainer) {
         return new ConfigNode(val, ident, "file", sourceFile, null, null);
       }
       // the following line checks if the value is different to null or undefined
@@ -109,7 +110,7 @@ class OptionBase {
           fs.readFileSync(file, "utf-8")
         ) as ConfigFileData;
         const val = this.findInObject(data || {}, path);
-        if (val instanceof ArrayOption) {
+        if (val instanceof ArrayValueContainer) {
           return new ConfigNode(val, ident, "file", file, null, null);
         }
 
@@ -129,7 +130,7 @@ class OptionBase {
 
     if (objectFromArray) {
       const val = this.findInObject(objectFromArray.value, path);
-      if (val instanceof ArrayOption) {
+      if (val instanceof ArrayValueContainer) {
         return new ConfigNode(
           val,
           ident,
@@ -154,7 +155,7 @@ class OptionBase {
 
     if (defaultValues) {
       const val = this.findInObject(defaultValues as ConfigFileData, path);
-      if (val instanceof ArrayOption) {
+      if (val instanceof ArrayValueContainer) {
         return new ConfigNode(val, ident, "default", null, null, null);
       }
       if (val != null) {
@@ -310,10 +311,9 @@ class OptionBase {
     return null;
   }
 
-  buildArrayOption(_val: string[] | ConfigFileData[]): {
-    item: OptionBase;
-    val: Array<any>;
-  } | null {
+  buildArrayOption(
+    _val: string[] | ConfigFileData[]
+  ): ArrayValueContainer | null {
     return null;
   }
 }
@@ -327,12 +327,10 @@ class PrimitiveOption extends OptionBase {
 interface ArrayOptionClassParams {
   required: boolean;
   defaultValue?: DefaultValue;
-  item: OptionBase;
+  item: OptionTypes;
 }
 class ArrayOption extends OptionBase {
-  item: OptionBase;
-
-  val: Array<any> = [];
+  item: OptionTypes;
 
   constructor(params: ArrayOptionClassParams) {
     super({
@@ -345,18 +343,14 @@ class ArrayOption extends OptionBase {
     this.item = params.item;
   }
 
-  public override buildArrayOption(val: String[] | ConfigFileData[]): {
-    item: OptionBase;
-    val: Array<any>;
-  } | null {
+  public override buildArrayOption(
+    val: String[] | ConfigFileData[]
+  ): ArrayValueContainer | null {
     if (this.item === null) {
       OptionErrors.errors.push(`Array item cannot be null`);
       return null;
     }
-    return {
-      item: this.item,
-      val,
-    };
+    return new ArrayValueContainer(this.item.params.kind, val);
   }
 }
 

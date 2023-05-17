@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { Command } from "commander";
 import * as fs from "fs";
+import ArrayValueContainer from "./arrayOption";
 
 import ConfigNode from "./configNode";
 import ConfigNodeArray from "./configNodeArray";
@@ -235,7 +236,7 @@ class Settings<T> {
     } else if (path.length === 1) {
       const [child] = path;
       if (value != null) {
-        if (value.value instanceof ArrayOption) {
+        if (value.value instanceof ArrayValueContainer) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           options[child] = value;
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
