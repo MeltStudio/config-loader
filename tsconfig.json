@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "TSConfig for config-loader",
+  "extends": "@meltstudio/tsconfig/node18.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "commonjs",
+    "noEmit": false,
+    "noUncheckedIndexedAccess": false,
+    "outDir": "./dist",
+    "paths": {
+      "@/src": ["src"],
+      "@/src/*": ["src/*"]
+    },
+  },
+    "include": ["src", "tests"]    ,
+}

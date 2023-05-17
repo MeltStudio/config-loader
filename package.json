@@ -1,0 +1,40 @@
+{
+  "name": "@meltstudio/config-loader",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "rimraf ./dist && tsc --project tsconfig.build.json && yarn replace-tspaths",
+    "lint": "eslint --ext .ts --max-warnings=0 --fix .",
+    "type-check": "tsc --noEmit",
+    "test": "jest --verbose",
+    "replace-tspaths": "./scripts/replace-tspaths/index.js"
+  },
+  "dependencies": {
+    "@types/js-yaml": "^4.0.5",
+    "commander": "^8.3.0",
+    "js-yaml": "^4.1.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@meltstudio/eslint-config": "^1.1.0",
+    "@meltstudio/tsconfig": "^2.0.1",
+    "@types/jest": "^27.5.0",
+    "@types/node": "17.0.31",
+    "@typescript-eslint/eslint-plugin": "^5.59.6",
+    "@typescript-eslint/parser": "^5.59.6",
+    "eslint": "^8.40.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-import-resolver-typescript": "^3.5.5",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jest": "^27.2.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "jest": "^29.5.0",
+    "prettier": "^2.8.8",
+    "typescript": "^5.0.4"
+  }
+}

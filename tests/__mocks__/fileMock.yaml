@@ -1,0 +1,28 @@
+string: testString
+number: 1
+object:
+  value: 1
+  name: testing
+stringArray:
+  - test
+numberArray:
+  - 1
+objectArray:
+  - value: 1
+    name: testing
+test:
+  boolean: true
+  booleanAsString: 'true'
+  number: 1883
+  numberAsString: '1883'
+  string: 'test'
+  any: {}
+  array:
+    - 'test'
+    - 'test2'
+  booleanAsNumber: 1
+  booleanAsStringNumber: '1'
+test2:
+  nestedObjectArray:
+    - name: test
+      value: 42
