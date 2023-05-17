@@ -2,7 +2,7 @@
 import * as fs from "fs";
 import yaml from "js-yaml";
 
-import type { OptionKind } from "./arrayOption";
+import type { OptionKind } from "./types";
 // import ArrayOption from "./arrayOption";
 import ConfigNode from "./configNode";
 
@@ -331,6 +331,9 @@ interface ArrayOptionClassParams {
 }
 class ArrayOption extends OptionBase {
   item: OptionBase;
+
+  val: Array<any> = [];
+
   constructor(params: ArrayOptionClassParams) {
     super({
       kind: "array",

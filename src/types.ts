@@ -13,3 +13,11 @@ export type SettingsSources<T> = {
   dir?: string | false;
   defaults?: Partial<T>;
 };
+
+export type OptionKind =
+  | "boolean"
+  | "string"
+  | "number"
+  | "any"
+  | "array"
+  | "object";

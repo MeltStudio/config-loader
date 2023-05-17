@@ -1,10 +1,3 @@
-export type OptionKind =
-  | "boolean"
-  | "string"
-  | "number"
-  | "any"
-  | "array"
-  | "object";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ArrayOptionVal = Array<any>;
 class ArrayOptionWrapper {
