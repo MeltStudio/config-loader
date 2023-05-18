@@ -1,7 +1,10 @@
 // taken from https://github.com/joonhocho/tscpaths
-const { dirname, resolve } = require('path');
+import { dirname, resolve } from 'path';
+import { createRequire } from 'module';
 
-const mapPaths = (paths, mapper) => {
+const require = createRequire(import.meta.url);
+
+export const mapPaths = (paths, mapper) => {
   const dest = {};
   Object.keys(paths).forEach((key) => {
     dest[key] = paths[key].map(mapper);
@@ -30,7 +33,7 @@ const getParentFilePath = (child, parent) => {
   return [...parts.reverse(), parent].join('/');
 };
 
-const loadConfig = (file) => {
+export const loadConfig = (file) => {
   const {
     extends: ext,
     compilerOptions: { baseUrl, outDir, paths } = {},
@@ -58,5 +61,3 @@ const loadConfig = (file) => {
 
   return config;
 };
-
-module.exports = { mapPaths, loadConfig };

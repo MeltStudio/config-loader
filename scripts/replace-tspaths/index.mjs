@@ -1,11 +1,11 @@
 #! /usr/bin/env node
 // taken from https://github.com/joonhocho/tscpaths
-const { program } = require('commander');
-const { existsSync, readFileSync, writeFileSync } = require('fs');
-const { sync } = require('globby');
-const { dirname, relative, resolve } = require('path');
+import { program } from 'commander';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { globbySync } from 'globby';
+import { dirname, relative, resolve } from 'path';
 
-const { loadConfig } = require('./util');
+import { loadConfig } from './util.mjs';
 
 program
   .version('0.0.1')
@@ -143,7 +143,7 @@ const replaceAlias = (text, outFile) =>
     );
 
 // import relative to absolute path
-const files = sync(`${outPath}/**/*.{js,jsx,ts,tsx}`, {
+const files = globbySync(`${outPath}/**/*.{js,jsx,ts,tsx}`, {
   dot: true,
   // @ts-expect-error noDir is not on the types
   noDir: true,
