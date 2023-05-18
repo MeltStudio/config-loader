@@ -1,5 +1,5 @@
-import type { ArrayValueContainer, Value } from "@/src/option";
-import type { ArrayValue } from "@/src/types";
+import type { ArrayValueContainer, Value } from "@/option";
+import type { ArrayValue } from "@/types";
 
 type SourceTypes = "file" | "env" | "args" | "default";
 

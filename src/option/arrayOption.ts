@@ -1,4 +1,4 @@
-import type { ArrayValue, OptionKind } from "@/src/types";
+import type { ArrayValue, OptionKind } from "@/types";
 
 class ArrayValueContainer {
   public readonly val: ArrayValue;

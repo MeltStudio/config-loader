@@ -9,8 +9,11 @@
     "noUncheckedIndexedAccess": false,
     "outDir": "./dist",
     "paths": {
+      "@/nodes/*": ["src/nodes/*"],
+      "@/option": ["src/option"],
+      "@/option/*": ["src/option/*"],
       "@/src": ["src"],
-      "@/src/*": ["src/*"]
+      "@/types": ["src/types"]
     }
   },
   "include": ["src", "tests", "example"]

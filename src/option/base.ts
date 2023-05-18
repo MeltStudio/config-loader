@@ -2,8 +2,8 @@
 import * as fs from "fs";
 import yaml from "js-yaml";
 
-import ConfigNode from "@/src/nodes/configNode";
-import type { ArrayValue, ConfigFileData, OptionKind } from "@/src/types";
+import ConfigNode from "@/nodes/configNode";
+import type { ArrayValue, ConfigFileData, OptionKind } from "@/types";
 
 import ArrayValueContainer from "./arrayOption";
 // import ArrayOption from "./arrayOption";

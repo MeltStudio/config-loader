@@ -1,11 +1,11 @@
-import { option as optionFn } from "@/src";
-import ConfigNode from "@/src/nodes/configNode";
+import ConfigNode from "@/nodes/configNode";
 import {
   ArrayOption,
   ArrayValueContainer,
   OptionErrors,
   PrimitiveOption,
-} from "@/src/option";
+} from "@/option";
+import { option as optionFn } from "@/src";
 
 const FILE = "./tests/__mocks__/fileMock.yaml";
 

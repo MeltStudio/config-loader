@@ -1,5 +1,4 @@
-import { option } from "@/src";
-import Settings from "@/src/settings";
+import Settings, { option } from "@/src";
 
 interface TestObject {
   value: number;

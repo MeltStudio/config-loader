@@ -1,4 +1,4 @@
-import type { ConfigFileData } from "@/src/types";
+import type { ConfigFileData } from "@/types";
 
 import type { OptionTypes } from ".";
 import ArrayValueContainer from "./arrayOption";

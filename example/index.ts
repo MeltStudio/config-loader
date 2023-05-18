@@ -1,7 +1,6 @@
-/* eslint-disable no-restricted-imports */
 import path from "path";
 
-import Settings, { option } from "../src";
+import Settings, { option } from "@/src";
 
 const run = (): void => {
   const settings = new Settings(
