@@ -1,7 +1,11 @@
-import ArrayOptionWrapper from "@/src/arrayOption";
 import { option as optionFn } from "@/src";
-import ConfigNode from "@/src/configNode";
-import { PrimitiveOption, ArrayOption, OptionErrors } from "@/src/option";
+import ConfigNode from "@/src/nodes/configNode";
+import {
+  ArrayOption,
+  ArrayValueContainer,
+  OptionErrors,
+  PrimitiveOption,
+} from "@/src/option";
 
 const FILE = "./tests/__mocks__/fileMock.yaml";
 
@@ -77,7 +81,7 @@ describe("option", () => {
           option.getValue(FILE, ENV, {}, ["device", "datapoints"])
         ).toEqual(
           new ConfigNode(
-            new ArrayOptionWrapper("string", [
+            new ArrayValueContainer("string", [
               {
                 defaultValue: 0,
                 flags: {
@@ -196,7 +200,7 @@ describe("option", () => {
       const value = option.getValue(FILE, ENV, {}, ["test", "array"]);
       expect(value).toEqual(
         new ConfigNode(
-          new ArrayOptionWrapper("string", ["test", "test2"]), // COSA
+          new ArrayValueContainer("string", ["test", "test2"]), // COSA
           "test.array",
           "file",
           "./tests/__mocks__/fileMock.yaml",

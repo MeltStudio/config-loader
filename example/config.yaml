@@ -1,0 +1,10 @@
+database:
+  host: https://cosa.com
+  port: 5432asdasdasd
+test:
+  arrayoption: [aaa, bbb]
+  objarray:
+    - cosa: asd
+      test: 23
+    - cosa: asdasda
+      test: 233asdasdas

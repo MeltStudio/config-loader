@@ -1,16 +1,10 @@
-import type {
-  ArrayOption,
-  ObjectOption,
-  PrimitiveOption,
-  Value,
-} from "./option";
+import type { ArrayValueContainer, Value } from "@/src/option";
+import type { ArrayValue } from "@/src/types";
 
 type SourceTypes = "file" | "env" | "args" | "default";
 
 class ConfigNode {
-  value:
-    | Value
-    | { val: Array<any>; item: PrimitiveOption | ArrayOption | ObjectOption };
+  value: Value | ArrayValueContainer;
 
   path: string;
 
@@ -23,7 +17,7 @@ class ConfigNode {
   arg_name: string | null;
 
   constructor(
-    value: Value | ArrayOption,
+    value: Value | ArrayValue,
     path: string,
     source_type: SourceTypes,
     file: string | null,

@@ -1,23 +1,23 @@
 /* eslint-disable no-param-reassign */
 import { Command } from "commander";
 import * as fs from "fs";
-import ArrayValueContainer from "./arrayOption";
 
-import ConfigNode from "./configNode";
-import ConfigNodeArray from "./configNodeArray";
-import {
-  ConfigFileData,
+import ConfigNode from "./nodes/configNode";
+import ConfigNodeArray from "./nodes/configNodeArray";
+import type {
+  ArrayOption,
   Node,
   ObjectOption,
-  OptionBase,
   OptionTypes,
   PrimitiveOption,
   Value,
-  ArrayOption,
-  OptionErrors,
 } from "./option";
+import { ArrayValueContainer, OptionBase, OptionErrors } from "./option";
 import type {
+  ArrayValue,
+  ConfigFileData,
   NodeTree,
+  OptionKind,
   PartialyBuiltSettings,
   ProcessEnv,
   SettingsSources,
@@ -179,8 +179,8 @@ class Settings<T> {
   }
 
   private getValidatedArray(
-    item: OptionTypes,
-    values: Array<any>,
+    item: OptionKind,
+    values: ArrayValue,
     file: string
   ): Array<PartialyBuiltSettings> | ConfigNodeArray {
     if (typeof item === "string") {
@@ -222,7 +222,7 @@ class Settings<T> {
   private setOption(
     options: PartialyBuiltSettings,
     path: string[],
-    value: ConfigNode
+    node: ConfigNode
   ): void {
     if (path.length > 1) {
       const [child, ...rest] = path;
@@ -232,28 +232,29 @@ class Settings<T> {
         options[child] = {};
       }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      this.setOption(options[child], rest, value);
+      this.setOption(options[child], rest, node);
     } else if (path.length === 1) {
       const [child] = path;
-      if (value != null) {
-        if (value.value instanceof ArrayValueContainer) {
+      if (node != null) {
+        if (node.value instanceof ArrayValueContainer) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          options[child] = value;
+          options[child] = node;
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           options[child].value = this.getValidatedArray(
-            value.value.item,
-            value.value.val,
-            value.file || value.variable_name || value.arg_name || ""
+            node.value.item,
+            node.value.val,
+            node.file || node.variable_name || node.arg_name || ""
           );
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          options[child] = value;
+          options[child] = node;
         }
       }
     } else {
       throw new Error(
-        `Invalid path '${value.path}' getting from '${value.arg_name || value.file || value.variable_name || ""
-        }' in ' ${value.source_type}`
+        `Invalid path '${node.path}' getting from '${
+          node.arg_name || node.file || node.variable_name || ""
+        }' in ' ${node.source_type}`
       );
     }
   }

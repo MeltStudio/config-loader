@@ -1,4 +1,4 @@
-import type ConfigNode from "./configNode";
+import type ConfigNode from "./nodes/configNode";
 
 export type ProcessEnv = { [key: string]: string | undefined };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,3 +21,12 @@ export type OptionKind =
   | "any"
   | "array"
   | "object";
+
+type ConfigFileStructure<T> = {
+  [key: string]: string | T | number | boolean | Array<T> | string[];
+};
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ConfigFileData extends ConfigFileStructure<ConfigFileData> {}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ArrayValue = Array<any>;

@@ -2,23 +2,19 @@
 import * as fs from "fs";
 import yaml from "js-yaml";
 
-import type { OptionKind } from "./types";
-// import ArrayOption from "./arrayOption";
-import ConfigNode from "./configNode";
+import ConfigNode from "@/src/nodes/configNode";
+import type { ArrayValue, ConfigFileData, OptionKind } from "@/src/types";
+
 import ArrayValueContainer from "./arrayOption";
+// import ArrayOption from "./arrayOption";
+import OptionErrors from "./errors";
 
 export type Value = boolean | string | number | object;
 export type DefaultValue = Value | (() => string) | (() => number);
 
 type RecursiveNode<T> = { [key: string]: OptionBase | T };
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Node extends RecursiveNode<Node> { }
-
-type ConfigFileStructure<T> = {
-  [key: string]: string | T | number | boolean | Array<T> | string[];
-};
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ConfigFileData extends ConfigFileStructure<ConfigFileData> { }
+export interface Node extends RecursiveNode<Node> {}
 
 interface OptionClassParams {
   kind: OptionKind;
@@ -32,13 +28,7 @@ interface OptionClassParams {
   // };
 }
 
-class OptionErrors {
-  public static errors: string[] = [];
-
-  public static warnings: string[] = [];
-}
-
-class OptionBase {
+export default class OptionBase {
   public readonly params: OptionClassParams;
 
   constructor(params: OptionClassParams) {
@@ -257,7 +247,7 @@ class OptionBase {
   protected findInObject(
     obj: ConfigFileData,
     path: string[]
-  ): Value | ArrayOption | null {
+  ): Value | ArrayValue | null {
     if (path.length > 1) {
       const [child, ...rest] = path;
       const val = obj[child];
@@ -311,67 +301,11 @@ class OptionBase {
     return null;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   buildArrayOption(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _val: string[] | ConfigFileData[]
   ): ArrayValueContainer | null {
     return null;
   }
 }
-
-class PrimitiveOption extends OptionBase {
-  constructor(params: OptionClassParams) {
-    super(params);
-  }
-}
-
-interface ArrayOptionClassParams {
-  required: boolean;
-  defaultValue?: DefaultValue;
-  item: OptionTypes;
-}
-class ArrayOption extends OptionBase {
-  item: OptionTypes;
-
-  constructor(params: ArrayOptionClassParams) {
-    super({
-      kind: "array",
-      env: null,
-      cli: false,
-      help: "",
-      ...params,
-    });
-    this.item = params.item;
-  }
-
-  public override buildArrayOption(
-    val: String[] | ConfigFileData[]
-  ): ArrayValueContainer | null {
-    if (this.item === null) {
-      OptionErrors.errors.push(`Array item cannot be null`);
-      return null;
-    }
-    return new ArrayValueContainer(this.item.params.kind, val);
-  }
-}
-
-interface ObjectOptionClassParams {
-  required: boolean;
-  item: Node;
-}
-class ObjectOption extends OptionBase {
-  item: Node;
-  constructor(params: ObjectOptionClassParams) {
-    super({
-      kind: "object",
-      env: null,
-      cli: false,
-      help: "",
-      ...params,
-    });
-    this.item = params.item;
-  }
-}
-
-export type OptionTypes = PrimitiveOption | ArrayOption | ObjectOption;
-
-export { OptionBase, ArrayOption, ObjectOption, PrimitiveOption, OptionErrors };

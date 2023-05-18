@@ -9,6 +9,7 @@
     "lint": "eslint --ext .ts --max-warnings=0 --fix .",
     "type-check": "tsc --noEmit",
     "test": "jest --verbose",
+    "example:run": "ts-node ./example/index.ts",
     "replace-tspaths": "./scripts/replace-tspaths/index.js"
   },
   "dependencies": {

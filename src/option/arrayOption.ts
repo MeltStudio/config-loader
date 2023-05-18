@@ -1,10 +1,11 @@
-import { OptionKind } from "./types";
+import type { ArrayValue, OptionKind } from "@/src/types";
 
 class ArrayValueContainer {
-  public readonly val: Array<any>;
+  public readonly val: ArrayValue;
+
   public readonly item: OptionKind;
 
-  constructor(item: OptionKind, val: Array<any>) {
+  constructor(item: OptionKind, val: ArrayValue) {
     this.val = val;
     this.item = item;
   }
