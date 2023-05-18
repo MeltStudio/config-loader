@@ -19,6 +19,6 @@ jobs:
       - name: Run type-check
         run: yarn type-check
       - name: Run tests
-        run: yarn workspaces run test
+        run: yarn test
       - name: Run prettier
         run: yarn prettier --check
