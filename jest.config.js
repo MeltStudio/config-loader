@@ -14,7 +14,10 @@ module.exports = {
     },
   },
   moduleNameMapper: {
+    "^@/nodes/(.*)": "<rootDir>/src/nodes/$1",
+    "^@/option$": "<rootDir>/src/option",
+    "^@/option/(.*)": "<rootDir>/src/option/$1",
     "^@/src$": "<rootDir>/src",
-    "^@/src/(.*)$": "<rootDir>/src/$1",
+    "^@/types$": "<rootDir>/src/types",
   },
 };
