@@ -5,6 +5,7 @@ import Settings, { option } from "@/src";
 const run = (): void => {
   const settings = new Settings(
     {
+      version: option.string({ required: true, cli: true }),
       website: {
         title: option.string({ required: true }),
         url: option.string({

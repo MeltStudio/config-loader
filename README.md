@@ -119,6 +119,47 @@ The expected output would be:
   ]
 }
 ```
+
+You can try executing our example in your project by following these steps with the command:
+
+```bash
+yarn example:run
+```
+### Config loader cli usage
+When using our package with cli, is important have the cli attribute must be set to true.
+This will allow values to be sent when running the package from the command line.
+```typescript
+import path from "path";
+
+import Settings, { option } from "@/src";
+
+const run = (): void => {
+  const settings = new Settings(
+    {
+      version: option.string({ required: true, cli: true }),
+    },
+    {
+      env: false,
+      args: true,
+      files: path.join(__dirname, "./config.yaml"),
+    }
+  );
+  const config = settings.get();
+  console.log(JSON.stringify(config, null, 2));
+};
+
+run();
+```
+now for use it you need to send the property name on the command line with the new value
+```bash
+yarn example:run --version 2.0.0
+```
+The expected output would be:
+```json
+{
+  "version": "2.0.0",
+}
+```
 ## Contributing
 Explain how others can contribute to the project. Include guidelines for submitting issues, pull requests, or feature requests.
 
