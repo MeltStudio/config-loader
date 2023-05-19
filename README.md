@@ -1,7 +1,7 @@
 # Config Loader
 ## Project Description
 
-The Config Loader package is a powerful and user friendly tool thats allows you to retrieve and collect variables from one or multiple files for your project. This package simplifies the process of extracting specific information from files and provides an efficient way to access those variables in your code.
+The Config Loader package is a powerful and user-friendly tool that simplifies the process of retrieving and collecting variables from one or multiple files for your project. It provides an efficient way to extract specific information from files and access those variables in your code. The resulting data is in JSON format, making it easy to work with in various applications.
 
 ## Features
 - Retrieve and collect variables from one or multiple files in your project.
@@ -36,39 +36,88 @@ $ yarn add @meltstudio/config-loader
 Here's an example of how to use the `@meltstudio/config-loader` package in a TypeScript project:
 
 ```typescript
-import Settings, { option } from '@meltstudio/config-loader';
+import path from "path";
 
-// Load the configuration file
-const settings = new Settings(
+import Settings, { option } from "@/src";
+
+const run = (): void => {
+  const settings = new Settings(
     {
+      website: {
+        title: option.string({ required: true }),
+        url: option.string({
+          required: false,
+          defaultValue: "www.mywebsite.dev",
+        }),
+        description: option.string({ required: true }),
+        isProduction: option.bool({ required: true }),
+      },
       database: {
-        host: option.string({ required: true, cli: true }),
+        host: option.string({ required: true }),
         port: option.number({ required: true }),
+        credentials: {
+          username: option.string(),
+          password: option.string(),
+        },
       },
-      test: {
-        arrayoption: option.array({
-          required: true,
-          item: option.string(),
+      socialMedia: option.array({
+        required: true,
+        item: option.string({ required: true }),
+      }),
+      features: option.array({
+        required: true,
+        item: option.object({
+          item: {
+            cosa: option.string(),
+            test: option.bool(),
+          },
         }),
-        objarray: option.array({
-          required: true,
-          item: option.object({
-            item: {
-              cosa: option.string(),
-              test: option.number(),
-            },
-          }),
-        }),
-      },
+      }),
     },
     {
       env: false,
       args: true,
-      files: path.join(__dirname, "./YAML_FILE.yaml"),
+      files: path.join(__dirname, "./config.yaml"),
     }
   );
-    const config = settings.get();
-    console.log(JSON.stringify(config, null, 2));
+  const config = settings.get();
+  console.log(JSON.stringify(config, null, 2));
+};
+
+run();
+```
+The expected output would be:
+```json
+{
+  "website": {
+    "title": "My Website",
+    "url": "www.mywebsite.dev",
+    "description": "A simple and elegant website",
+    "isProduction": false
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "credentials": {
+      "username": "admin",
+      "password": "secret"
+    }
+  },
+  "socialMedia": [
+    "https://twitter.com/example",
+    "https://instagram.com/example"
+  ],
+  "features": [
+    {
+      "name": "Store",
+      "enabled": true
+    },
+    {
+      "name": "Admin",
+      "enabled": false
+    }
+  ]
+}
 ```
 ## Contributing
 Explain how others can contribute to the project. Include guidelines for submitting issues, pull requests, or feature requests.
