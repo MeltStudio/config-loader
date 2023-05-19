@@ -20,7 +20,10 @@ const run = (): void => {
         port: option.number({ required: true }),
         credentials: {
           username: option.string(),
-          password: option.string(),
+          password: option.string({
+            env: "DB_PASSWORD",
+            cli: true,
+          }),
         },
       },
       socialMedia: option.array({

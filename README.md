@@ -5,7 +5,7 @@ The Config Loader package is a powerful and user-friendly tool that simplifies t
 
 ## Features
 - Retrieve and collect variables from one or multiple files in your project.
-- Supports a wide range of file formats, including JSON, YAML, XML, and more.
+- Yaml file support, support for JSON,YAML, XML files coming soon.
 - Allows you to specify filters to select only the desired variables.
 - Compatible with TypeScript environments, making it suitable for Node.js or browser-based projects.
 
@@ -125,7 +125,7 @@ You can try executing our example in your project by following these steps with 
 ```bash
 yarn example:run
 ```
-### Config loader cli usage
+### Usage with CLI
 When using our package with cli, is important have the cli attribute must be set to true.
 This will allow values to be sent when running the package from the command line.
 ```typescript
@@ -136,7 +136,10 @@ import Settings, { option } from "@/src";
 const run = (): void => {
   const settings = new Settings(
     {
-      version: option.string({ required: true, cli: true }),
+      version: option.string({ 
+        required: true,
+        cli: true, 👈
+      }),
     },
     {
       env: false,
@@ -160,6 +163,57 @@ The expected output would be:
   "version": "2.0.0",
 }
 ```
+### Usage with Environment Variables
+The Config Loader package allows you to harness the power of environment variables in your system configuration. You can specify variable names in your configuration and get them. to use this feature you need to set **env: true**
+```typescript
+import path from "path";
+
+import Settings, { option } from "@/src";
+
+const run = (): void => {
+  const settings = new Settings(
+    {
+      database: {
+        host: option.string({ required: true }),
+        port: option.number({ required: true }),
+        credentials: {
+          username: option.string(),
+          password: option.string({
+            env: "DB_PASSWORD",
+            cli: true,
+          }),
+        },
+      },
+    },
+    {
+      env: true, 👈
+      args: true,
+      files: path.join(__dirname, "./config.yaml"),
+    }
+  );
+  const config = settings.get();
+  console.log(JSON.stringify(config, null, 2));
+};
+
+run();
+```
+```bash
+yarn example:run
+```
+The expected output would be:
+```json
+{
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "credentials": {
+      "username": "admin",
+      "password": "MY_PASSWORD"
+    }
+  }
+}
+```
+
 ## Contributing
 Explain how others can contribute to the project. Include guidelines for submitting issues, pull requests, or feature requests.
 
