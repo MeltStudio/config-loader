@@ -22,6 +22,8 @@ export type OptionKind =
   | "array"
   | "object";
 
+export type Path = Array<string | number>;
+
 type ConfigFileStructure<T> = {
   [key: string]: string | T | number | boolean | Array<T> | string[];
 };

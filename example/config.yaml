@@ -1,25 +1,6 @@
-version: 1.0.0
-website:
-  title: My Website
-  description: A simple and elegant website
-  port: 3000
-  isProduction: false
-
-database:
-  host: localhost
-  port: 5432
-  credentials:
-    username: admin
-    password: secret
-
-socialMedia: [https://twitter.com/example, https://instagram.com/example]
-
+socialMedia: [https://twitter.com/example, https://instagram.com/example, 1]
 features:
   - name: Store
     enabled: true
   - name: Admin
     enabled: false
-
-apiKeys:
-  googleMaps: ${GOOGLE_MAPS_API_KEY}
-  sendGrid: ${SENDGRID_API_KEY}

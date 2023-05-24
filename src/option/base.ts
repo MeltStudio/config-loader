@@ -3,7 +3,7 @@ import * as fs from "fs";
 import yaml from "js-yaml";
 
 import ConfigNode from "@/nodes/configNode";
-import type { ArrayValue, ConfigFileData, OptionKind } from "@/types";
+import type { ArrayValue, ConfigFileData, OptionKind, Path } from "@/types";
 
 import ArrayValueContainer from "./arrayOption";
 // import ArrayOption from "./arrayOption";
@@ -39,7 +39,7 @@ export default class OptionBase {
     sourceFile: string | string[],
     env: { [key: string]: string | undefined },
     args: { [key: string]: string | boolean },
-    path: string[],
+    path: Path,
     defaultValues?: Partial<T>,
     objectFromArray?: { value: ConfigFileData; file: string }
   ): ConfigNode | null {
@@ -191,7 +191,7 @@ export default class OptionBase {
     return null;
   }
 
-  protected checkType(val: Value, path: string[], sourceOfVal: string): Value {
+  protected checkType(val: Value, path: Path, sourceOfVal: string): Value {
     const ident = path.join(".");
 
     if (typeof val === this.params.kind) {
@@ -246,7 +246,7 @@ export default class OptionBase {
 
   protected findInObject(
     obj: ConfigFileData,
-    path: string[]
+    path: Path
   ): Value | ArrayValue | null {
     if (path.length > 1) {
       const [child, ...rest] = path;

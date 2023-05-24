@@ -32,6 +32,6 @@ export default class ArrayOption extends OptionBase {
       OptionErrors.errors.push(`Array item cannot be null`);
       return null;
     }
-    return new ArrayValueContainer(this.item.params.kind, val);
+    return new ArrayValueContainer(this.item, val);
   }
 }

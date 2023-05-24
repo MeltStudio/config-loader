@@ -83,22 +83,31 @@ describe("option", () => {
           option.getValue(FILE, ENV, {}, ["device", "datapoints"])
         ).toEqual(
           new ConfigNode(
-            new ArrayValueContainer("string", [
-              {
-                defaultValue: 0,
-                flags: {
-                  hidden: false,
-                  log: false,
+            new ArrayValueContainer(
+              new PrimitiveOption({
+                kind: "string",
+                required: true,
+                env: null,
+                cli: false,
+                help: "",
+              }),
+              [
+                {
+                  defaultValue: 0,
+                  flags: {
+                    hidden: false,
+                    log: false,
+                  },
+                  index: 0,
+                  magnitude: 1,
+                  maxValue: 0,
+                  minChange: 0,
+                  minValue: 0,
+                  name: "uptime",
+                  units: "seconds",
                 },
-                index: 0,
-                magnitude: 1,
-                maxValue: 0,
-                minChange: 0,
-                minValue: 0,
-                name: "uptime",
-                units: "seconds",
-              },
-            ]),
+              ]
+            ),
             "device.datapoints",
             "file",
             "./tests/__mocks__/fileMock.yaml",
@@ -202,7 +211,16 @@ describe("option", () => {
       const value = option.getValue(FILE, ENV, {}, ["test", "array"]);
       expect(value).toEqual(
         new ConfigNode(
-          new ArrayValueContainer("string", ["test", "test2"]), // COSA
+          new ArrayValueContainer(
+            new PrimitiveOption({
+              kind: "string",
+              required: true,
+              env: null,
+              cli: false,
+              help: "",
+            }),
+            ["test", "test2"]
+          ), // COSA
           "test.array",
           "file",
           "./tests/__mocks__/fileMock.yaml",
