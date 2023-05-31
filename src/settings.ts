@@ -4,13 +4,7 @@ import * as fs from "fs";
 
 import ConfigNode from "./nodes/configNode";
 import ConfigNodeArray from "./nodes/configNodeArray";
-import type {
-  ArrayOption,
-  Node,
-  ObjectOption,
-  OptionTypes,
-  Value,
-} from "./option";
+import type { ArrayOption, Node, OptionTypes, Value } from "./option";
 import {
   ArrayValueContainer,
   OptionBase,
@@ -162,7 +156,7 @@ class Settings<T> {
       defaultValue: Partial<T>;
       objectFromArray?: { value: ConfigFileData; file: string };
     },
-    node: PrimitiveOption | ArrayOption | ObjectOption,
+    node: OptionTypes,
     path: Path
   ): void {
     const { sourceFile, envData, argsData, defaultValue, objectFromArray } =
@@ -183,10 +177,9 @@ class Settings<T> {
   }
 
   private getValidatedArray(
-    item: OptionTypes,
+    item: Node | OptionTypes,
     values: ArrayValue,
-    file: string,
-    path: Path
+    file: string
   ): Array<PartialyBuiltSettings> | ConfigNodeArray {
     if (item instanceof PrimitiveOption) {
       if (item.params.kind === "string") {
@@ -199,24 +192,23 @@ class Settings<T> {
       }
     }
 
-    const arrayValues = values.map((v, i) =>
+    const arrayValues = values.map((v) =>
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      this.processArrayWithSchema(item, v, file, [...path, i])
+      this.processArrayWithSchema(item, v, file)
     );
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return new ConfigNodeArray(arrayValues);
   }
 
   private processArrayWithSchema(
-    item: OptionTypes,
+    item: Node | OptionTypes,
     v: PartialyBuiltSettings,
-    file: string,
-    path: Path
+    file: string
   ): PartialyBuiltSettings {
     const result: PartialyBuiltSettings = {};
     this.traverseOptions(
       item,
-      path,
+      [],
       this.buildOption.bind(this, result, {
         objectFromArray: {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -252,8 +244,7 @@ class Settings<T> {
           options[child].value = this.getValidatedArray(
             node.value.item,
             node.value.val,
-            node.file || node.variable_name || node.arg_name || "",
-            path
+            node.file || node.variable_name || node.arg_name || ""
           );
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

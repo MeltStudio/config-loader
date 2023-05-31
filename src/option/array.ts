@@ -2,17 +2,17 @@ import type { ConfigFileData } from "@/types";
 
 import type { OptionTypes } from ".";
 import ArrayValueContainer from "./arrayOption";
-import type { DefaultValue } from "./base";
+import type { DefaultValue, Node } from "./base";
 import OptionBase from "./base";
 import OptionErrors from "./errors";
 
 interface ArrayOptionClassParams {
   required: boolean;
   defaultValue?: DefaultValue;
-  item: OptionTypes;
+  item: Node | OptionTypes;
 }
 export default class ArrayOption extends OptionBase {
-  item: OptionTypes;
+  item: Node | OptionTypes;
 
   constructor(params: ArrayOptionClassParams) {
     super({

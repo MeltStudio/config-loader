@@ -17,27 +17,25 @@ interface TestSettingsFile {
 describe("Settings", () => {
   describe("if everything is ok", () => {
     it("should return the data", () => {
+      jest.spyOn(process, "exit").mockImplementation((code?: number) => {
+        throw new Error(code?.toString());
+      });
       const settings = new Settings<TestSettingsFile>(
         {
           string: option.string({ required: true }),
           number: option.number({ required: true }),
-          object: option.object({
+          object: {
+            value: option.number({ required: true }),
+            name: option.string({ required: true }),
+          },
+          stringArray: option.array({ required: true, item: option.string() }),
+          numberArray: option.array({ required: true, item: option.number() }),
+          objectArray: option.array({
             required: true,
             item: {
               value: option.number({ required: true }),
               name: option.string({ required: true }),
             },
-          }),
-          stringArray: option.array({ required: true, item: option.string() }),
-          numberArray: option.array({ required: true, item: option.number() }),
-          objectArray: option.array({
-            required: true,
-            item: option.object({
-              item: {
-                value: option.number({ required: true }),
-                name: option.string({ required: true }),
-              },
-            }),
           }),
         },
         {
@@ -73,13 +71,10 @@ describe("Settings", () => {
             {
               string: option.string({ required: true }),
               number: option.number({ required: true }),
-              object: option.object({
-                required: true,
-                item: {
-                  value: option.number({ required: true }),
-                  name: option.string({ required: true }),
-                },
-              }),
+              object: {
+                value: option.number({ required: true }),
+                name: option.string({ required: true }),
+              },
               stringArray: option.array({
                 required: true,
                 item: option.string(),
@@ -90,12 +85,10 @@ describe("Settings", () => {
               }),
               objectArray: option.array({
                 required: true,
-                item: option.object({
-                  item: {
-                    value: option.number({ required: true }),
-                    name: option.string({ required: true }),
-                  },
-                }),
+                item: {
+                  value: option.number({ required: true }),
+                  name: option.string({ required: true }),
+                },
               }),
             },
             {
@@ -120,13 +113,10 @@ describe("Settings", () => {
             {
               string: option.string({ required: true }),
               number: option.number({ required: true }),
-              object: option.object({
-                required: true,
-                item: {
-                  value: option.number({ required: true }),
-                  name: option.string({ required: true }),
-                },
-              }),
+              object: {
+                value: option.number({ required: true }),
+                name: option.string({ required: true }),
+              },
               stringArray: option.array({
                 required: true,
                 item: option.string(),
@@ -137,12 +127,10 @@ describe("Settings", () => {
               }),
               objectArray: option.array({
                 required: true,
-                item: option.object({
-                  item: {
-                    value: option.number({ required: true }),
-                    name: option.string({ required: true }),
-                  },
-                }),
+                item: {
+                  value: option.number({ required: true }),
+                  name: option.string({ required: true }),
+                },
               }),
             },
             {
