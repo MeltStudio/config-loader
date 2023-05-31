@@ -1,10 +1,25 @@
+version: 1.0.0
+website:
+  title: My Website
+  description: A simple and elegant website
+  port: 3000
+  isProduction: false
+
 database:
-  host: https://cosa.com
-  port: 5432asdasdasd
-test:
-  arrayoption: [aaa, bbb]
-  objarray:
-    - cosa: asd
-      test: 23
-    - cosa: asdasda
-      test: 233asdasdas
+  host: localhost
+  port: 5432
+  credentials:
+    username: admin
+    password: secret
+
+socialMedia: [https://twitter.com/example, https://instagram.com/example]
+
+features:
+  - name: Store
+    enabled: true
+  - name: Admin
+    enabled: false
+
+apiKeys:
+  googleMaps: ${GOOGLE_MAPS_API_KEY}
+  sendGrid: ${SENDGRID_API_KEY}

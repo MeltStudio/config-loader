@@ -5,23 +5,38 @@ import Settings, { option } from "@/src";
 const run = (): void => {
   const settings = new Settings(
     {
+      version: option.string({ required: true, cli: true }),
+      website: {
+        title: option.string({ required: true }),
+        url: option.string({
+          required: false,
+          defaultValue: "www.mywebsite.dev",
+        }),
+        description: option.string({ required: true }),
+        isProduction: option.bool({ required: true }),
+      },
       database: {
-        host: option.string({ required: true, cli: true }),
+        host: option.string({ required: true }),
         port: option.number({ required: true }),
+        credentials: {
+          username: option.string(),
+          password: option.string({
+            env: "DB_PASSWORD",
+            cli: true,
+          }),
+        },
       },
-      test: {
-        arrayoption: option.array({
-          required: true,
-          item: option.string(),
-        }),
-        objarray: option.array({
-          required: true,
-          item: {
-            cosa: option.string(),
-            test: option.number(),
-          },
-        }),
-      },
+      socialMedia: option.array({
+        required: true,
+        item: option.string({ required: true }),
+      }),
+      features: option.array({
+        required: true,
+        item: {
+          name: option.string(),
+          enabled: option.bool(),
+        },
+      }),
     },
     {
       env: false,
