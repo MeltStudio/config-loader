@@ -203,15 +203,10 @@ describe("option", () => {
     });
   });
   describe("if the option kind is an array", () => {
-    /**
-     * TODO: validate and fix this test, it returns a required: false property
-     * for the string option but expects required: true
-     */
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip("return the array value as arrayOption", () => {
+    it("return the array value as arrayOption", () => {
       const option = new ArrayOption({
         required: true,
-        item: optionFn.string(),
+        item: optionFn.string({ required: true }),
       });
       const value = option.getValue(FILE, ENV, {}, ["test", "array"]);
       expect(value).toEqual(
