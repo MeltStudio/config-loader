@@ -4,21 +4,19 @@ import * as fs from "fs";
 
 import ConfigNode from "./nodes/configNode";
 import ConfigNodeArray from "./nodes/configNodeArray";
-import type {
-  ArrayOption,
-  Node,
-  ObjectOption,
-  OptionTypes,
+import type { ArrayOption, Node, OptionTypes, Value } from "./option";
+import {
+  ArrayValueContainer,
+  OptionBase,
+  OptionErrors,
   PrimitiveOption,
-  Value,
 } from "./option";
-import { ArrayValueContainer, OptionBase, OptionErrors } from "./option";
 import type {
   ArrayValue,
   ConfigFileData,
   NodeTree,
-  OptionKind,
   PartialyBuiltSettings,
+  Path,
   ProcessEnv,
   SettingsSources,
 } from "./types";
@@ -136,8 +134,8 @@ class Settings<T> {
 
   private traverseOptions(
     node: Node | OptionTypes,
-    path: string[],
-    callback: (nodearg: OptionTypes, patharg: string[]) => void
+    path: Path,
+    callback: (nodearg: OptionTypes, patharg: Path) => void
   ): void {
     if (node instanceof OptionBase) {
       callback(node, path);
@@ -158,8 +156,8 @@ class Settings<T> {
       defaultValue: Partial<T>;
       objectFromArray?: { value: ConfigFileData; file: string };
     },
-    node: PrimitiveOption | ArrayOption | ObjectOption,
-    path: string[]
+    node: OptionTypes,
+    path: Path
   ): void {
     const { sourceFile, envData, argsData, defaultValue, objectFromArray } =
       configData;
@@ -179,18 +177,21 @@ class Settings<T> {
   }
 
   private getValidatedArray(
-    item: OptionKind,
+    item: Node | OptionTypes,
     values: ArrayValue,
     file: string
   ): Array<PartialyBuiltSettings> | ConfigNodeArray {
-    if (typeof item === "string") {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return values.map((v) => v);
+    if (item instanceof PrimitiveOption) {
+      if (item.params.kind === "string") {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return values.map((v) => v);
+      }
+      if (item.params.kind === "number") {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        return values.map((v) => parseInt(v, 10));
+      }
     }
-    if (typeof item === "number") {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      return values.map((v) => parseInt(v, 10));
-    }
+
     const arrayValues = values.map((v) =>
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       this.processArrayWithSchema(item, v, file)
@@ -200,7 +201,7 @@ class Settings<T> {
   }
 
   private processArrayWithSchema(
-    item: OptionTypes,
+    item: Node | OptionTypes,
     v: PartialyBuiltSettings,
     file: string
   ): PartialyBuiltSettings {
@@ -221,7 +222,7 @@ class Settings<T> {
 
   private setOption(
     options: PartialyBuiltSettings,
-    path: string[],
+    path: Path,
     node: ConfigNode
   ): void {
     if (path.length > 1) {
@@ -259,7 +260,7 @@ class Settings<T> {
     }
   }
 
-  private addArg(node: OptionTypes, path: string[] = []): void {
+  private addArg(node: OptionTypes, path: Path = []): void {
     if (node.params.cli) {
       const ident = path.join(".");
       this.program.option(`--${ident} <value>`, node.params.help);

@@ -1,5 +1,5 @@
-import type { DefaultValue, Node } from "./option";
-import { ArrayOption, ObjectOption, PrimitiveOption } from "./option";
+import type { DefaultValue, Node, OptionTypes } from "./option";
+import { ArrayOption, PrimitiveOption } from "./option";
 import Settings from "./settings";
 
 export default Settings;
@@ -9,20 +9,17 @@ interface OptionPropsArgs {
   env?: string | null;
   cli?: boolean;
   defaultValue?: DefaultValue;
-  // properties?: {
-  //   [key: string]: Option;
-  // };
   help?: string;
 }
 interface ArrayOptionPropsArgs {
   required?: boolean;
-  item: PrimitiveOption | ArrayOption | ObjectOption;
+  item: Node | OptionTypes;
   defaultValue?: DefaultValue;
 }
-interface ObjectOptionPropsArgs {
-  required?: boolean;
-  item: Node;
-}
+// interface ObjectOptionPropsArgs {
+//   required?: boolean;
+//   item: Node;
+// }
 
 const DEFAULTS = {
   required: false,
@@ -59,16 +56,16 @@ const array = (opts: ArrayOptionPropsArgs): ArrayOption => {
     ...opts,
   });
 };
-const object = (opts: ObjectOptionPropsArgs): ObjectOption => {
-  return new ObjectOption({
-    ...DEFAULTS,
-    ...opts,
-  });
-};
+// const object = (opts: ObjectOptionPropsArgs): ObjectOption => {
+//   return new ObjectOption({
+//     ...DEFAULTS,
+//     ...opts,
+//   });
+// };
 export const option = {
   string,
   number,
   bool,
-  object,
+  // object,
   array,
 };

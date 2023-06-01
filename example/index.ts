@@ -32,12 +32,10 @@ const run = (): void => {
       }),
       features: option.array({
         required: true,
-        item: option.object({
-          item: {
-            cosa: option.string(),
-            test: option.bool(),
-          },
-        }),
+        item: {
+          name: option.string(),
+          enabled: option.bool(),
+        },
       }),
     },
     {
