@@ -1,3 +1,4 @@
+import { OptionErrors } from "@/option";
 import Settings, { option } from "@/src";
 
 interface TestObject {
@@ -14,12 +15,33 @@ interface TestSettingsFile {
   objectArray: TestObject[];
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
+let _proccessEnv: NodeJS.ProcessEnv;
+beforeAll(() => {
+  jest.spyOn(process, "exit").mockImplementation((code?: number) => {
+    throw new Error(code?.toString());
+  });
+  _proccessEnv = process.env;
+});
+
+beforeEach(() => {
+  process.env = { ..._proccessEnv };
+  OptionErrors.clearAll();
+});
+
+afterEach(() => {
+  process.env = _proccessEnv;
+  OptionErrors.clearAll();
+});
+
+afterAll(() => {
+  process.env = _proccessEnv;
+  jest.restoreAllMocks();
+});
+
 describe("Settings", () => {
   describe("if everything is ok", () => {
     it("should return the data", () => {
-      jest.spyOn(process, "exit").mockImplementation((code?: number) => {
-        throw new Error(code?.toString());
-      });
       const settings = new Settings<TestSettingsFile>(
         {
           string: option.string({ required: true }),
@@ -60,6 +82,24 @@ describe("Settings", () => {
         string: "testString",
         stringArray: ["test"],
       });
+    });
+  });
+
+  describe("if the environment variable is set", () => {
+    it("should return the correct env values", () => {
+      // * mock env variables
+      process.env = { SITE_ID: "test" };
+      const settings = new Settings(
+        {
+          SITE_ID: option.string({ required: true, env: "SITE_ID" }),
+        },
+        {
+          env: true,
+          args: false,
+          files: "tests/__mocks__/emptyFile.yaml",
+        }
+      );
+      expect(settings.get()).toStrictEqual({ SITE_ID: "test" });
     });
   });
 

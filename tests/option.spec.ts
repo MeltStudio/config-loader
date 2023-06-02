@@ -12,9 +12,27 @@ const FILE = "./tests/__mocks__/fileMock.yaml";
 
 const ENV = {};
 
+beforeAll(() => {
+  jest.spyOn(process, "exit").mockImplementation((code?: number) => {
+    throw new Error(code?.toString());
+  });
+});
+
+beforeEach(() => {
+  OptionErrors.clearAll();
+});
+
+afterEach(() => {
+  OptionErrors.clearAll();
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
 describe("option", () => {
   // eslint-disable-next-line jest/no-disabled-tests
-  it.skip("should return the option", () => {
+  it("should return the option", () => {
     const option = new PrimitiveOption({
       kind: "string",
       required: false,
@@ -33,29 +51,9 @@ describe("option", () => {
     });
   });
 
-  describe("when the option has env", () => {
-    it.skip("should return the env value", () => {
-      const option = new PrimitiveOption({
-        kind: "string",
-        required: false,
-        env: "SITE_ID",
-        cli: true,
-        help: "",
-      });
-      console.log(process.cwd());
-      expect(option.getValue(FILE, ENV, {}, ["site", "id"])).toEqual({
-        arg_name: null,
-        file: null,
-        path: "site.id",
-        source_type: "env",
-        value: "107",
-        variable_name: "SITE_ID",
-      });
-    });
-  });
   describe("when the option has not cli and env", () => {
     describe("if the option is not instance of ArrayOption", () => {
-      it.skip("should return the normal value", () => {
+      it("should return the normal value", () => {
         const option = new PrimitiveOption({
           kind: "string",
           required: false,
@@ -74,7 +72,7 @@ describe("option", () => {
       });
     });
     describe("if the option is instance of ArrayOption", () => {
-      it.skip("should return the array value", () => {
+      it("should return the array value", () => {
         const option = new ArrayOption({
           required: false,
           item: optionFn.string(),
@@ -230,7 +228,7 @@ describe("option", () => {
       );
     });
     describe("if the item is null", () => {
-      it.skip("should save an error", () => {
+      it("should save an error", () => {
         const option = new ArrayOption({
           required: false,
           item: optionFn.string(),
