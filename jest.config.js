@@ -20,4 +20,13 @@ module.exports = {
     "^@/src$": "<rootDir>/src",
     "^@/types$": "<rootDir>/src/types",
   },
+  reporters: [
+    "default",
+    [
+      "jest-html-reporters",
+      {
+        publicPath: "./coverage/jest-html-reporters",
+      },
+    ],
+  ],
 };
