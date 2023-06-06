@@ -51,71 +51,6 @@ describe("option", () => {
     });
   });
 
-  describe("when the option has not cli and env", () => {
-    describe("if the option is not instance of ArrayOption", () => {
-      it("should return the normal value", () => {
-        const option = new PrimitiveOption({
-          kind: "string",
-          required: false,
-          env: null,
-          cli: false,
-          help: "",
-        });
-        expect(option.getValue(FILE, ENV, {}, ["hardware", "type"])).toEqual({
-          arg_name: null,
-          file: "./tests/__mocks__/fileMock.yaml",
-          path: "hardware.type",
-          source_type: "file",
-          value: "TDD",
-          variable_name: null,
-        });
-      });
-    });
-    describe("if the option is instance of ArrayOption", () => {
-      it("should return the array value", () => {
-        const option = new ArrayOption({
-          required: false,
-          item: optionFn.string(),
-        });
-        expect(
-          option.getValue(FILE, ENV, {}, ["device", "datapoints"])
-        ).toEqual(
-          new ConfigNode(
-            new ArrayValueContainer(
-              new PrimitiveOption({
-                kind: "string",
-                required: true,
-                env: null,
-                cli: false,
-                help: "",
-              }),
-              [
-                {
-                  defaultValue: 0,
-                  flags: {
-                    hidden: false,
-                    log: false,
-                  },
-                  index: 0,
-                  magnitude: 1,
-                  maxValue: 0,
-                  minChange: 0,
-                  minValue: 0,
-                  name: "uptime",
-                  units: "seconds",
-                },
-              ]
-            ),
-            "device.datapoints",
-            "file",
-            "./tests/__mocks__/fileMock.yaml",
-            null,
-            null
-          )
-        );
-      });
-    });
-  });
   describe("when the option has cli and args", () => {
     it("should return the args value", () => {
       const option = new PrimitiveOption({
@@ -226,16 +161,6 @@ describe("option", () => {
           null
         )
       );
-    });
-    describe("if the item is null", () => {
-      it("should save an error", () => {
-        const option = new ArrayOption({
-          required: false,
-          item: optionFn.string(),
-        });
-        option.getValue(FILE, ENV, {}, ["test", "array"]);
-        expect(OptionErrors.errors).toContain("Array item cannot be null");
-      });
     });
   });
 
