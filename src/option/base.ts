@@ -78,7 +78,14 @@ export default class OptionBase {
       ) as ConfigFileData;
       const val = this.findInObject(data || {}, path);
       if (val instanceof ArrayValueContainer) {
-        return new ConfigNode(val, ident, "file", sourceFile, null, null);
+        return new ConfigNode(
+          this.checkType(val, path, sourceFile),
+          ident,
+          "file",
+          sourceFile,
+          null,
+          null
+        );
       }
       // the following line checks if the value is different to null or undefined
       if (val != null) {
@@ -101,7 +108,14 @@ export default class OptionBase {
         ) as ConfigFileData;
         const val = this.findInObject(data || {}, path);
         if (val instanceof ArrayValueContainer) {
-          return new ConfigNode(val, ident, "file", file, null, null);
+          return new ConfigNode(
+            this.checkType(val, path, file),
+            ident,
+            "file",
+            file,
+            null,
+            null
+          );
         }
 
         // the following line checks if the value is different to null or undefined
@@ -122,7 +136,7 @@ export default class OptionBase {
       const val = this.findInObject(objectFromArray.value, path);
       if (val instanceof ArrayValueContainer) {
         return new ConfigNode(
-          val,
+          this.checkType(val, path, objectFromArray.file),
           ident,
           "file",
           objectFromArray.file,
@@ -146,7 +160,14 @@ export default class OptionBase {
     if (defaultValues) {
       const val = this.findInObject(defaultValues as ConfigFileData, path);
       if (val instanceof ArrayValueContainer) {
-        return new ConfigNode(val, ident, "default", null, null, null);
+        return new ConfigNode(
+          this.checkType(val, path, "default"),
+          ident,
+          "default",
+          null,
+          null,
+          null
+        );
       }
       if (val != null) {
         return new ConfigNode(
@@ -165,7 +186,7 @@ export default class OptionBase {
       if (typeof this.params.defaultValue === "function") {
         return new ConfigNode(
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          this.params.defaultValue(),
+          this.checkType(this.params.defaultValue(), path, "default"),
           ident,
           "default",
           null,
@@ -174,7 +195,7 @@ export default class OptionBase {
         );
       }
       return new ConfigNode(
-        this.params.defaultValue,
+        this.checkType(this.params.defaultValue, path, "default"),
         ident,
         "default",
         null,
@@ -191,7 +212,30 @@ export default class OptionBase {
     return null;
   }
 
-  protected checkType(val: Value, path: Path, sourceOfVal: string): Value {
+  // eslint-disable-next-line class-methods-use-this
+  protected checkNumberType(
+    val: Value,
+    pathStr: string,
+    sourceOfVal: string
+  ): Value | null {
+    if (typeof val === "string") {
+      const parseVal = parseInt(val, 10);
+      if (Number.isNaN(parseVal)) {
+        OptionErrors.errors.push(
+          `Cannot convert value '${val}' for '${pathStr}' to number in ${sourceOfVal}.`
+        );
+        return null;
+      }
+      OptionErrors.warnings.push(
+        `The option ${pathStr} is stated as a number but is provided as a string`
+      );
+      return parseVal;
+    }
+    OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
+    return null;
+  }
+
+  public checkType(val: Value, path: Path, sourceOfVal: string): Value | null {
     const ident = path.join(".");
 
     if (typeof val === this.params.kind) {
@@ -223,25 +267,13 @@ export default class OptionBase {
       );
     }
     if (this.params.kind === "number") {
-      if (typeof val === "string") {
-        const parseVal = parseInt(val, 10);
-        if (Number.isNaN(parseVal)) {
-          OptionErrors.errors.push(
-            `Cannot convert value '${val}' for '${ident}' to number in ${sourceOfVal}.`
-          );
-          return OptionErrors.errors;
-        }
-        OptionErrors.warnings.push(
-          `The option ${ident} is stated as a number but is provided as a string`
-        );
-        return parseVal;
-      }
-    } else if (this.params.kind === "any") {
+      return this.checkNumberType(val, ident, sourceOfVal);
+    }
+    if (this.params.kind === "any") {
       return val;
     }
-    return OptionErrors.errors.push(
-      `Invalid state. Invalid kind in ${sourceOfVal}`
-    );
+    OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
+    return null;
   }
 
   protected findInObject(
