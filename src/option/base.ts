@@ -4,12 +4,14 @@ import yaml from "js-yaml";
 
 import ConfigNode from "@/nodes/configNode";
 import type { ArrayValue, ConfigFileData, OptionKind, Path } from "@/types";
+import { InvalidValue } from "@/types";
+import { valueIsInvalid } from "@/utils";
 
 import ArrayValueContainer from "./arrayOption";
 // import ArrayOption from "./arrayOption";
 import OptionErrors from "./errors";
 
-export type Value = boolean | string | number | object;
+export type Value = boolean | string | number | object | InvalidValue;
 export type DefaultValue = Value | (() => string) | (() => number);
 
 type RecursiveNode<T> = { [key: string]: OptionBase | T };
@@ -88,7 +90,7 @@ export default class OptionBase {
         );
       }
       // the following line checks if the value is different to null or undefined
-      if (val != null) {
+      if (!valueIsInvalid(val)) {
         return new ConfigNode(
           this.checkType(val, path, sourceFile),
           ident,
@@ -119,7 +121,7 @@ export default class OptionBase {
         }
 
         // the following line checks if the value is different to null or undefined
-        if (val != null) {
+        if (!valueIsInvalid(val)) {
           return new ConfigNode(
             this.checkType(val, path, file),
             ident,
@@ -145,7 +147,7 @@ export default class OptionBase {
         );
       }
       // the following line checks if the value is different to null or undefined
-      if (val != null) {
+      if (!valueIsInvalid(val)) {
         return new ConfigNode(
           this.checkType(val, path, objectFromArray.file),
           ident,
@@ -169,7 +171,7 @@ export default class OptionBase {
           null
         );
       }
-      if (val != null) {
+      if (!valueIsInvalid(val)) {
         return new ConfigNode(
           this.checkType(val, path, "default"),
           ident,
@@ -224,7 +226,7 @@ export default class OptionBase {
         OptionErrors.errors.push(
           `Cannot convert value '${val}' for '${pathStr}' to number in ${sourceOfVal}.`
         );
-        return null;
+        return new InvalidValue();
       }
       OptionErrors.warnings.push(
         `The option ${pathStr} is stated as a number but is provided as a string`
@@ -232,11 +234,16 @@ export default class OptionBase {
       return parseVal;
     }
     OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
-    return null;
+    return new InvalidValue();
   }
 
   public checkType(val: Value, path: Path, sourceOfVal: string): Value | null {
     const ident = path.join(".");
+
+    if (valueIsInvalid(val)) {
+      OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
+      return val;
+    }
 
     if (typeof val === this.params.kind) {
       return val;
@@ -249,9 +256,10 @@ export default class OptionBase {
         );
         return val.toString();
       }
-      return OptionErrors.errors.push(
+      OptionErrors.errors.push(
         `Cannot convert value '${val.toString()}' for '${ident}' to string in ${sourceOfVal}.`
       );
+      return new InvalidValue();
     }
     if (this.params.kind === "boolean") {
       if (typeof val !== "boolean" && typeof val !== "object") {
@@ -262,9 +270,10 @@ export default class OptionBase {
           return false;
         }
       }
-      return OptionErrors.errors.push(
+      OptionErrors.errors.push(
         `Cannot convert value '${val.toString()}' for '${ident}' to boolean in ${sourceOfVal}.`
       );
+      return new InvalidValue();
     }
     if (this.params.kind === "number") {
       return this.checkNumberType(val, ident, sourceOfVal);
@@ -273,39 +282,36 @@ export default class OptionBase {
       return val;
     }
     OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
-    return null;
+    return new InvalidValue();
   }
 
-  protected findInObject(
-    obj: ConfigFileData,
-    path: Path
-  ): Value | ArrayValue | null {
+  protected findInObject(obj: ConfigFileData, path: Path): Value | ArrayValue {
     if (path.length > 1) {
       const [child, ...rest] = path;
       const val = obj[child];
 
       if (typeof val === "string") {
         OptionErrors.errors.push(`Cant get path from string value '${val}'`);
-        return null;
+        return new InvalidValue();
       }
       if (typeof val === "number") {
         OptionErrors.errors.push(`Cant get path from number value '${val}'`);
-        return null;
+        return new InvalidValue();
       }
       if (typeof val === "boolean") {
         OptionErrors.errors.push(
           `Cant get path from boolean value '${val.toString()}'`
         );
-        return null;
+        return new InvalidValue();
       }
       if (Array.isArray(val)) {
         OptionErrors.errors.push(
           `Cant get path from array value '${val.toString()}'`
         );
-        return null;
+        return new InvalidValue();
       }
       if (val == null) {
-        return null;
+        return new InvalidValue();
       }
       return this.findInObject(val, rest);
     }
@@ -327,17 +333,17 @@ export default class OptionBase {
       OptionErrors.errors.push(
         `Invalid path '${path.join(".")}': ${typeof val}`
       );
-      return null;
+      return new InvalidValue();
     }
     OptionErrors.errors.push(`Invalid path '${path.join()}'`);
-    return null;
+    return new InvalidValue();
   }
 
   // eslint-disable-next-line class-methods-use-this
   buildArrayOption(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _val: string[] | ConfigFileData[]
-  ): ArrayValueContainer | null {
-    return null;
+  ): ArrayValueContainer | InvalidValue {
+    return new InvalidValue();
   }
 }

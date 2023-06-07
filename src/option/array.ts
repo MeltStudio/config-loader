@@ -1,4 +1,5 @@
 import type { ConfigFileData, Path } from "@/types";
+import { InvalidValue } from "@/types";
 
 import type { OptionTypes } from ".";
 import ArrayValueContainer from "./arrayOption";
@@ -27,10 +28,10 @@ export default class ArrayOption extends OptionBase {
 
   public override buildArrayOption(
     val: string[] | ConfigFileData[]
-  ): ArrayValueContainer | null {
+  ): ArrayValueContainer | InvalidValue {
     if (this.item === null) {
       OptionErrors.errors.push(`Array item cannot be null`);
-      return null;
+      return new InvalidValue();
     }
     return new ArrayValueContainer(this.item, val);
   }
@@ -40,7 +41,7 @@ export default class ArrayOption extends OptionBase {
     val: Value,
     path: Path,
     sourceOfVal: string
-  ): Value | null {
+  ): Value {
     if (val instanceof ArrayValueContainer) {
       val.val.forEach((v, i) => {
         if (this.item instanceof OptionBase) {
@@ -51,6 +52,6 @@ export default class ArrayOption extends OptionBase {
       return val;
     }
     OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
-    return null;
+    return new InvalidValue();
   }
 }
