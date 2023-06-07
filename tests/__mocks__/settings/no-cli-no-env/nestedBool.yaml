@@ -1,0 +1,11 @@
+database:
+  bool1: true
+  bool2: false
+  bool3: 1
+  bool4: 0
+  bool5: '1'
+  bool6: '0'
+  bool7: "1"
+  bool8: "0"
+  bool9: !!str 1
+  bool10: !!str 0

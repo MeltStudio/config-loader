@@ -1,0 +1,4 @@
+database:
+  bool1: 2
+  bool2: texto
+  bool3: -14

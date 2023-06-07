@@ -271,6 +271,97 @@ describe("Settings", () => {
       });
     });
 
+    describe("when searching for a bool nested inside an object", () => {
+      it("should return the bool if it exists and is valid", () => {
+        const settings = new Settings(
+          {
+            database: {
+              bool1: option.bool({ required: true }),
+              bool2: option.bool({ required: true }),
+              bool3: option.bool({ required: true }),
+              bool4: option.bool({ required: true }),
+              bool5: option.bool({ required: true }),
+              bool6: option.bool({ required: true }),
+              bool7: option.bool({ required: true }),
+              bool8: option.bool({ required: true }),
+              bool9: option.bool({ required: true }),
+              bool10: option.bool({ required: true }),
+            },
+          },
+          {
+            env: false,
+            args: false,
+            files: "tests/__mocks__/settings/no-cli-no-env/nestedBool.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            bool1: true,
+            bool2: false,
+            bool3: true,
+            bool4: false,
+            bool5: true,
+            bool6: false,
+            bool7: true,
+            bool8: false,
+            bool9: true,
+            bool10: false,
+          },
+        });
+      });
+
+      it("should throw an error if it doesn't exist", () => {
+        expect(
+          () =>
+            new Settings(
+              {
+                database: {
+                  bool1: option.bool({ required: true }),
+                },
+              },
+              {
+                env: false,
+                args: false,
+                files:
+                  "tests/__mocks__/settings/no-cli-no-env/nestedBoolNotFound.yaml",
+              }
+            )
+        ).toThrow();
+        expect(OptionErrors.errors).toContain(
+          "Required option 'database.bool1' not provided."
+        );
+      });
+
+      it("should throw an error if the array items cannot be parsed to boolean", () => {
+        expect(
+          () =>
+            new Settings(
+              {
+                database: {
+                  bool1: option.bool({ required: true }),
+                  bool2: option.bool({ required: true }),
+                  bool3: option.bool({ required: true }),
+                },
+              },
+              {
+                env: false,
+                args: false,
+                files:
+                  "tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml",
+              }
+            )
+        ).toThrow();
+        const errorMessages = [
+          "Cannot convert value '2' for 'database.bool1' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml.",
+          "Cannot convert value 'texto' for 'database.bool2' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml.",
+          "Cannot convert value '-14' for 'database.bool3' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml.",
+        ];
+        errorMessages.forEach((message) => {
+          expect(OptionErrors.errors).toContain(message);
+        });
+      });
+    });
+
     describe("when searching for a bool array nested inside an object", () => {
       it("should return the array if it exists and is valid", () => {
         const settings = new Settings(
