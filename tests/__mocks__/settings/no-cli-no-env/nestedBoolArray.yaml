@@ -1,0 +1,12 @@
+database:
+  bools:
+  - true
+  - false
+  - 1
+  - 0
+  - '1'
+  - '0'
+  - "1"
+  - "0"
+  - !!str 1
+  - !!str 0

@@ -12,9 +12,27 @@ const FILE = "./tests/__mocks__/fileMock.yaml";
 
 const ENV = {};
 
+beforeAll(() => {
+  jest.spyOn(process, "exit").mockImplementation((code?: number) => {
+    throw new Error(code?.toString());
+  });
+});
+
+beforeEach(() => {
+  OptionErrors.clearAll();
+});
+
+afterEach(() => {
+  OptionErrors.clearAll();
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
 describe("option", () => {
   // eslint-disable-next-line jest/no-disabled-tests
-  it.skip("should return the option", () => {
+  it("should return the option", () => {
     const option = new PrimitiveOption({
       kind: "string",
       required: false,
@@ -33,91 +51,6 @@ describe("option", () => {
     });
   });
 
-  describe("when the option has env", () => {
-    it.skip("should return the env value", () => {
-      const option = new PrimitiveOption({
-        kind: "string",
-        required: false,
-        env: "SITE_ID",
-        cli: true,
-        help: "",
-      });
-      console.log(process.cwd());
-      expect(option.getValue(FILE, ENV, {}, ["site", "id"])).toEqual({
-        arg_name: null,
-        file: null,
-        path: "site.id",
-        source_type: "env",
-        value: "107",
-        variable_name: "SITE_ID",
-      });
-    });
-  });
-  describe("when the option has not cli and env", () => {
-    describe("if the option is not instance of ArrayOption", () => {
-      it.skip("should return the normal value", () => {
-        const option = new PrimitiveOption({
-          kind: "string",
-          required: false,
-          env: null,
-          cli: false,
-          help: "",
-        });
-        expect(option.getValue(FILE, ENV, {}, ["hardware", "type"])).toEqual({
-          arg_name: null,
-          file: "./tests/__mocks__/fileMock.yaml",
-          path: "hardware.type",
-          source_type: "file",
-          value: "TDD",
-          variable_name: null,
-        });
-      });
-    });
-    describe("if the option is instance of ArrayOption", () => {
-      it.skip("should return the array value", () => {
-        const option = new ArrayOption({
-          required: false,
-          item: optionFn.string(),
-        });
-        expect(
-          option.getValue(FILE, ENV, {}, ["device", "datapoints"])
-        ).toEqual(
-          new ConfigNode(
-            new ArrayValueContainer(
-              new PrimitiveOption({
-                kind: "string",
-                required: true,
-                env: null,
-                cli: false,
-                help: "",
-              }),
-              [
-                {
-                  defaultValue: 0,
-                  flags: {
-                    hidden: false,
-                    log: false,
-                  },
-                  index: 0,
-                  magnitude: 1,
-                  maxValue: 0,
-                  minChange: 0,
-                  minValue: 0,
-                  name: "uptime",
-                  units: "seconds",
-                },
-              ]
-            ),
-            "device.datapoints",
-            "file",
-            "./tests/__mocks__/fileMock.yaml",
-            null,
-            null
-          )
-        );
-      });
-    });
-  });
   describe("when the option has cli and args", () => {
     it("should return the args value", () => {
       const option = new PrimitiveOption({
@@ -228,16 +161,6 @@ describe("option", () => {
           null
         )
       );
-    });
-    describe("if the item is null", () => {
-      it.skip("should save an error", () => {
-        const option = new ArrayOption({
-          required: false,
-          item: optionFn.string(),
-        });
-        option.getValue(FILE, ENV, {}, ["test", "array"]);
-        expect(OptionErrors.errors).toContain("Array item cannot be null");
-      });
     });
   });
 
@@ -446,7 +369,11 @@ describe("option", () => {
         cli: false,
         help: "",
       });
-      option.getValue(FILE, ENV, {}, ["test", "any"]);
+      expect(() => option.getValue(FILE, ENV, {}, ["test", "any"])).toThrow(
+        new Error(
+          "Invalid kind. Must be 'string', 'number', 'boolean', 'array' or 'any'"
+        )
+      );
       expect(OptionErrors.errors).toContain(
         "Invalid state. Invalid kind in ./tests/__mocks__/fileMock.yaml"
       );

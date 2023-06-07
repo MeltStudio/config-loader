@@ -32,3 +32,5 @@ export interface ConfigFileData extends ConfigFileStructure<ConfigFileData> {}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ArrayValue = Array<any>;
+
+export class InvalidValue {}

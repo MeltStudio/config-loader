@@ -190,6 +190,19 @@ class Settings<T> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return values.map((v) => parseInt(v, 10));
       }
+      if (item.params.kind === "boolean") {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
+        return values.map((v) => {
+          if (v === "true") return true;
+          if (v === "1") return true;
+          if (v === 1) return true;
+          if (v === "false") return false;
+          if (v === "0") return false;
+          if (v === 0) return false;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          return v;
+        });
+      }
     }
 
     const arrayValues = values.map((v) =>
@@ -267,14 +280,16 @@ class Settings<T> {
     }
   }
 
-  private getValuesFromTree(node: NodeTree | ConfigNode): Value | ArrayOption {
+  private getValuesFromTree(
+    node: NodeTree | ConfigNode
+  ): Value | ArrayOption | null {
     if (node instanceof ConfigNode) {
       if (node.value instanceof ConfigNodeArray) {
         return node.value.arrayValues.map(this.getValuesFromTree.bind(this));
       }
       return node.value;
     }
-    return Object.entries(node).reduce<{ [key: string]: Value }>(
+    return Object.entries(node).reduce<{ [key: string]: Value | null }>(
       (acc, item) => {
         const [key, value] = item;
         acc[key] = this.getValuesFromTree(value);

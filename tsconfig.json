@@ -13,7 +13,8 @@
       "@/option": ["src/option"],
       "@/option/*": ["src/option/*"],
       "@/src": ["src"],
-      "@/types": ["src/types"]
+      "@/types": ["src/types"],
+      "@/utils": ["src/utils"]
     }
   },
   "include": ["src", "tests", "example"]
