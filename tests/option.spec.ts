@@ -369,7 +369,11 @@ describe("option", () => {
         cli: false,
         help: "",
       });
-      option.getValue(FILE, ENV, {}, ["test", "any"]);
+      expect(() => option.getValue(FILE, ENV, {}, ["test", "any"])).toThrow(
+        new Error(
+          "Invalid kind. Must be 'string', 'number', 'boolean', 'array' or 'any'"
+        )
+      );
       expect(OptionErrors.errors).toContain(
         "Invalid state. Invalid kind in ./tests/__mocks__/fileMock.yaml"
       );

@@ -282,7 +282,9 @@ export default class OptionBase {
       return val;
     }
     OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
-    return new InvalidValue();
+    throw new Error(
+      "Invalid kind. Must be 'string', 'number', 'boolean', 'array' or 'any'"
+    );
   }
 
   protected findInObject(obj: ConfigFileData, path: Path): Value | ArrayValue {
