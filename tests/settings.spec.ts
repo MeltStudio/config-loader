@@ -1,5 +1,6 @@
 import { OptionErrors } from "@/option";
 import Settings, { option } from "@/src";
+import { InvalidValue } from "@/types";
 
 interface TestObject {
   value: number;
@@ -709,6 +710,71 @@ describe("Settings", () => {
       ).toThrow("1");
       // TODO: fix this test, it is throwing 7 error messages instead of 6 (one for each root element)
       // expect(spyConsoleError).toHaveBeenCalledTimes(6);
+    });
+  });
+  describe("Implementation details", () => {
+    describe("when using getValidatedArray", () => {
+      // eslint-disable-next-line jest/no-disabled-tests
+      it.skip("should return a number validated array", () => {
+        const settings = new Settings(
+          {
+            database: {
+              sizeOptions: option.array({
+                required: true,
+                item: option.number({ required: true }),
+              }),
+            },
+          },
+          {
+            env: false,
+            args: false,
+            files:
+              "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml",
+          }
+        );
+        expect(
+          // @ts-expect-error - To call a private method in a test
+          settings.getValidatedArray(
+            option.number({ required: true }),
+            ["invalid1"],
+            "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml"
+          )[0]
+        ).toBeInstanceOf(InvalidValue);
+        expect(OptionErrors.errors).toContain(
+          "Cannot convert value 'invalid1' for 'database.sizeOptions.0' to number in tests/__mocks__/settings/implementation-details/getValidatedArray.yaml."
+        );
+      });
+
+      // eslint-disable-next-line jest/no-disabled-tests
+      it.skip("should return a boolean validated array", () => {
+        const settings = new Settings(
+          {
+            database: {
+              bools: option.array({
+                required: true,
+                item: option.bool({ required: true }),
+              }),
+            },
+          },
+          {
+            env: false,
+            args: false,
+            files:
+              "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml",
+          }
+        );
+        expect(
+          // @ts-expect-error - To call a private method in a test
+          settings.getValidatedArray(
+            option.bool({ required: true }),
+            ["invalid2"],
+            "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml"
+          )[0]
+        ).toBeInstanceOf(InvalidValue);
+        expect(OptionErrors.errors).toContain(
+          "Cannot convert value 'invalid2' for 'database.bools.0' to boolean in tests/__mocks__/settings/implementation-details/getValidatedArray.yaml."
+        );
+      });
     });
   });
 });
