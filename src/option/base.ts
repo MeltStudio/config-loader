@@ -219,7 +219,7 @@ export default class OptionBase {
     val: Value,
     pathStr: string,
     sourceOfVal: string
-  ): Value | null {
+  ): Value {
     if (typeof val === "string") {
       const parseVal = parseInt(val, 10);
       if (Number.isNaN(parseVal)) {
@@ -237,7 +237,7 @@ export default class OptionBase {
     return new InvalidValue();
   }
 
-  public checkType(val: Value, path: Path, sourceOfVal: string): Value | null {
+  public checkType(val: Value, path: Path, sourceOfVal: string): Value {
     const ident = path.join(".");
 
     if (valueIsInvalid(val)) {

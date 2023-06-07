@@ -4,7 +4,7 @@ import type { ArrayValue } from "@/types";
 type SourceTypes = "file" | "env" | "args" | "default";
 
 class ConfigNode {
-  value: Value | ArrayValueContainer | null;
+  value: Value | ArrayValueContainer;
 
   path: string;
 
@@ -17,7 +17,7 @@ class ConfigNode {
   arg_name: string | null;
 
   constructor(
-    value: Value | ArrayValue | null,
+    value: Value | ArrayValue,
     path: string,
     source_type: SourceTypes,
     file: string | null,
