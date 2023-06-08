@@ -1,11 +1,26 @@
 {
   "name": "@meltstudio/config-loader",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.1",
+  "description": "Melt Studio's tool for loading configurations into a Node.js application.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "repository": "https://github.com/MeltStudio/config-loader",
+  "author": "MeltStudio <dev@meltstudio.co>",
+  "license": "MIT",
+  "keywords": [
+    "configuration",
+    "config",
+    "yaml",
+    "loader",
+    "config-node"
+  ],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
-    "build": "rimraf ./dist && tsc --project tsconfig.build.json && yarn replace-tspaths",
+    "build": "rimraf ./dist && tsup src/index.ts --dts --config tsconfig.build.json && yarn replace-tspaths",
     "lint": "eslint --ext .ts --max-warnings=0 --fix .",
     "type-check": "tsc --noEmit",
     "test": "jest --verbose",
@@ -41,6 +56,7 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
+    "tsup": "^6.7.0",
     "typescript": "^5.0.4"
   }
 }
