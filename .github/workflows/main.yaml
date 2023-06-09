@@ -15,5 +15,9 @@ jobs:
     needs: [code-checks]
     uses: ./.github/workflows/_sem_release.yaml
     secrets:
-      semantic-release-token: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+      semantic-release-token: ${{ secrets.GITHUB_TOKEN }}
       npm-token: ${{ secrets.NPM_TOKEN }}
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
