@@ -1,19 +1,18 @@
 # Config Loader
 ## Project Description
 
-The Config Loader package is a powerful and user-friendly tool that simplifies the process of retrieving and collecting variables from one or multiple files for your project. It provides an efficient way to extract specific information from files and access those variables in your code. The resulting data is in JSON format, making it easy to work with in various applications.
+The Config Loader package is a powerful and user-friendly tool that simplifies the process of retrieving and collecting variables from one or multiple files for your project. It provides an efficient way to extract specific information from files and access those variables in your code. The result is a JSON object, making it easy to work with in various applications.
 
 ## Features
 - Retrieve and collect variables from one or multiple files in your project.
-- Yaml file support, support for JSON,YAML, XML files coming soon.
-- Allows you to specify filters to select only the desired variables.
-- Compatible with TypeScript environments, making it suitable for Node.js or browser-based projects.
+- YAML file support (support for other file types coming soon.)
+- Data can also be retrieved from CLI or environment variables .
+- Compatible with TypeScript/JavaScript environments, making it suitable for Node.js projects.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
 
@@ -43,6 +42,7 @@ import Settings, { option } from "@/src";
 const run = (): void => {
   const settings = new Settings(
     {
+      version: option.string({ required: true, cli: true }),
       website: {
         title: option.string({ required: true }),
         url: option.string({
@@ -66,12 +66,10 @@ const run = (): void => {
       }),
       features: option.array({
         required: true,
-        item: option.object({
-          item: {
-            cosa: option.string(),
-            test: option.bool(),
-          },
-        }),
+        item: {
+          name: option.string(),
+          enabled: option.bool(),
+        },
       }),
     },
     {
@@ -86,9 +84,40 @@ const run = (): void => {
 
 run();
 ```
+
+With a config.yaml file with the following contents:
+```yaml
+version: 1.0.0
+website:
+  title: My Website
+  description: A simple and elegant website
+  port: 3000
+  isProduction: false
+
+database:
+  host: localhost
+  port: 5432
+  credentials:
+    username: admin
+    password: secret
+
+socialMedia: [https://twitter.com/example, https://instagram.com/example]
+
+features:
+  - name: Store
+    enabled: true
+  - name: Admin
+    enabled: false
+
+apiKeys:
+  googleMaps: ${GOOGLE_MAPS_API_KEY}
+  sendGrid: ${SENDGRID_API_KEY}
+```
+
 The expected output would be:
 ```json
 {
+  "version": "1.0.0",
   "website": {
     "title": "My Website",
     "url": "www.mywebsite.dev",
@@ -126,7 +155,7 @@ You can try executing our example in your project by following these steps with 
 yarn example:run
 ```
 ### Usage with CLI
-When using our package with cli, is important have the cli attribute must be set to true.
+When using our package with cli, it is important to have the cli attribute set to true.
 This will allow values to be sent when running the package from the command line.
 ```typescript
 import path from "path";
@@ -157,14 +186,19 @@ now for use it you need to send the property name on the command line with the n
 ```bash
 yarn example:run --version 2.0.0
 ```
+Having the following config.yaml file:
+```yaml
+version: 1.0.0
+```
 The expected output would be:
 ```json
 {
   "version": "2.0.0",
 }
 ```
+You can see that the CLI variable overrode the yaml file variable
 ### Usage with Environment Variables
-The Config Loader package allows you to harness the power of environment variables in your system configuration. You can specify variable names in your configuration and get them. to use this feature you need to set **env: true**
+The Config Loader package allows you to use environment variables in your system configuration. You can specify variable names in your configuration and get them. To use this feature you need to set **env: true**
 ```typescript
 import path from "path";
 
@@ -197,10 +231,19 @@ const run = (): void => {
 
 run();
 ```
+With the following config.yaml file:
+```yaml
+database:
+  host: localhost
+  port: 5432
+  credentials:
+    username: admin
+    password: IGNORED_PASSWORD
+```
 ```bash
 yarn example:run
 ```
-The expected output would be:
+If you have the environment variable `DB_PASSWORD=ENV_USED_PASSWORD`, the expected output would be:
 ```json
 {
   "database": {
@@ -208,29 +251,11 @@ The expected output would be:
     "port": 5432,
     "credentials": {
       "username": "admin",
-      "password": "MY_PASSWORD"
+      "password": "ENV_USED_PASSWORD"
     }
   }
 }
 ```
-
-## Contributing
-Explain how others can contribute to the project. Include guidelines for submitting issues, pull requests, or feature requests.
-
-1. Fork the repository
-2. Create a new branch
-3. Implement your changes
-4. Open a pull request
-
+You can notice that the environment variable overrode the value in the config.yaml file
 ## License
 This package is licensed under the Apache License 2.0. For more information, please see the [LICENSE](./LICENSE) file.
-
-## Acknowledgements
-
-🙌 We would like to express our gratitude to the following individuals and resources that have contributed to this project:
-
-- [Manuael Zapata](https://github.com/author1) 🚀: Co-creator and lead developer of the project.
-- [Pablo Piedrahita](https://github.com/author2) 👏: Co-creator and lead developer of the project.
-
-
-Thank you all for your valuable contributions and support! 🎉
