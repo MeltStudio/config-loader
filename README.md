@@ -259,15 +259,3 @@ If you have the environment variable `DB_PASSWORD=ENV_USED_PASSWORD`, the expect
 You can notice that the environment variable overrode the value in the config.yaml file
 ## License
 This package is licensed under the Apache License 2.0. For more information, please see the [LICENSE](./LICENSE) file.
-
-## Acknowledgements
-
-🙌 We would like to express our gratitude to the following individuals and resources that have contributed to this project:
-
-- [Manuel Zapata](https://github.com/manuelzs): Co-creator and lead developer of the project.
-- [Pablo Piedrahita](https://github.com/piedrahitapablo): Co-creator and lead developer of the project.
-- [Federico Reina](https://github.com/federico-reina-melt): Developer of the project.
-- [Luis Juarez](https://github.com/LuisJuarez32): Developer of the project.
-
-
-Thank you all for your valuable contributions and support! 🎉
