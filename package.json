@@ -25,7 +25,8 @@
     "type-check": "tsc --noEmit",
     "test": "jest --verbose",
     "replace-tspaths": "./scripts/replace-tspaths/index.mjs",
-    "example:run": "ts-node -r tsconfig-paths/register ./example/index.ts"
+    "example:run": "ts-node -r tsconfig-paths/register ./example/index.ts",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.5",
