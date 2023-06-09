@@ -628,6 +628,112 @@ describe("Settings", () => {
         );
       });
     });
+
+    describe("when searching for an any value nested inside an object", () => {
+      it("should return an object if it exists and the file contains an object", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: option.anything({ required: true }),
+            },
+          },
+          {
+            env: false,
+            args: false,
+            files:
+              "tests/__mocks__/settings/no-cli-no-env/nestedAnyObject.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: { name: "PostgreSQL", minRam: 8, openSource: true },
+          },
+        });
+      });
+
+      it("should return a string if it exists and the file contains a string", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: option.anything({ required: true }),
+            },
+          },
+          {
+            env: false,
+            args: false,
+            files:
+              "tests/__mocks__/settings/no-cli-no-env/nestedAnyString.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: "PostgreSQL",
+          },
+        });
+      });
+      it("should return a number if it exists and the file contains a number", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: option.anything({ required: true }),
+            },
+          },
+          {
+            env: false,
+            args: false,
+            files:
+              "tests/__mocks__/settings/no-cli-no-env/nestedAnyNumber.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: 32,
+          },
+        });
+      });
+      it("should return a boolean if it exists and the file contains a boolean", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: option.anything({ required: true }),
+            },
+          },
+          {
+            env: false,
+            args: false,
+            files: "tests/__mocks__/settings/no-cli-no-env/nestedAnyBool.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: true,
+          },
+        });
+      });
+
+      // eslint-disable-next-line jest/no-disabled-tests
+      it("should throw an error if it doesn't exist", () => {
+        expect(
+          () =>
+            new Settings(
+              {
+                database: {
+                  engine: option.anything({ required: true }),
+                },
+              },
+              {
+                env: false,
+                args: false,
+                files:
+                  "tests/__mocks__/settings/no-cli-no-env/nestedAnyNotFound.yaml",
+              }
+            )
+        ).toThrow();
+        expect(OptionErrors.errors).toContain(
+          "Required option 'database.engine' not provided."
+        );
+      });
+    });
   });
 
   describe("if the file was not found", () => {

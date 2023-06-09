@@ -1,5 +1,6 @@
 import type { DefaultValue, Node, OptionTypes } from "./option";
 import { ArrayOption, PrimitiveOption } from "./option";
+import AnyOption from "./option/any";
 import Settings from "./settings";
 
 export default Settings;
@@ -56,6 +57,13 @@ const array = (opts: ArrayOptionPropsArgs): ArrayOption => {
     ...opts,
   });
 };
+const anything = (opts: OptionPropsArgs): AnyOption => {
+  return new AnyOption({
+    kind: "any",
+    ...DEFAULTS,
+    ...opts,
+  });
+};
 // const object = (opts: ObjectOptionPropsArgs): ObjectOption => {
 //   return new ObjectOption({
 //     ...DEFAULTS,
@@ -68,4 +76,5 @@ export const option = {
   bool,
   // object,
   array,
+  anything,
 };
