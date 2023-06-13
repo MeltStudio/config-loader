@@ -20,11 +20,10 @@
     "README.md"
   ],
   "scripts": {
-    "build": "rimraf ./dist && tsup src/index.ts --dts --config tsconfig.build.json && yarn replace-tspaths",
+    "build": "rimraf ./dist && tsup src/index.ts --dts --config tsconfig.build.json",
     "lint": "eslint --ext .ts --max-warnings=0 --fix .",
     "type-check": "tsc --noEmit",
     "test": "jest --verbose",
-    "replace-tspaths": "./scripts/replace-tspaths/index.mjs",
     "example:run": "ts-node -r tsconfig-paths/register ./example/index.ts",
     "prepare": "husky install"
   },
