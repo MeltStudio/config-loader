@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/MeltStudio/config-loader/compare/v1.0.0...v1.0.1) (2023-06-13)
+
+
+### Bug Fixes
+
+* added build steps to workflow to allow for dist folder distribution ([e77b4c3](https://github.com/MeltStudio/config-loader/commit/e77b4c379311cb047d79df41e2ddc2901938821a))
+* Adjusted the license mentioned in the package.json ([bb2c1e7](https://github.com/MeltStudio/config-loader/commit/bb2c1e72133c46ef71bfc349795bb0088930dfdb))
+* removed replace-tspaths folder and script, because tsup makes it unnecessary and because it broke the pipeline ([2a22b1e](https://github.com/MeltStudio/config-loader/commit/2a22b1ec6eaa7a837b5475f2a2b45c53e46fd5e0))
+
 # 1.0.0 (2023-06-09)
 
 
