@@ -2,6 +2,8 @@ import { OptionErrors } from "@/option";
 import Settings, { option } from "@/src";
 import { InvalidValue } from "@/types";
 
+import { addCliArg } from "./utils/cli";
+
 interface TestObject {
   value: number;
   name: string;
@@ -18,15 +20,19 @@ interface TestSettingsFile {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
 let _proccessEnv: NodeJS.ProcessEnv;
+// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
+let _processArgs: string[];
 beforeAll(() => {
   jest.spyOn(process, "exit").mockImplementation((code?: number) => {
     throw new Error(code?.toString());
   });
   _proccessEnv = process.env;
+  _processArgs = process.argv;
 });
 
 beforeEach(() => {
   process.env = { ..._proccessEnv };
+  process.argv = [..._processArgs];
   OptionErrors.clearAll();
 });
 
@@ -36,6 +42,7 @@ afterEach(() => {
 
 afterAll(() => {
   process.env = _proccessEnv;
+  process.argv = _processArgs;
   jest.restoreAllMocks();
 });
 
@@ -100,6 +107,160 @@ describe("Settings", () => {
         }
       );
       expect(settings.get()).toStrictEqual({ SITE_ID: "test" });
+    });
+  });
+
+  describe("if the arguments are set via CLI", () => {
+    describe("if no arguments are passed", () => {
+      it("should return the object as it appears in the yaml file", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({ required: true, cli: true }),
+                minRam: option.number({ required: true, cli: true }),
+                openSource: option.bool({ required: true, cli: true }),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/cli/data.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: { name: "PostgreSQL", minRam: 8, openSource: true },
+          },
+        });
+      });
+    });
+    describe("if an argument is passed", () => {
+      it("should overwrite the value if it is a string", () => {
+        addCliArg("database.engine.name", "MySQL");
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({ required: true, cli: true }),
+                minRam: option.number({ required: true, cli: true }),
+                openSource: option.bool({ required: true, cli: true }),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/cli/data.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: { name: "MySQL", minRam: 8, openSource: true },
+          },
+        });
+      });
+      it("should overwrite the value if it is a number", () => {
+        addCliArg("database.engine.minRam", "32");
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({ required: true, cli: true }),
+                minRam: option.number({ required: true, cli: true }),
+                openSource: option.bool({ required: true, cli: true }),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/cli/data.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: { name: "PostgreSQL", minRam: 32, openSource: true },
+          },
+        });
+      });
+      it("should overwrite the value if it is a bool", () => {
+        addCliArg("database.engine.openSource", "false");
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({ required: true, cli: true }),
+                minRam: option.number({ required: true, cli: true }),
+                openSource: option.bool({ required: true, cli: true }),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/cli/data.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: { name: "PostgreSQL", minRam: 8, openSource: false },
+          },
+        });
+      });
+    });
+    describe("if an unknown argument is passed", () => {
+      it("should throw an error", () => {
+        addCliArg("unknown.veryUnknown.name", "MySQL");
+        expect(
+          () =>
+            new Settings(
+              {
+                database: {
+                  engine: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                },
+              },
+              {
+                env: false,
+                args: true,
+                files: "tests/__mocks__/settings/cli/data.yaml",
+              }
+            )
+        ).toThrow();
+      });
+    });
+    describe("if multiple arguments are passed", () => {
+      it("should overwrite all the passed values", () => {
+        addCliArg("database.engine.name", "MySQL");
+        addCliArg("database.engine.minRam", "32");
+        addCliArg("database.engine.openSource", "false");
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({ required: true, cli: true }),
+                minRam: option.number({ required: true, cli: true }),
+                openSource: option.bool({ required: true, cli: true }),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/cli/data.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: { name: "MySQL", minRam: 32, openSource: false },
+          },
+        });
+      });
     });
   });
 
