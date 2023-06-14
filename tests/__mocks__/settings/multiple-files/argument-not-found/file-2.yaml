@@ -1,0 +1,5 @@
+features:
+  - name: Store
+    enabled: true
+  - name: Admin
+    enabled: false

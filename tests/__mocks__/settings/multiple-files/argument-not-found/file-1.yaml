@@ -1,0 +1,5 @@
+database:
+  engine:
+    timeout: 4000
+    version: '1.2.3'
+    closedSource: true
