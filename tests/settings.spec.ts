@@ -555,6 +555,12 @@ describe("Settings", () => {
               false,
               true,
               false,
+              true,
+              false,
+              true,
+              false,
+              true,
+              false,
             ],
           },
         });

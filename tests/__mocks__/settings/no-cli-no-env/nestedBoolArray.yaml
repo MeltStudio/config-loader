@@ -2,6 +2,12 @@ database:
   bools:
   - true
   - false
+  - 'true'
+  - 'false'
+  - "true"
+  - "false"
+  - !!str true
+  - !!str false
   - 1
   - 0
   - '1'
