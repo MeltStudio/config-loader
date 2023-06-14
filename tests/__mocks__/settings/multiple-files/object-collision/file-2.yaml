@@ -1,0 +1,5 @@
+database:
+  name: "PostgreSQL"
+  minRam: 8
+  openSource: true
+  version: "1.2.3"

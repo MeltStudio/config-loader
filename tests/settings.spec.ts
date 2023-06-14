@@ -797,6 +797,344 @@ describe("Settings", () => {
     });
   });
 
+  describe("if multiple files are loaded", () => {
+    describe("if data has no collisions", () => {
+      it("should set all values", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({ required: true, cli: true }),
+                minRam: option.number({ required: true, cli: true }),
+                openSource: option.bool({ required: true, cli: true }),
+              },
+            },
+            features: option.array({
+              required: true,
+              item: {
+                name: option.string({ required: true }),
+                enabled: option.bool({ required: true }),
+              },
+            }),
+            version: option.string({ required: true }),
+            upgraded: option.bool({ required: true }),
+            cpus: option.number({ required: true }),
+          },
+          {
+            env: false,
+            args: false,
+            files: [
+              "tests/__mocks__/settings/multiple-files/no-collision/file-1.yaml",
+              "tests/__mocks__/settings/multiple-files/no-collision/file-2.yaml",
+              "tests/__mocks__/settings/multiple-files/no-collision/file-3.yaml",
+            ],
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: { name: "PostgreSQL", minRam: 8, openSource: true },
+          },
+          features: [
+            { name: "Store", enabled: true },
+            { name: "Admin", enabled: false },
+          ],
+          version: "0.1.2",
+          upgraded: true,
+          cpus: 4,
+        });
+      });
+    });
+
+    describe("if data has collisions on primitive values", () => {
+      it("should prioritize first loaded file", () => {
+        const settings = new Settings(
+          {
+            file1Data: {
+              unique: option.bool({ required: true }),
+            },
+            file2Data: {
+              unique: option.bool({ required: true }),
+            },
+            version: option.string({ required: true }),
+            upgraded: option.bool({ required: true }),
+            cpus: option.number({ required: true }),
+            numberData: option.number({ required: true }),
+          },
+          {
+            env: false,
+            args: false,
+            files: [
+              "tests/__mocks__/settings/multiple-files/primitive-collision/file-1.yaml",
+              "tests/__mocks__/settings/multiple-files/primitive-collision/file-2.yaml",
+            ],
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          file1Data: { unique: true },
+          file2Data: { unique: true },
+          version: "0.1.2",
+          upgraded: true,
+          cpus: 16,
+          numberData: 256,
+        });
+      });
+    });
+
+    describe("if data has collisions on objects", () => {
+      it("should prioritize first loaded file", () => {
+        const settings = new Settings(
+          {
+            database: {
+              name: option.string({ required: true }),
+              minRam: option.number({ required: true }),
+              openSource: option.bool({ required: true }),
+              maxRam: option.number({ required: true }),
+              version: option.string({ required: true }),
+            },
+          },
+          {
+            env: false,
+            args: false,
+            files: [
+              "tests/__mocks__/settings/multiple-files/object-collision/file-1.yaml",
+              "tests/__mocks__/settings/multiple-files/object-collision/file-2.yaml",
+            ],
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            name: "MySQL",
+            minRam: 2,
+            openSource: false,
+            maxRam: 32,
+            version: "1.2.3",
+          },
+        });
+      });
+    });
+
+    describe("if data has collisions on arrays", () => {
+      it("should prioritize first loaded file", () => {
+        const settings = new Settings(
+          {
+            ramSizes: option.array({ item: option.number(), required: true }),
+          },
+          {
+            env: false,
+            args: false,
+            files: [
+              "tests/__mocks__/settings/multiple-files/array-collision/file-1.yaml",
+              "tests/__mocks__/settings/multiple-files/array-collision/file-2.yaml",
+            ],
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          ramSizes: [2, 4, 8, 16],
+        });
+      });
+    });
+
+    describe("if a required setting doesn't appear on any of the files", () => {
+      it("should throw an error", () => {
+        expect(
+          () =>
+            new Settings(
+              {
+                database: {
+                  engine: {
+                    name: option.string({ required: true }),
+                    minRam: option.number({ required: true }),
+                    openSource: option.bool({ required: true }),
+                    // control test, this value should appear on the files
+                    launchDate: option.string({ required: true }),
+                  },
+                },
+              },
+              {
+                env: false,
+                args: false,
+                files: [
+                  "tests/__mocks__/settings/multiple-files/argument-not-found/file-1.yaml",
+                  "tests/__mocks__/settings/multiple-files/argument-not-found/file-2.yaml",
+                  "tests/__mocks__/settings/multiple-files/argument-not-found/file-3.yaml",
+                ],
+              }
+            )
+        ).toThrow();
+        const errors = [
+          "Required option 'database.engine.name' not provided.",
+          "Required option 'database.engine.minRam' not provided.",
+          "Required option 'database.engine.openSource' not provided.",
+        ];
+        errors.forEach((error) => {
+          expect(OptionErrors.errors).toContain(error);
+        });
+      });
+    });
+  });
+
+  describe("if a directory is loaded", () => {
+    describe("if data has no collisions", () => {
+      it("should set all values", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({ required: true, cli: true }),
+                minRam: option.number({ required: true, cli: true }),
+                openSource: option.bool({ required: true, cli: true }),
+              },
+            },
+            features: option.array({
+              required: true,
+              item: {
+                name: option.string({ required: true }),
+                enabled: option.bool({ required: true }),
+              },
+            }),
+            version: option.string({ required: true }),
+            upgraded: option.bool({ required: true }),
+            cpus: option.number({ required: true }),
+          },
+          {
+            env: false,
+            args: false,
+            dir: "tests/__mocks__/settings/multiple-files/no-collision",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: { name: "PostgreSQL", minRam: 8, openSource: true },
+          },
+          features: [
+            { name: "Store", enabled: true },
+            { name: "Admin", enabled: false },
+          ],
+          version: "0.1.2",
+          upgraded: true,
+          cpus: 4,
+        });
+      });
+    });
+
+    // eslint-disable-next-line jest/no-disabled-tests
+    describe.skip("if data has collisions on primitive values", () => {
+      it("should prioritize first loaded file", () => {
+        const settings = new Settings(
+          {
+            file1Data: {
+              unique: option.bool({ required: true }),
+            },
+            file2Data: {
+              unique: option.bool({ required: true }),
+            },
+            version: option.string({ required: true }),
+            upgraded: option.bool({ required: true }),
+            cpus: option.number({ required: true }),
+            numberData: option.number({ required: true }),
+          },
+          {
+            env: false,
+            args: false,
+            dir: "tests/__mocks__/settings/multiple-files/primitive-collision",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          file1Data: { unique: true },
+          file2Data: { unique: true },
+          version: "0.1.2",
+          upgraded: true,
+          cpus: 16,
+          numberData: 256,
+        });
+      });
+    });
+
+    // eslint-disable-next-line jest/no-disabled-tests
+    describe.skip("if data has collisions on objects", () => {
+      it("should prioritize first loaded file", () => {
+        const settings = new Settings(
+          {
+            database: {
+              name: option.string({ required: true }),
+              minRam: option.number({ required: true }),
+              openSource: option.bool({ required: true }),
+              maxRam: option.number({ required: true }),
+              version: option.string({ required: true }),
+            },
+          },
+          {
+            env: false,
+            args: false,
+            dir: "tests/__mocks__/settings/multiple-files/object-collision",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            name: "MySQL",
+            minRam: 2,
+            openSource: false,
+            maxRam: 32,
+            version: "1.2.3",
+          },
+        });
+      });
+    });
+
+    // eslint-disable-next-line jest/no-disabled-tests
+    describe.skip("if data has collisions on arrays", () => {
+      it("should prioritize first loaded file", () => {
+        const settings = new Settings(
+          {
+            ramSizes: option.array({ item: option.number(), required: true }),
+          },
+          {
+            env: false,
+            args: false,
+            dir: "tests/__mocks__/settings/multiple-files/array-collision",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          ramSizes: [2, 4, 8, 16],
+        });
+      });
+    });
+
+    describe("if a required setting doesn't appear on any of the files", () => {
+      it("should throw an error", () => {
+        expect(
+          () =>
+            new Settings(
+              {
+                database: {
+                  engine: {
+                    name: option.string({ required: true }),
+                    minRam: option.number({ required: true }),
+                    openSource: option.bool({ required: true }),
+                    // control test, this value should appear on the files
+                    launchDate: option.string({ required: true }),
+                  },
+                },
+              },
+              {
+                env: false,
+                args: false,
+                dir: "tests/__mocks__/settings/multiple-files/argument-not-found",
+              }
+            )
+        ).toThrow();
+        const errors = [
+          "Required option 'database.engine.name' not provided.",
+          "Required option 'database.engine.minRam' not provided.",
+          "Required option 'database.engine.openSource' not provided.",
+        ];
+        errors.forEach((error) => {
+          expect(OptionErrors.errors).toContain(error);
+        });
+      });
+    });
+  });
+
   describe("if the file was not found", () => {
     it("should throw an error", () => {
       expect(
