@@ -1,0 +1,6 @@
+database:
+  engine:
+    name: "PostgreSQL"
+    minRam: 8
+    openSource: true
+    launchDate: "1986-01-01"
