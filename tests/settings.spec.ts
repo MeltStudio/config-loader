@@ -797,6 +797,229 @@ describe("Settings", () => {
     });
   });
 
+  describe("if setting a default value for the option", () => {
+    describe("if no value is provided in the file", () => {
+      it("should return the default value", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({
+                  cli: false,
+                  defaultValue: "MySQL",
+                }),
+                minRam: option.number({
+                  cli: false,
+                  defaultValue: 64,
+                }),
+                openSource: option.bool({
+                  cli: false,
+                  defaultValue: false,
+                }),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/defaults/empty.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: {
+              name: "MySQL",
+              minRam: 64,
+              openSource: false,
+            },
+          },
+        });
+      });
+    });
+
+    describe("if no value is provided in the file and the default is an array", () => {
+      it("should return the default array", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                versions: option.array({
+                  required: true,
+                  item: option.string({ required: true }),
+                  defaultValue: ["1.0.0", "1.1.0", "1.2.0"],
+                }),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/defaults/empty.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: {
+              versions: ["1.0.0", "1.1.0", "1.2.0"],
+            },
+          },
+        });
+      });
+    });
+
+    describe("if some value is provided in the file", () => {
+      it("should override the default value", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({
+                  cli: false,
+                  defaultValue: "MySQL",
+                }),
+                minRam: option.number({
+                  cli: false,
+                  defaultValue: 64,
+                }),
+                openSource: option.bool({
+                  cli: false,
+                  defaultValue: false,
+                }),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/defaults/data.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: {
+              name: "PostgreSQL",
+              minRam: 8,
+              openSource: true,
+            },
+          },
+        });
+      });
+    });
+
+    describe("if some value is provided in the file (for arrays)", () => {
+      it("should override the default value", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                versions: option.array({
+                  required: true,
+                  item: option.string({ required: true }),
+                  defaultValue: ["1.0.0", "1.1.0", "1.2.0"],
+                }),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/defaults/data-array.yaml",
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: {
+              versions: ["1.4.0", "2.4.1", "5.7.6"],
+            },
+          },
+        });
+      });
+    });
+  });
+
+  describe("if setting a default value for the settings", () => {
+    describe("if no value is provided in the file", () => {
+      it("should return the default value", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({}),
+                minRam: option.number({}),
+                openSource: option.bool({}),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/defaults/empty.yaml",
+            defaults: {
+              database: {
+                engine: {
+                  name: "MySQL",
+                  minRam: 64,
+                  openSource: false,
+                },
+              },
+            },
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: {
+              name: "MySQL",
+              minRam: 64,
+              openSource: false,
+            },
+          },
+        });
+      });
+    });
+
+    describe("if some value is provided in the file", () => {
+      it("should override the default value", () => {
+        const settings = new Settings(
+          {
+            database: {
+              engine: {
+                name: option.string({}),
+                minRam: option.number({}),
+                openSource: option.bool({}),
+                cpus: option.number({}),
+              },
+            },
+          },
+          {
+            env: false,
+            args: true,
+            files: "tests/__mocks__/settings/defaults/data.yaml",
+            defaults: {
+              database: {
+                engine: {
+                  name: "MySQL",
+                  minRam: 64,
+                  openSource: false,
+                  cpus: 4,
+                },
+              },
+            },
+          }
+        );
+        expect(settings.get()).toStrictEqual({
+          database: {
+            engine: {
+              name: "PostgreSQL",
+              minRam: 8,
+              openSource: true,
+              cpus: 4,
+            },
+          },
+        });
+      });
+    });
+  });
+
   describe("if multiple files are loaded", () => {
     describe("if data has no collisions", () => {
       it("should set all values", () => {

@@ -1,0 +1,9 @@
+database:
+  engine:
+    name: "PostgreSQL"
+    minRam: 8
+    openSource: true
+    versions:
+    - '1.4.0'
+    - '2.4.1'
+    - '5.7.6'
