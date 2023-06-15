@@ -1,0 +1,7 @@
+hardware:
+  size:
+    max: 400
+    min: 200
+  brand:
+  - 400
+  - 200

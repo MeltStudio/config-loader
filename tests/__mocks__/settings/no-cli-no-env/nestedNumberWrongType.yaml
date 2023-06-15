@@ -1,0 +1,8 @@
+database:
+  ram1: true
+  ram2: "DDR4"
+  ram3:
+    - "DDR4"
+    - "DDR3"
+  ram4:
+    size: 16
