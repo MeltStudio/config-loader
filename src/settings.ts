@@ -41,7 +41,9 @@ class Settings<T> {
   constructor(schema: Node, sources: SettingsSources<T>) {
     this.schema = schema;
     this.sources = sources;
-    this.program = new Command();
+    this.program = new Command()
+      .allowUnknownOption(true)
+      .allowExcessArguments(true);
     this.load();
   }
 
