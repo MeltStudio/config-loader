@@ -1194,6 +1194,64 @@ describe("Settings", () => {
         });
       });
     });
+
+    describe("if some file doesn't exist", () => {
+      it("should throw an error", () => {
+        expect(
+          () =>
+            new Settings(
+              {
+                database: {
+                  engine: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                },
+              },
+              {
+                env: false,
+                args: false,
+                files: [
+                  "tests/__mocks__/settings/multiple-files/file-not-found/file-1.yaml",
+                  "tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml",
+                ],
+              }
+            )
+        ).toThrow(
+          "Invalid config file 'tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml'"
+        );
+      });
+    });
+
+    describe("if dir argument is also specified", () => {
+      it("should throw an error", () => {
+        expect(
+          () =>
+            new Settings(
+              {
+                database: {
+                  engine: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                },
+              },
+              {
+                env: false,
+                args: false,
+                files: [
+                  "tests/__mocks__/settings/multiple-files/no-collision/file-1.yaml",
+                  "tests/__mocks__/settings/multiple-files/no-collision/file-2.yaml",
+                  "tests/__mocks__/settings/multiple-files/no-collision/file-3.yaml",
+                ],
+                dir: "tests/__mocks__/settings/multiple-files/no-collision",
+              }
+            )
+        ).toThrow("Dir and files are specified, choose one");
+      });
+    });
   });
 
   describe("if a directory is loaded", () => {
@@ -1354,6 +1412,32 @@ describe("Settings", () => {
         errors.forEach((error) => {
           expect(OptionErrors.errors).toContain(error);
         });
+      });
+    });
+
+    describe("if the directory doesn't exist", () => {
+      it("should throw an error", () => {
+        expect(
+          () =>
+            new Settings(
+              {
+                database: {
+                  engine: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                },
+              },
+              {
+                env: false,
+                args: false,
+                dir: "tests/__mocks__/settings/missing-dir",
+              }
+            )
+        ).toThrow(
+          "'tests/__mocks__/settings/missing-dir' not exists or is not a dir"
+        );
       });
     });
   });
