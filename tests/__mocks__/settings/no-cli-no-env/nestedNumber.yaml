@@ -1,0 +1,3 @@
+database:
+  ram: 16
+  cpus: '32'

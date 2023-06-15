@@ -1,3 +1,8 @@
 database:
-  engine:
-    PostgreSQL
+  engine: PostgreSQL
+  cpu: 4
+  openSource: true
+  date:
+  - 1986
+  - 1990
+  - 1995

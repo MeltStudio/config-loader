@@ -1,0 +1,4 @@
+database:
+  sizeOptions:
+  - MySQL
+  - Firebase
