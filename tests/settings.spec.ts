@@ -1450,7 +1450,7 @@ describe("Settings", () => {
     });
 
     // eslint-disable-next-line jest/no-disabled-tests
-    describe.skip("if data has collisions on primitive values", () => {
+    describe("if data has collisions on primitive values", () => {
       it("should prioritize first loaded file", () => {
         const settings = new Settings(
           {
@@ -1483,7 +1483,7 @@ describe("Settings", () => {
     });
 
     // eslint-disable-next-line jest/no-disabled-tests
-    describe.skip("if data has collisions on objects", () => {
+    describe("if data has collisions on objects", () => {
       it("should prioritize first loaded file", () => {
         const settings = new Settings(
           {
@@ -1514,7 +1514,7 @@ describe("Settings", () => {
     });
 
     // eslint-disable-next-line jest/no-disabled-tests
-    describe.skip("if data has collisions on arrays", () => {
+    describe("if data has collisions on arrays", () => {
       it("should prioritize first loaded file", () => {
         const settings = new Settings(
           {
