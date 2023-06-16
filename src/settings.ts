@@ -78,7 +78,7 @@ class Settings<T> {
       if (!(fs.existsSync(dir) && fs.lstatSync(dir).isDirectory())) {
         throw new Error(`'${dir}' not exists or is not a dir`);
       }
-      const filesInDirectory = fs.readdirSync(dir);
+      const filesInDirectory = fs.readdirSync(dir).sort();
 
       if (filesInDirectory.length === 0) {
         throw new Error(`Directory '${dir}' is empty`);
@@ -87,7 +87,7 @@ class Settings<T> {
         if (!Array.isArray(this.sourceFile)) {
           this.sourceFile = [];
         }
-        this.sourceFile.unshift(`${dir}/${file}`);
+        this.sourceFile.push(`${dir}/${file}`);
       });
     }
   }
