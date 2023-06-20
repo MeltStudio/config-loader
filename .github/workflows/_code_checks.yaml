@@ -22,3 +22,10 @@ jobs:
         run: yarn test
       - name: Run prettier
         run: yarn prettier --check
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.3'
+      - name: Setup mkdocs environment
+        run: python -m pip install -r mkdocs-requirements.txt
+      - name: Build mkdocs
+        run: mkdocs build
