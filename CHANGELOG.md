@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/MeltStudio/config-loader/compare/v1.0.1...v1.0.2) (2023-06-20)
+
+
+### Bug Fixes
+
+* allow unknown args in CLI, fixes [#26](https://github.com/MeltStudio/config-loader/issues/26) ([#27](https://github.com/MeltStudio/config-loader/issues/27)) ([5e349d5](https://github.com/MeltStudio/config-loader/commit/5e349d50fc35987c3375f2ab817561faf7479f56))
+
 ## [1.0.1](https://github.com/MeltStudio/config-loader/compare/v1.0.0...v1.0.1) (2023-06-13)
 
 
