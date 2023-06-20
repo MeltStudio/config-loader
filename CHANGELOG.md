@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/MeltStudio/config-loader/compare/v1.0.2...v1.0.3) (2023-06-20)
+
+
+### Bug Fixes
+
+* sort file names when specifying a directory, to ensure consistency among platforms. fixes [#23](https://github.com/MeltStudio/config-loader/issues/23) ([730f723](https://github.com/MeltStudio/config-loader/commit/730f7234efb8a14c019f4214cdffbc06cb64031b))
+
 ## [1.0.2](https://github.com/MeltStudio/config-loader/compare/v1.0.1...v1.0.2) (2023-06-20)
 
 
