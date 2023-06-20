@@ -112,7 +112,7 @@ describe("Settings", () => {
   });
 
   // eslint-disable-next-line jest/no-disabled-tests
-  describe.skip("if the arguments are set via CLI", () => {
+  describe("if the arguments are set via CLI", () => {
     describe("if no arguments are passed", () => {
       it("should return the object as it appears in the yaml file", () => {
         const settings = new Settings(
