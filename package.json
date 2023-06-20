@@ -25,7 +25,8 @@
     "type-check": "tsc --noEmit",
     "test": "jest --verbose",
     "example:run": "ts-node -r tsconfig-paths/register ./example/index.ts",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "install-docs": "python -m pip install -r ./mkdocs-requirements.txt"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.5",
