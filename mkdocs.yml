@@ -1,0 +1,8 @@
+site_name: "@meltstudio/config-loader"
+theme:
+  name: material
+nav:
+markdown_extensions:
+- pymdownx.snippets:
+    check_paths: true
+repo_url: https://github.com/MeltStudio/config-loader

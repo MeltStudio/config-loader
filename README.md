@@ -1,4 +1,6 @@
 # Config Loader
+> ⚠️ **WARNING**: This project is in beta, so some features may change in the future. Use at your own discretion
+
 ## Project Description
 
 The Config Loader package is a powerful and user-friendly tool that simplifies the process of retrieving and collecting variables from one or multiple files for your project. It provides an efficient way to extract specific information from files and access those variables in your code. The result is a JSON object, making it easy to work with in various applications.
