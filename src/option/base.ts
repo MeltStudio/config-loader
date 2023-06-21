@@ -12,7 +12,11 @@ import ArrayValueContainer from "./arrayOption";
 import OptionErrors from "./errors";
 
 export type Value = boolean | string | number | object | InvalidValue;
-export type DefaultValue = Value | (() => string) | (() => number);
+export type DefaultValue =
+  | Value
+  | (() => string)
+  | (() => number)
+  | (() => boolean);
 
 type RecursiveNode<T> = { [key: string]: OptionBase | T };
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -185,10 +189,19 @@ export default class OptionBase {
 
     // If value not found but has default value
     if (this.params.defaultValue !== undefined) {
+      let defaultValue: DefaultValue;
       if (typeof this.params.defaultValue === "function") {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        defaultValue = this.params.defaultValue();
+      } else {
+        defaultValue = this.params.defaultValue;
+      }
+      if (this.params.kind === "array" && Array.isArray(defaultValue)) {
+        defaultValue = this.buildArrayOption(defaultValue);
+      }
+      if (!valueIsInvalid(defaultValue)) {
         return new ConfigNode(
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          this.checkType(this.params.defaultValue(), path, "default"),
+          this.checkType(defaultValue, path, "default"),
           ident,
           "default",
           null,
@@ -196,14 +209,6 @@ export default class OptionBase {
           null
         );
       }
-      return new ConfigNode(
-        this.checkType(this.params.defaultValue, path, "default"),
-        ident,
-        "default",
-        null,
-        null,
-        null
-      );
     }
 
     // If required and no value anywhere
