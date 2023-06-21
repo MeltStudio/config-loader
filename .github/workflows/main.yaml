@@ -28,8 +28,7 @@ jobs:
     needs: [release]
     uses: ./.github/workflows/_mkdocs_publish.yaml
     secrets:
-      semantic-release-token: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
-      npm-token: ${{ secrets.NPM_TOKEN }}
+      mkdocs-token: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
     permissions:
       contents: write
       issues: write

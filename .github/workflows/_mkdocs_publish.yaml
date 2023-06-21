@@ -3,14 +3,13 @@ name: Deploy mkdocs
 on:
   workflow_call:
     secrets:
-      semantic-release-token:
-        description: 'GitHub token for semantic release (can be used here for docs release)'
+      mkdocs-token:
+        description: 'GitHub token for mkdocs'
         required: true
 
 env:
   HUSKY: 0
-  GITHUB_TOKEN: ${{ secrets.semantic-release-token }}
-  NPM_TOKEN: ${{ secrets.npm-token }}
+  GITHUB_TOKEN: ${{ secrets.mkdocs-token }}
 
 jobs:
   release:
@@ -25,6 +24,6 @@ jobs:
       - name: Publish to Github Pages
         uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
         env:
-          GITHUB_TOKEN: ${{ secrets.semantic-release-token }}
+          GITHUB_TOKEN: ${{ secrets.mkdocs-token }}
           CONFIG_FILE: mkdocs.yml
           REQUIREMENTS: mkdocs-requirements.txt
