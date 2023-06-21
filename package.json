@@ -27,6 +27,7 @@
     "example:run": "ts-node -r tsconfig-paths/register ./example/index.ts",
     "prepare": "husky install",
     "docs:install": "python -m venv ./mkdocs-py-env && ./mkdocs-py-env/Scripts/pip install -r ./mkdocs-requirements.txt",
+    "docs:build": "./mkdocs-py-env/Scripts/mkdocs build",
     "docs:serve": "./mkdocs-py-env/Scripts/mkdocs serve"
   },
   "dependencies": {
