@@ -949,71 +949,151 @@ describe("Settings", () => {
 
   describe("if setting a default value for the option", () => {
     describe("if no value is provided in the file", () => {
-      it("should return the default value", () => {
-        const settings = new Settings(
-          {
-            database: {
-              engine: {
-                name: option.string({
-                  cli: false,
-                  defaultValue: "MySQL",
-                }),
-                minRam: option.number({
-                  cli: false,
-                  defaultValue: 64,
-                }),
-                openSource: option.bool({
-                  cli: false,
-                  defaultValue: false,
-                }),
+      describe("when providing default as value", () => {
+        it("should return the default value", () => {
+          const settings = new Settings(
+            {
+              name: option.string({
+                cli: false,
+                defaultValue: "MySQL",
+              }),
+              database: {
+                engine: {
+                  name: option.string({
+                    cli: false,
+                    defaultValue: "MySQL",
+                  }),
+                  minRam: option.number({
+                    cli: false,
+                    defaultValue: 64,
+                  }),
+                  openSource: option.bool({
+                    cli: false,
+                    defaultValue: false,
+                  }),
+                },
               },
             },
-          },
-          {
-            env: false,
-            args: false,
-            files: "tests/__mocks__/settings/defaults/empty.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
-          database: {
-            engine: {
-              name: "MySQL",
-              minRam: 64,
-              openSource: false,
+            {
+              env: false,
+              args: false,
+              files: "tests/__mocks__/settings/defaults/empty.yaml",
+            }
+          );
+          expect(settings.get()).toStrictEqual({
+            name: "MySQL",
+            database: {
+              engine: {
+                name: "MySQL",
+                minRam: 64,
+                openSource: false,
+              },
             },
-          },
+          });
+        });
+      });
+      describe("when providing default as function", () => {
+        it("should return the default value", () => {
+          const settings = new Settings(
+            {
+              name: option.string({
+                cli: false,
+                defaultValue: () => "MySQL",
+              }),
+              database: {
+                engine: {
+                  name: option.string({
+                    cli: false,
+                    defaultValue: () => "MySQL",
+                  }),
+                  minRam: option.number({
+                    cli: false,
+                    defaultValue: () => 64,
+                  }),
+                  openSource: option.bool({
+                    cli: false,
+                    defaultValue: () => false,
+                  }),
+                },
+              },
+            },
+            {
+              env: false,
+              args: false,
+              files: "tests/__mocks__/settings/defaults/empty.yaml",
+            }
+          );
+          expect(settings.get()).toStrictEqual({
+            name: "MySQL",
+            database: {
+              engine: {
+                name: "MySQL",
+                minRam: 64,
+                openSource: false,
+              },
+            },
+          });
         });
       });
     });
 
     describe("if no value is provided in the file and the default is an array", () => {
-      // eslint-disable-next-line jest/no-disabled-tests
-      it.skip("should return the default array", () => {
-        const settings = new Settings(
-          {
-            database: {
-              engine: {
-                versions: option.array({
-                  required: true,
-                  item: option.string({ required: true }),
-                  defaultValue: ["1.0.0", "1.1.0", "1.2.0"],
-                }),
+      describe("when providing default as value", () => {
+        it("should return the default array", () => {
+          const settings = new Settings(
+            {
+              database: {
+                engine: {
+                  versions: option.array({
+                    required: true,
+                    item: option.string({ required: true }),
+                    defaultValue: ["1.0.0", "1.1.0", "1.2.0"],
+                  }),
+                },
               },
             },
-          },
-          {
-            env: false,
-            args: false,
-            files: "tests/__mocks__/settings/defaults/empty.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
-          database: {
-            engine: {
-              versions: ["1.0.0", "1.1.0", "1.2.0"],
+            {
+              env: false,
+              args: false,
+              files: "tests/__mocks__/settings/defaults/empty.yaml",
+            }
+          );
+          expect(settings.get()).toStrictEqual({
+            database: {
+              engine: {
+                versions: ["1.0.0", "1.1.0", "1.2.0"],
+              },
             },
-          },
+          });
+        });
+      });
+      describe("when providing default as function", () => {
+        it("should return the default array", () => {
+          const settings = new Settings(
+            {
+              database: {
+                engine: {
+                  versions: option.array({
+                    required: true,
+                    item: option.string({ required: true }),
+                    defaultValue: () => ["1.0.0", "1.1.0", "1.2.0"],
+                  }),
+                },
+              },
+            },
+            {
+              env: false,
+              args: false,
+              files: "tests/__mocks__/settings/defaults/empty.yaml",
+            }
+          );
+          expect(settings.get()).toStrictEqual({
+            database: {
+              engine: {
+                versions: ["1.0.0", "1.1.0", "1.2.0"],
+              },
+            },
+          });
         });
       });
     });
@@ -1098,6 +1178,7 @@ describe("Settings", () => {
                 name: option.string({}),
                 minRam: option.number({}),
                 openSource: option.bool({}),
+                versions: option.array({ item: option.string() }),
               },
             },
           },
@@ -1111,6 +1192,7 @@ describe("Settings", () => {
                   name: "MySQL",
                   minRam: 64,
                   openSource: false,
+                  versions: ["1.4.0", "2.4.1", "5.7.6"],
                 },
               },
             },
@@ -1122,6 +1204,7 @@ describe("Settings", () => {
               name: "MySQL",
               minRam: 64,
               openSource: false,
+              versions: ["1.4.0", "2.4.1", "5.7.6"],
             },
           },
         });
@@ -1138,13 +1221,14 @@ describe("Settings", () => {
                 minRam: option.number({}),
                 openSource: option.bool({}),
                 cpus: option.number({}),
+                versions: option.array({ item: option.string() }),
               },
             },
           },
           {
             env: false,
             args: false,
-            files: "tests/__mocks__/settings/defaults/data.yaml",
+            files: "tests/__mocks__/settings/defaults/data-array.yaml",
             defaults: {
               database: {
                 engine: {
@@ -1152,6 +1236,7 @@ describe("Settings", () => {
                   minRam: 64,
                   openSource: false,
                   cpus: 4,
+                  versions: ["1.2.3", "3.2.1", "4.4.4"],
                 },
               },
             },
@@ -1164,6 +1249,7 @@ describe("Settings", () => {
               minRam: 8,
               openSource: true,
               cpus: 4,
+              versions: ["1.4.0", "2.4.1", "5.7.6"],
             },
           },
         });
