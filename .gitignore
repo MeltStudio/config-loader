@@ -131,6 +131,7 @@ dist
 
 # pip env
 /mkdocsPyEnv
+/mkdocs-py-env
 
 # docs build location
 /site

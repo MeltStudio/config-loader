@@ -26,7 +26,8 @@
     "test": "jest --verbose",
     "example:run": "ts-node -r tsconfig-paths/register ./example/index.ts",
     "prepare": "husky install",
-    "install-docs": "python -m pip install -r ./mkdocs-requirements.txt"
+    "docs:install": "python -m venv ./mkdocs-py-env && ./mkdocs-py-env/Scripts/pip install -r ./mkdocs-requirements.txt",
+    "docs:serve": "./mkdocs-py-env/Scripts/mkdocs serve"
   },
   "dependencies": {
     "@types/js-yaml": "^4.0.5",
