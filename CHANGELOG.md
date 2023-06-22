@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/MeltStudio/config-loader/compare/v1.0.3...v1.0.4) (2023-06-22)
+
+
+### Bug Fixes
+
+* accept arrays and functions that return arrays as default values ([2d80ebf](https://github.com/MeltStudio/config-loader/commit/2d80ebf7b7d8b6b8b5e7782943ff45e2a3f376b1))
+
 ## [1.0.3](https://github.com/MeltStudio/config-loader/compare/v1.0.2...v1.0.3) (2023-06-20)
 
 
