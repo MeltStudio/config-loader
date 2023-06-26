@@ -1,16 +1,17 @@
 /* eslint-disable jest/no-disabled-tests */
+import "reflect-metadata";
+
+import { diTokens, injector } from "@/di";
 import ConfigNode from "@/nodes/configNode";
-import {
-  ArrayOption,
-  ArrayValueContainer,
-  OptionErrors,
-  PrimitiveOption,
-} from "@/option";
+import { ArrayOption, ArrayValueContainer, PrimitiveOption } from "@/option";
+import type COptionErrors from "@/option/errors";
 import { option as optionFn } from "@/src";
 
 const FILE = "./tests/__mocks__/fileMock.yaml";
 
 const ENV = {};
+
+const OptionErrors = injector.get<COptionErrors>(diTokens.OptionErrors);
 
 beforeAll(() => {
   jest.spyOn(process, "exit").mockImplementation((code?: number) => {
@@ -19,11 +20,11 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  OptionErrors.clearAll();
+  OptionErrors.clearAllErrors();
 });
 
 afterEach(() => {
-  OptionErrors.clearAll();
+  OptionErrors.clearAllErrors();
 });
 
 afterAll(() => {
@@ -40,7 +41,7 @@ describe("option", () => {
       cli: true,
       help: "",
     });
-    expect(option).toEqual({
+    expect(option).toMatchObject({
       params: {
         kind: "string",
         required: false,

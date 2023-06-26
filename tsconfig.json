@@ -4,14 +4,19 @@
   "extends": "@meltstudio/tsconfig/node18.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "module": "commonjs",
     "noEmit": false,
     "noUncheckedIndexedAccess": false,
     "outDir": "./dist",
     "paths": {
+      "@/di": ["src/di"],
+      "@/di/*": ["src/di/*"],
       "@/nodes/*": ["src/nodes/*"],
       "@/option": ["src/option"],
       "@/option/*": ["src/option/*"],
+      "@/settings": ["src/settings"],
       "@/src": ["src"],
       "@/types": ["src/types"],
       "@/utils": ["src/utils"]

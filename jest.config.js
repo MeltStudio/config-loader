@@ -14,9 +14,12 @@ module.exports = {
     },
   },
   moduleNameMapper: {
+    "^@/di$": "<rootDir>/src/di",
+    "^@/di/(.*)": "<rootDir>/src/di/$1",
     "^@/nodes/(.*)": "<rootDir>/src/nodes/$1",
     "^@/option$": "<rootDir>/src/option",
     "^@/option/(.*)": "<rootDir>/src/option/$1",
+    "^@/settings$": "<rootDir>/src/settings",
     "^@/src$": "<rootDir>/src",
     "^@/types$": "<rootDir>/src/types",
     "^@/utils$": "<rootDir>/src/utils",

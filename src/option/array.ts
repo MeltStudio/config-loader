@@ -5,7 +5,6 @@ import type { OptionTypes } from ".";
 import ArrayValueContainer from "./arrayOption";
 import type { DefaultValue, Node, Value } from "./base";
 import OptionBase from "./base";
-import OptionErrors from "./errors";
 
 interface ArrayOptionClassParams {
   required: boolean;
@@ -30,7 +29,7 @@ export default class ArrayOption extends OptionBase {
     val: string[] | ConfigFileData[]
   ): ArrayValueContainer | InvalidValue {
     if (this.item === null) {
-      OptionErrors.errors.push(`Array item cannot be null`);
+      this.optionErrors.registerError(`Array item cannot be null`);
       return new InvalidValue();
     }
     return new ArrayValueContainer(this.item, val);
@@ -51,7 +50,9 @@ export default class ArrayOption extends OptionBase {
       });
       return val;
     }
-    OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
+    this.optionErrors.registerError(
+      `Invalid state. Invalid kind in ${sourceOfVal}`
+    );
     return new InvalidValue();
   }
 }

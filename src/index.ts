@@ -1,3 +1,6 @@
+import "reflect-metadata";
+import "@/di/bindings";
+
 import type { DefaultValue, Node, OptionTypes } from "./option";
 import { ArrayOption, PrimitiveOption } from "./option";
 import Settings from "./settings";

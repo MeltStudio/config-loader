@@ -1,16 +1,20 @@
 /* eslint-disable no-param-reassign */
 import { Command } from "commander";
 import * as fs from "fs";
+import { injectable } from "inversify";
 
+import { lazyInject } from "./di";
+import { diTokens } from "./di/tokens";
 import ConfigNode from "./nodes/configNode";
 import ConfigNodeArray from "./nodes/configNodeArray";
-import type { ArrayOption, Node, OptionTypes, Value } from "./option";
+import type { ArrayOption, OptionTypes, Value } from "./option";
 import {
   ArrayValueContainer,
+  Node,
   OptionBase,
-  OptionErrors,
   PrimitiveOption,
 } from "./option";
+import { IOptionErrors } from "./option/errors";
 import type {
   ArrayValue,
   ConfigFileData,
@@ -18,13 +22,14 @@ import type {
   PartialyBuiltSettings,
   Path,
   ProcessEnv,
-  SettingsSources,
 } from "./types";
+import { SettingsSources } from "./types";
 
+@injectable()
 class Settings<T> {
-  private readonly schema: Node;
+  private schema: Node;
 
-  private readonly sources: SettingsSources<T>;
+  private sources: SettingsSources<T>;
 
   private sourceFile: string | string[] = [];
 
@@ -38,13 +43,20 @@ class Settings<T> {
 
   private program: Command;
 
+  @lazyInject(diTokens.OptionErrors) private optionErrors!: IOptionErrors;
+
   constructor(schema: Node, sources: SettingsSources<T>) {
     this.schema = schema;
     this.sources = sources;
     this.program = new Command()
       .allowUnknownOption(true)
       .allowExcessArguments(true);
-    this.load();
+  }
+
+  static from<T>(schema: Node, sources: SettingsSources<T>): Settings<T> {
+    const settings = new Settings<T>(schema, sources);
+    settings.load();
+    return settings;
   }
 
   private validateFiles(): void {
@@ -94,7 +106,7 @@ class Settings<T> {
     }
   }
 
-  private load(): void {
+  public load(): void {
     this.validateFiles();
     if (this.sources.env) {
       this.envData = process.env;
@@ -118,17 +130,19 @@ class Settings<T> {
       })
     );
 
+    const warnings = this.optionErrors.getWarnings();
     // if then of the execution has warnings
-    if (OptionErrors.warnings.length > 0) {
-      for (let index = 0; index < OptionErrors.warnings.length; index += 1) {
-        console.warn(`[Warning]: ${OptionErrors.warnings[index]}`);
+    if (warnings.length > 0) {
+      for (let index = 0; index < warnings.length; index += 1) {
+        console.warn(`[Warning]: ${warnings[index]}`);
       }
     }
 
+    const errors = this.optionErrors.getErrors();
     // if then of the execution has errors
-    if (OptionErrors.errors.length > 0) {
-      for (let index = 0; index < OptionErrors.errors.length; index += 1) {
-        console.error(`[Error]: ${OptionErrors.errors[index]}`);
+    if (errors.length > 0) {
+      for (let index = 0; index < errors.length; index += 1) {
+        console.error(`[Error]: ${errors[index]}`);
       }
       process.exit(1);
     }
