@@ -3,7 +3,7 @@ import path from "path";
 import Settings, { option } from "@/src";
 
 const run = (): void => {
-  const settings = new Settings(
+  const settings = Settings.from(
     {
       version: option.string({ required: true, cli: true }),
       website: {
