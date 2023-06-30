@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/MeltStudio/config-loader/compare/v1.0.4...v1.1.0) (2023-06-30)
+
+
+### Features
+
+* simplified public api for creating schema and loading settings ([94ecb60](https://github.com/MeltStudio/config-loader/commit/94ecb601b72491bb8085cfc4078828d52a2032dd))
+
 ## [1.0.4](https://github.com/MeltStudio/config-loader/compare/v1.0.3...v1.0.4) (2023-06-22)
 
 
