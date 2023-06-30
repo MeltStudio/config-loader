@@ -22,8 +22,8 @@ type RecursiveNode<T> = { [key: string]: OptionBase | T };
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Node extends RecursiveNode<Node> {}
 
-interface OptionClassParams {
-  kind: OptionKind;
+interface OptionClassParams<T extends OptionKind> {
+  kind: T;
   required: boolean;
   env: string | null;
   cli: boolean;
@@ -34,19 +34,19 @@ interface OptionClassParams {
   // };
 }
 
-export default class OptionBase {
-  public readonly params: OptionClassParams;
+export default class OptionBase<T extends OptionKind = OptionKind> {
+  public readonly params: OptionClassParams<T>;
 
-  constructor(params: OptionClassParams) {
+  constructor(params: OptionClassParams<T>) {
     this.params = params;
   }
 
-  public getValue<T>(
+  public getValue<U>(
     sourceFile: string | string[],
     env: { [key: string]: string | undefined },
     args: { [key: string]: string | boolean },
     path: Path,
-    defaultValues?: Partial<T>,
+    defaultValues?: Partial<U>,
     objectFromArray?: { value: ConfigFileData; file: string }
   ): ConfigNode | null {
     const ident = path.join(".");

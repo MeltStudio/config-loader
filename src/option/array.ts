@@ -7,15 +7,17 @@ import type { DefaultValue, Node, Value } from "./base";
 import OptionBase from "./base";
 import OptionErrors from "./errors";
 
-interface ArrayOptionClassParams {
+interface ArrayOptionClassParams<T extends Node | OptionTypes> {
   required: boolean;
   defaultValue?: DefaultValue;
-  item: Node | OptionTypes;
+  item: T;
 }
-export default class ArrayOption extends OptionBase {
-  item: Node | OptionTypes;
+export default class ArrayOption<
+  T extends Node | OptionTypes
+> extends OptionBase<"array"> {
+  item: T;
 
-  constructor(params: ArrayOptionClassParams) {
+  constructor(params: ArrayOptionClassParams<T>) {
     super({
       kind: "array",
       env: null,
