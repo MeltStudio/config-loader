@@ -1,8 +1,7 @@
+import { SettingsBuilder } from "@/builder";
+
 import type { DefaultValue, Node, OptionTypes } from "./option";
 import { ArrayOption, PrimitiveOption } from "./option";
-import Settings from "./settings";
-
-export default Settings;
 
 interface OptionPropsArgs {
   required?: boolean;
@@ -62,10 +61,18 @@ const array = (opts: ArrayOptionPropsArgs): ArrayOption => {
 //     ...opts,
 //   });
 // };
-export const option = {
+
+const schema = (theSchema: Node): SettingsBuilder => {
+  return new SettingsBuilder(theSchema);
+};
+
+const option = {
   string,
   number,
   bool,
   // object,
   array,
+  schema,
 };
+
+export default option;

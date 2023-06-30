@@ -9,10 +9,13 @@
     "noUncheckedIndexedAccess": false,
     "outDir": "./dist",
     "paths": {
+      "@/builder": ["src/builder"],
+      "@/builder/*": ["src/builder/*"],
       "@/nodes/*": ["src/nodes/*"],
       "@/option": ["src/option"],
       "@/option/*": ["src/option/*"],
       "@/src": ["src"],
+      "@/settings": ["src/settings"],
       "@/types": ["src/types"],
       "@/utils": ["src/utils"]
     }

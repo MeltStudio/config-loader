@@ -1,22 +1,9 @@
 import { OptionErrors } from "@/option";
-import Settings, { option } from "@/src";
+import Settings from "@/settings";
+import option from "@/src";
 import { InvalidValue } from "@/types";
 
 import { addCliArg } from "./utils/cli";
-
-interface TestObject {
-  value: number;
-  name: string;
-}
-
-interface TestSettingsFile {
-  string: string;
-  number: 1;
-  object: TestObject;
-  stringArray: string[];
-  numberArray: number[];
-  objectArray: TestObject[];
-}
 
 // eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
 let _proccessEnv: NodeJS.ProcessEnv;
@@ -50,8 +37,8 @@ afterAll(() => {
 describe("Settings", () => {
   describe("if everything is ok", () => {
     it("should return the data", () => {
-      const settings = new Settings<TestSettingsFile>(
-        {
+      const data = option
+        .schema({
           string: option.string({ required: true }),
           number: option.number({ required: true }),
           object: {
@@ -67,14 +54,13 @@ describe("Settings", () => {
               name: option.string({ required: true }),
             },
           }),
-        },
-        {
+        })
+        .load({
           env: true,
           args: false,
           files: "tests/__mocks__/fileMock.yaml",
-        }
-      );
-      expect(settings.get()).toStrictEqual({
+        });
+      expect(data).toStrictEqual({
         number: 1,
         numberArray: [1],
         object: {
@@ -97,17 +83,16 @@ describe("Settings", () => {
     it("should return the correct env values", () => {
       // * mock env variables
       process.env = { SITE_ID: "test" };
-      const settings = new Settings(
-        {
+      const data = option
+        .schema({
           SITE_ID: option.string({ required: true, env: "SITE_ID" }),
-        },
-        {
+        })
+        .load({
           env: true,
           args: false,
           files: "tests/__mocks__/emptyFile.yaml",
-        }
-      );
-      expect(settings.get()).toStrictEqual({ SITE_ID: "test" });
+        });
+      expect(data).toStrictEqual({ SITE_ID: "test" });
     });
   });
 
@@ -115,8 +100,8 @@ describe("Settings", () => {
   describe("if the arguments are set via CLI", () => {
     describe("if no arguments are passed", () => {
       it("should return the object as it appears in the yaml file", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({ required: true, cli: true }),
@@ -124,14 +109,13 @@ describe("Settings", () => {
                 openSource: option.bool({ required: true, cli: true }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: true,
             files: "tests/__mocks__/settings/cli/data.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: { name: "PostgreSQL", minRam: 8, openSource: true },
           },
@@ -141,8 +125,8 @@ describe("Settings", () => {
     describe("if an argument is passed", () => {
       it("should overwrite the value if it is a string", () => {
         addCliArg("database.engine.name", "MySQL");
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({ required: true, cli: true }),
@@ -150,14 +134,13 @@ describe("Settings", () => {
                 openSource: option.bool({ required: true, cli: true }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: true,
             files: "tests/__mocks__/settings/cli/data.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: { name: "MySQL", minRam: 8, openSource: true },
           },
@@ -165,8 +148,8 @@ describe("Settings", () => {
       });
       it("should overwrite the value if it is a number", () => {
         addCliArg("database.engine.minRam", "32");
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({ required: true, cli: true }),
@@ -174,14 +157,13 @@ describe("Settings", () => {
                 openSource: option.bool({ required: true, cli: true }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: true,
             files: "tests/__mocks__/settings/cli/data.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: { name: "PostgreSQL", minRam: 32, openSource: true },
           },
@@ -189,8 +171,8 @@ describe("Settings", () => {
       });
       it("should overwrite the value if it is a bool", () => {
         addCliArg("database.engine.openSource", "false");
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({ required: true, cli: true }),
@@ -198,14 +180,13 @@ describe("Settings", () => {
                 openSource: option.bool({ required: true, cli: true }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: true,
             files: "tests/__mocks__/settings/cli/data.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: { name: "PostgreSQL", minRam: 8, openSource: false },
           },
@@ -215,8 +196,8 @@ describe("Settings", () => {
     describe("if an unknown argument is passed", () => {
       it("should be ignored", () => {
         addCliArg("unknown.veryUnknown.name", "MySQL");
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({}),
@@ -224,14 +205,13 @@ describe("Settings", () => {
                 openSource: option.bool({}),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: true,
             files: "tests/__mocks__/settings/cli/data.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: { name: "PostgreSQL", minRam: 8, openSource: true },
           },
@@ -243,8 +223,8 @@ describe("Settings", () => {
         addCliArg("database.engine.name", "MySQL");
         addCliArg("database.engine.minRam", "32");
         addCliArg("database.engine.openSource", "false");
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({ required: true, cli: true }),
@@ -252,14 +232,13 @@ describe("Settings", () => {
                 openSource: option.bool({ required: true, cli: true }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: true,
             files: "tests/__mocks__/settings/cli/data.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: { name: "MySQL", minRam: 32, openSource: false },
           },
@@ -271,39 +250,36 @@ describe("Settings", () => {
   describe("when the option doesn't have cli and env", () => {
     describe("when searching for a string nested inside an object", () => {
       it("should return the string value if it exists and is valid", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             hardware: {
               type: option.string({ required: true, env: "SITE_ID" }),
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: "tests/__mocks__/settings/no-cli-no-env/nestedString.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           hardware: { type: "Disk drive" },
         });
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                hardware: {
-                  type: option.string({ required: true, env: "SITE_ID" }),
-                },
+        expect(() =>
+          option
+            .schema({
+              hardware: {
+                type: option.string({ required: true, env: "SITE_ID" }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedStringNotFound.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedStringNotFound.yaml",
+            })
         ).toThrow();
         expect(OptionErrors.errors).toContain(
           "Required option 'hardware.type' not provided."
@@ -312,22 +288,20 @@ describe("Settings", () => {
 
       // TODO: Error message for array says required option not provided, instead of wrong type
       it("should throw an error if the value is wrong type (object or array)", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                hardware: {
-                  size: option.string({ required: true }),
-                  brand: option.string({ required: true }),
-                },
+        expect(() =>
+          option
+            .schema({
+              hardware: {
+                size: option.string({ required: true }),
+                brand: option.string({ required: true }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml",
+            })
         ).toThrow();
         [
           "Cannot convert value '[object Object]' for 'hardware.size' to string in tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml.",
@@ -342,46 +316,43 @@ describe("Settings", () => {
 
     describe("when searching for an string array nested inside an object", () => {
       it("should return the array if it exists and is valid", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engines: option.array({
                 required: true,
                 item: option.string({ required: true }),
               }),
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files:
               "tests/__mocks__/settings/no-cli-no-env/nestedStringArray.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: { engines: ["PostgreSQL", "MySQL", "Firestore"] },
         });
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engines: option.array({
-                    required: true,
-                    item: option.string({ required: true }),
-                  }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engines: option.array({
+                  required: true,
+                  item: option.string({ required: true }),
+                }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedStringArrayNotFound.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedStringArrayNotFound.yaml",
+            })
         ).toThrow();
         expect(OptionErrors.errors).toContain(
           "Required option 'database.engines' not provided."
@@ -391,40 +362,37 @@ describe("Settings", () => {
 
     describe("when searching for a number nested inside an object", () => {
       it("should return the number if it exists and is valid", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               ram: option.number({ required: true }),
               cpus: option.number({ required: true }),
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: "tests/__mocks__/settings/no-cli-no-env/nestedNumber.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: { ram: 16, cpus: 32 },
         });
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  ram: option.number({ required: true }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                ram: option.number({ required: true }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedNumberNotFound.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedNumberNotFound.yaml",
+            })
         ).toThrow();
         expect(OptionErrors.errors).toContain(
           "Required option 'database.ram' not provided."
@@ -432,24 +400,22 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the value cannot be parsed to number", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  ram1: option.number({ required: true }),
-                  ram2: option.number({ required: true }),
-                  ram3: option.number({ required: true }),
-                  ram4: option.number({ required: true }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                ram1: option.number({ required: true }),
+                ram2: option.number({ required: true }),
+                ram3: option.number({ required: true }),
+                ram4: option.number({ required: true }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedNumberWrongType.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedNumberWrongType.yaml",
+            })
         ).toThrow();
         expect(OptionErrors.errors).toHaveLength(4);
         // TODO: fix error messages
@@ -466,46 +432,43 @@ describe("Settings", () => {
 
     describe("when searching for a number array nested inside an object", () => {
       it("should return the array if it exists and is valid", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               sizeOptions: option.array({
                 required: true,
                 item: option.number({ required: true }),
               }),
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files:
               "tests/__mocks__/settings/no-cli-no-env/nestedNumberArray.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: { sizeOptions: [1, 2, 4, 8] },
         });
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  sizeOptions: option.array({
-                    required: true,
-                    item: option.number({ required: true }),
-                  }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                sizeOptions: option.array({
+                  required: true,
+                  item: option.number({ required: true }),
+                }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayNotFound.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayNotFound.yaml",
+            })
         ).toThrow();
         expect(OptionErrors.errors).toContain(
           "Required option 'database.sizeOptions' not provided."
@@ -513,24 +476,22 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the array items cannot be parsed to number", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  sizeOptions: option.array({
-                    required: true,
-                    item: option.number({ required: true }),
-                  }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                sizeOptions: option.array({
+                  required: true,
+                  item: option.number({ required: true }),
+                }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongItemType.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongItemType.yaml",
+            })
         ).toThrow();
         [
           "Cannot convert value 'MySQL' for 'database.sizeOptions.0' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongItemType.yaml.",
@@ -541,24 +502,22 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the value is not an array", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  sizeOptions: option.array({
-                    required: true,
-                    item: option.number({ required: true }),
-                  }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                sizeOptions: option.array({
+                  required: true,
+                  item: option.number({ required: true }),
+                }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongType.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongType.yaml",
+            })
         ).toThrow();
         expect(OptionErrors.errors).toContain(
           "Invalid state. Invalid kind in tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongType.yaml"
@@ -568,8 +527,8 @@ describe("Settings", () => {
 
     describe("when searching for a bool nested inside an object", () => {
       it("should return the bool if it exists and is valid", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               bool1: option.bool({ required: true }),
               bool2: option.bool({ required: true }),
@@ -582,14 +541,13 @@ describe("Settings", () => {
               bool9: option.bool({ required: true }),
               bool10: option.bool({ required: true }),
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: "tests/__mocks__/settings/no-cli-no-env/nestedBool.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             bool1: true,
             bool2: false,
@@ -606,21 +564,19 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  bool1: option.bool({ required: true }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                bool1: option.bool({ required: true }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedBoolNotFound.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedBoolNotFound.yaml",
+            })
         ).toThrow();
         expect(OptionErrors.errors).toContain(
           "Required option 'database.bool1' not provided."
@@ -628,23 +584,21 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the array items cannot be parsed to boolean", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  bool1: option.bool({ required: true }),
-                  bool2: option.bool({ required: true }),
-                  bool3: option.bool({ required: true }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                bool1: option.bool({ required: true }),
+                bool2: option.bool({ required: true }),
+                bool3: option.bool({ required: true }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml",
+            })
         ).toThrow();
         const errorMessages = [
           "Cannot convert value '2' for 'database.bool1' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml.",
@@ -659,23 +613,22 @@ describe("Settings", () => {
 
     describe("when searching for a bool array nested inside an object", () => {
       it("should return the array if it exists and is valid", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               bools: option.array({
                 required: true,
                 item: option.bool({ required: true }),
               }),
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files:
               "tests/__mocks__/settings/no-cli-no-env/nestedBoolArray.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             bools: [
               true,
@@ -700,24 +653,22 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  bools: option.array({
-                    required: true,
-                    item: option.bool({ required: true }),
-                  }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                bools: option.array({
+                  required: true,
+                  item: option.bool({ required: true }),
+                }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayNotFound.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayNotFound.yaml",
+            })
         ).toThrow();
         expect(OptionErrors.errors).toContain(
           "Required option 'database.bools' not provided."
@@ -725,24 +676,22 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the array items cannot be parsed to boolean", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  bools: option.array({
-                    required: true,
-                    item: option.bool({ required: true }),
-                  }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                bools: option.array({
+                  required: true,
+                  item: option.bool({ required: true }),
+                }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml",
+            })
         ).toThrow();
         const errorMessages = [
           "Cannot convert value '2' for 'database.bools.0' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml.",
@@ -757,8 +706,8 @@ describe("Settings", () => {
 
     describe("when searching for an object array nested inside an object", () => {
       it("should return the array if it exists and is valid", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engines: option.array({
                 required: true,
@@ -769,15 +718,14 @@ describe("Settings", () => {
                 },
               }),
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files:
               "tests/__mocks__/settings/no-cli-no-env/nestedObjectArray.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engines: [
               { name: "PostgreSQL", minRam: 8, openSource: true },
@@ -789,28 +737,26 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engines: option.array({
-                    required: true,
-                    item: {
-                      name: option.string({ required: true }),
-                      minRam: option.number({ required: true }),
-                      openSource: option.bool({ required: true }),
-                    },
-                  }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engines: option.array({
+                  required: true,
+                  item: {
+                    name: option.string({ required: true }),
+                    minRam: option.number({ required: true }),
+                    openSource: option.bool({ required: true }),
+                  },
+                }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedObjectArrayNotFound.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedObjectArrayNotFound.yaml",
+            })
         ).toThrow();
         expect(OptionErrors.errors).toContain(
           "Required option 'database.engines' not provided."
@@ -819,28 +765,26 @@ describe("Settings", () => {
 
       // eslint-disable-next-line jest/no-disabled-tests
       it("should throw an error if the array items aren't objects", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engines: option.array({
-                    required: true,
-                    item: {
-                      name: option.string({ required: true }),
-                      minRam: option.number({ required: true }),
-                      openSource: option.bool({ required: true }),
-                    },
-                  }),
-                },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engines: option.array({
+                  required: true,
+                  item: {
+                    name: option.string({ required: true }),
+                    minRam: option.number({ required: true }),
+                    openSource: option.bool({ required: true }),
+                  },
+                }),
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedObjectArrayWrongType.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedObjectArrayWrongType.yaml",
+            })
         ).toThrow();
         // TODO: Fix the messages thrown by this test, it should say that the problem is database.engines, not its children
         // expect(OptionErrors.errors).toContain(
@@ -851,8 +795,8 @@ describe("Settings", () => {
 
     describe("when searching for an object nested inside another object", () => {
       it("should return the object if it exists and is valid", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({ required: true }),
@@ -860,14 +804,13 @@ describe("Settings", () => {
                 openSource: option.bool({ required: true }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: "tests/__mocks__/settings/no-cli-no-env/nestedObject.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: { name: "PostgreSQL", minRam: 8, openSource: true },
           },
@@ -876,25 +819,23 @@ describe("Settings", () => {
 
       // eslint-disable-next-line jest/no-disabled-tests
       it("should throw an error if it doesn't exist", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engine: {
-                    name: option.string({ required: true }),
-                    minRam: option.number({ required: true }),
-                    openSource: option.bool({ required: true }),
-                  },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engine: {
+                  name: option.string({ required: true }),
+                  minRam: option.number({ required: true }),
+                  openSource: option.bool({ required: true }),
                 },
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedObjectNotFound.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedObjectNotFound.yaml",
+            })
         ).toThrow();
         // TODO: Fix the messages thrown by this test, it should say that database.engine is required, not its children
         // expect(OptionErrors.errors).toContain(
@@ -903,37 +844,35 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the object is of a different kind", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engine: {
-                    name: option.string({ required: true }),
-                    minRam: option.number({ required: true }),
-                    openSource: option.bool({ required: true }),
-                  },
-                  cpu: {
-                    brand: option.string({ required: true }),
-                    cores: option.number({ required: true }),
-                    power: option.bool({ required: true }),
-                  },
-                  openSource: {
-                    url: option.string({ required: true }),
-                  },
-                  date: {
-                    start: option.string({ required: true }),
-                    end: option.string({ required: true }),
-                  },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engine: {
+                  name: option.string({ required: true }),
+                  minRam: option.number({ required: true }),
+                  openSource: option.bool({ required: true }),
+                },
+                cpu: {
+                  brand: option.string({ required: true }),
+                  cores: option.number({ required: true }),
+                  power: option.bool({ required: true }),
+                },
+                openSource: {
+                  url: option.string({ required: true }),
+                },
+                date: {
+                  start: option.string({ required: true }),
+                  end: option.string({ required: true }),
                 },
               },
-              {
-                env: false,
-                args: false,
-                files:
-                  "tests/__mocks__/settings/no-cli-no-env/nestedObjectWrongType.yaml",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files:
+                "tests/__mocks__/settings/no-cli-no-env/nestedObjectWrongType.yaml",
+            })
         ).toThrow();
         [
           "Cant get path from string value 'PostgreSQL'",
@@ -951,8 +890,8 @@ describe("Settings", () => {
     describe("if no value is provided in the file", () => {
       describe("when providing default as value", () => {
         it("should return the default value", () => {
-          const settings = new Settings(
-            {
+          const data = option
+            .schema({
               name: option.string({
                 cli: false,
                 defaultValue: "MySQL",
@@ -973,14 +912,13 @@ describe("Settings", () => {
                   }),
                 },
               },
-            },
-            {
+            })
+            .load({
               env: false,
               args: false,
               files: "tests/__mocks__/settings/defaults/empty.yaml",
-            }
-          );
-          expect(settings.get()).toStrictEqual({
+            });
+          expect(data).toStrictEqual({
             name: "MySQL",
             database: {
               engine: {
@@ -994,8 +932,8 @@ describe("Settings", () => {
       });
       describe("when providing default as function", () => {
         it("should return the default value", () => {
-          const settings = new Settings(
-            {
+          const data = option
+            .schema({
               name: option.string({
                 cli: false,
                 defaultValue: () => "MySQL",
@@ -1016,14 +954,13 @@ describe("Settings", () => {
                   }),
                 },
               },
-            },
-            {
+            })
+            .load({
               env: false,
               args: false,
               files: "tests/__mocks__/settings/defaults/empty.yaml",
-            }
-          );
-          expect(settings.get()).toStrictEqual({
+            });
+          expect(data).toStrictEqual({
             name: "MySQL",
             database: {
               engine: {
@@ -1040,8 +977,8 @@ describe("Settings", () => {
     describe("if no value is provided in the file and the default is an array", () => {
       describe("when providing default as value", () => {
         it("should return the default array", () => {
-          const settings = new Settings(
-            {
+          const data = option
+            .schema({
               database: {
                 engine: {
                   versions: option.array({
@@ -1051,14 +988,13 @@ describe("Settings", () => {
                   }),
                 },
               },
-            },
-            {
+            })
+            .load({
               env: false,
               args: false,
               files: "tests/__mocks__/settings/defaults/empty.yaml",
-            }
-          );
-          expect(settings.get()).toStrictEqual({
+            });
+          expect(data).toStrictEqual({
             database: {
               engine: {
                 versions: ["1.0.0", "1.1.0", "1.2.0"],
@@ -1069,8 +1005,8 @@ describe("Settings", () => {
       });
       describe("when providing default as function", () => {
         it("should return the default array", () => {
-          const settings = new Settings(
-            {
+          const data = option
+            .schema({
               database: {
                 engine: {
                   versions: option.array({
@@ -1080,14 +1016,13 @@ describe("Settings", () => {
                   }),
                 },
               },
-            },
-            {
+            })
+            .load({
               env: false,
               args: false,
               files: "tests/__mocks__/settings/defaults/empty.yaml",
-            }
-          );
-          expect(settings.get()).toStrictEqual({
+            });
+          expect(data).toStrictEqual({
             database: {
               engine: {
                 versions: ["1.0.0", "1.1.0", "1.2.0"],
@@ -1100,8 +1035,8 @@ describe("Settings", () => {
 
     describe("if some value is provided in the file", () => {
       it("should override the default value", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({
@@ -1118,14 +1053,13 @@ describe("Settings", () => {
                 }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: "tests/__mocks__/settings/defaults/data.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: {
               name: "PostgreSQL",
@@ -1139,8 +1073,8 @@ describe("Settings", () => {
 
     describe("if some value is provided in the file (for arrays)", () => {
       it("should override the default value", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 versions: option.array({
@@ -1150,14 +1084,13 @@ describe("Settings", () => {
                 }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: "tests/__mocks__/settings/defaults/data-array.yaml",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: {
               versions: ["1.4.0", "2.4.1", "5.7.6"],
@@ -1171,8 +1104,8 @@ describe("Settings", () => {
   describe("if setting a default value for the settings", () => {
     describe("if no value is provided in the file", () => {
       it("should return the default value", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({}),
@@ -1181,8 +1114,8 @@ describe("Settings", () => {
                 versions: option.array({ item: option.string() }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: "tests/__mocks__/settings/defaults/empty.yaml",
@@ -1196,9 +1129,8 @@ describe("Settings", () => {
                 },
               },
             },
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: {
               name: "MySQL",
@@ -1213,8 +1145,8 @@ describe("Settings", () => {
 
     describe("if some value is provided in the file", () => {
       it("should override the default value", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({}),
@@ -1224,8 +1156,8 @@ describe("Settings", () => {
                 versions: option.array({ item: option.string() }),
               },
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: "tests/__mocks__/settings/defaults/data-array.yaml",
@@ -1240,9 +1172,8 @@ describe("Settings", () => {
                 },
               },
             },
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: {
               name: "PostgreSQL",
@@ -1260,8 +1191,8 @@ describe("Settings", () => {
   describe("if multiple files are loaded", () => {
     describe("if data has no collisions", () => {
       it("should set all values", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({ required: true, cli: true }),
@@ -1279,8 +1210,8 @@ describe("Settings", () => {
             version: option.string({ required: true }),
             upgraded: option.bool({ required: true }),
             cpus: option.number({ required: true }),
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: [
@@ -1288,9 +1219,8 @@ describe("Settings", () => {
               "tests/__mocks__/settings/multiple-files/no-collision/file-2.yaml",
               "tests/__mocks__/settings/multiple-files/no-collision/file-3.yaml",
             ],
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: { name: "PostgreSQL", minRam: 8, openSource: true },
           },
@@ -1307,8 +1237,8 @@ describe("Settings", () => {
 
     describe("if data has collisions on primitive values", () => {
       it("should prioritize first loaded file", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             file1Data: {
               unique: option.bool({ required: true }),
             },
@@ -1319,17 +1249,16 @@ describe("Settings", () => {
             upgraded: option.bool({ required: true }),
             cpus: option.number({ required: true }),
             numberData: option.number({ required: true }),
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: [
               "tests/__mocks__/settings/multiple-files/primitive-collision/file-1.yaml",
               "tests/__mocks__/settings/multiple-files/primitive-collision/file-2.yaml",
             ],
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           file1Data: { unique: true },
           file2Data: { unique: true },
           version: "0.1.2",
@@ -1342,8 +1271,8 @@ describe("Settings", () => {
 
     describe("if data has collisions on objects", () => {
       it("should prioritize first loaded file", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               name: option.string({ required: true }),
               minRam: option.number({ required: true }),
@@ -1351,17 +1280,16 @@ describe("Settings", () => {
               maxRam: option.number({ required: true }),
               version: option.string({ required: true }),
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: [
               "tests/__mocks__/settings/multiple-files/object-collision/file-1.yaml",
               "tests/__mocks__/settings/multiple-files/object-collision/file-2.yaml",
             ],
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             name: "MySQL",
             minRam: 2,
@@ -1375,20 +1303,19 @@ describe("Settings", () => {
 
     describe("if data has collisions on arrays", () => {
       it("should prioritize first loaded file", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             ramSizes: option.array({ item: option.number(), required: true }),
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             files: [
               "tests/__mocks__/settings/multiple-files/array-collision/file-1.yaml",
               "tests/__mocks__/settings/multiple-files/array-collision/file-2.yaml",
             ],
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           ramSizes: [2, 4, 8, 16],
         });
       });
@@ -1396,30 +1323,28 @@ describe("Settings", () => {
 
     describe("if a required setting doesn't appear on any of the files", () => {
       it("should throw an error", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engine: {
-                    name: option.string({ required: true }),
-                    minRam: option.number({ required: true }),
-                    openSource: option.bool({ required: true }),
-                    // control test, this value should appear on the files
-                    launchDate: option.string({ required: true }),
-                  },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engine: {
+                  name: option.string({ required: true }),
+                  minRam: option.number({ required: true }),
+                  openSource: option.bool({ required: true }),
+                  // control test, this value should appear on the files
+                  launchDate: option.string({ required: true }),
                 },
               },
-              {
-                env: false,
-                args: false,
-                files: [
-                  "tests/__mocks__/settings/multiple-files/argument-not-found/file-1.yaml",
-                  "tests/__mocks__/settings/multiple-files/argument-not-found/file-2.yaml",
-                  "tests/__mocks__/settings/multiple-files/argument-not-found/file-3.yaml",
-                ],
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files: [
+                "tests/__mocks__/settings/multiple-files/argument-not-found/file-1.yaml",
+                "tests/__mocks__/settings/multiple-files/argument-not-found/file-2.yaml",
+                "tests/__mocks__/settings/multiple-files/argument-not-found/file-3.yaml",
+              ],
+            })
         ).toThrow();
         const errors = [
           "Required option 'database.engine.name' not provided.",
@@ -1434,27 +1359,25 @@ describe("Settings", () => {
 
     describe("if some file doesn't exist", () => {
       it("should throw an error", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engine: {
-                    name: option.string({ required: true, cli: true }),
-                    minRam: option.number({ required: true, cli: true }),
-                    openSource: option.bool({ required: true, cli: true }),
-                  },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engine: {
+                  name: option.string({ required: true, cli: true }),
+                  minRam: option.number({ required: true, cli: true }),
+                  openSource: option.bool({ required: true, cli: true }),
                 },
               },
-              {
-                env: false,
-                args: false,
-                files: [
-                  "tests/__mocks__/settings/multiple-files/file-not-found/file-1.yaml",
-                  "tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml",
-                ],
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files: [
+                "tests/__mocks__/settings/multiple-files/file-not-found/file-1.yaml",
+                "tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml",
+              ],
+            })
         ).toThrow(
           "Invalid config file 'tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml'"
         );
@@ -1463,29 +1386,27 @@ describe("Settings", () => {
 
     describe("if dir argument is also specified", () => {
       it("should throw an error", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engine: {
-                    name: option.string({ required: true, cli: true }),
-                    minRam: option.number({ required: true, cli: true }),
-                    openSource: option.bool({ required: true, cli: true }),
-                  },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engine: {
+                  name: option.string({ required: true, cli: true }),
+                  minRam: option.number({ required: true, cli: true }),
+                  openSource: option.bool({ required: true, cli: true }),
                 },
               },
-              {
-                env: false,
-                args: false,
-                files: [
-                  "tests/__mocks__/settings/multiple-files/no-collision/file-1.yaml",
-                  "tests/__mocks__/settings/multiple-files/no-collision/file-2.yaml",
-                  "tests/__mocks__/settings/multiple-files/no-collision/file-3.yaml",
-                ],
-                dir: "tests/__mocks__/settings/multiple-files/no-collision",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              files: [
+                "tests/__mocks__/settings/multiple-files/no-collision/file-1.yaml",
+                "tests/__mocks__/settings/multiple-files/no-collision/file-2.yaml",
+                "tests/__mocks__/settings/multiple-files/no-collision/file-3.yaml",
+              ],
+              dir: "tests/__mocks__/settings/multiple-files/no-collision",
+            })
         ).toThrow("Dir and files are specified, choose one");
       });
     });
@@ -1494,8 +1415,8 @@ describe("Settings", () => {
   describe("if a directory is loaded", () => {
     describe("if data has no collisions", () => {
       it("should set all values", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               engine: {
                 name: option.string({ required: true, cli: true }),
@@ -1513,14 +1434,13 @@ describe("Settings", () => {
             version: option.string({ required: true }),
             upgraded: option.bool({ required: true }),
             cpus: option.number({ required: true }),
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             dir: "tests/__mocks__/settings/multiple-files/no-collision",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             engine: { name: "PostgreSQL", minRam: 8, openSource: true },
           },
@@ -1538,8 +1458,8 @@ describe("Settings", () => {
     // eslint-disable-next-line jest/no-disabled-tests
     describe("if data has collisions on primitive values", () => {
       it("should prioritize first loaded file", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             file1Data: {
               unique: option.bool({ required: true }),
             },
@@ -1550,14 +1470,13 @@ describe("Settings", () => {
             upgraded: option.bool({ required: true }),
             cpus: option.number({ required: true }),
             numberData: option.number({ required: true }),
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             dir: "tests/__mocks__/settings/multiple-files/primitive-collision",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           file1Data: { unique: true },
           file2Data: { unique: true },
           version: "0.1.2",
@@ -1571,8 +1490,8 @@ describe("Settings", () => {
     // eslint-disable-next-line jest/no-disabled-tests
     describe("if data has collisions on objects", () => {
       it("should prioritize first loaded file", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             database: {
               name: option.string({ required: true }),
               minRam: option.number({ required: true }),
@@ -1580,14 +1499,13 @@ describe("Settings", () => {
               maxRam: option.number({ required: true }),
               version: option.string({ required: true }),
             },
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             dir: "tests/__mocks__/settings/multiple-files/object-collision",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           database: {
             name: "MySQL",
             minRam: 2,
@@ -1602,17 +1520,16 @@ describe("Settings", () => {
     // eslint-disable-next-line jest/no-disabled-tests
     describe("if data has collisions on arrays", () => {
       it("should prioritize first loaded file", () => {
-        const settings = new Settings(
-          {
+        const data = option
+          .schema({
             ramSizes: option.array({ item: option.number(), required: true }),
-          },
-          {
+          })
+          .load({
             env: false,
             args: false,
             dir: "tests/__mocks__/settings/multiple-files/array-collision",
-          }
-        );
-        expect(settings.get()).toStrictEqual({
+          });
+        expect(data).toStrictEqual({
           ramSizes: [2, 4, 8, 16],
         });
       });
@@ -1620,26 +1537,24 @@ describe("Settings", () => {
 
     describe("if a required setting doesn't appear on any of the files", () => {
       it("should throw an error", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engine: {
-                    name: option.string({ required: true }),
-                    minRam: option.number({ required: true }),
-                    openSource: option.bool({ required: true }),
-                    // control test, this value should appear on the files
-                    launchDate: option.string({ required: true }),
-                  },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engine: {
+                  name: option.string({ required: true }),
+                  minRam: option.number({ required: true }),
+                  openSource: option.bool({ required: true }),
+                  // control test, this value should appear on the files
+                  launchDate: option.string({ required: true }),
                 },
               },
-              {
-                env: false,
-                args: false,
-                dir: "tests/__mocks__/settings/multiple-files/argument-not-found",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              dir: "tests/__mocks__/settings/multiple-files/argument-not-found",
+            })
         ).toThrow();
         const errors = [
           "Required option 'database.engine.name' not provided.",
@@ -1654,24 +1569,22 @@ describe("Settings", () => {
 
     describe("if the directory doesn't exist", () => {
       it("should throw an error", () => {
-        expect(
-          () =>
-            new Settings(
-              {
-                database: {
-                  engine: {
-                    name: option.string({ required: true, cli: true }),
-                    minRam: option.number({ required: true, cli: true }),
-                    openSource: option.bool({ required: true, cli: true }),
-                  },
+        expect(() =>
+          option
+            .schema({
+              database: {
+                engine: {
+                  name: option.string({ required: true, cli: true }),
+                  minRam: option.number({ required: true, cli: true }),
+                  openSource: option.bool({ required: true, cli: true }),
                 },
               },
-              {
-                env: false,
-                args: false,
-                dir: "tests/__mocks__/settings/missing-dir",
-              }
-            )
+            })
+            .load({
+              env: false,
+              args: false,
+              dir: "tests/__mocks__/settings/missing-dir",
+            })
         ).toThrow(
           "'tests/__mocks__/settings/missing-dir' not exists or is not a dir"
         );
@@ -1681,38 +1594,36 @@ describe("Settings", () => {
 
   describe("if the file was not found", () => {
     it("should throw an error", () => {
-      expect(
-        () =>
-          new Settings<TestSettingsFile>(
-            {
-              string: option.string({ required: true }),
-              number: option.number({ required: true }),
-              object: {
+      expect(() =>
+        option
+          .schema({
+            string: option.string({ required: true }),
+            number: option.number({ required: true }),
+            object: {
+              value: option.number({ required: true }),
+              name: option.string({ required: true }),
+            },
+            stringArray: option.array({
+              required: true,
+              item: option.string(),
+            }),
+            numberArray: option.array({
+              required: true,
+              item: option.number(),
+            }),
+            objectArray: option.array({
+              required: true,
+              item: {
                 value: option.number({ required: true }),
                 name: option.string({ required: true }),
               },
-              stringArray: option.array({
-                required: true,
-                item: option.string(),
-              }),
-              numberArray: option.array({
-                required: true,
-                item: option.number(),
-              }),
-              objectArray: option.array({
-                required: true,
-                item: {
-                  value: option.number({ required: true }),
-                  name: option.string({ required: true }),
-                },
-              }),
-            },
-            {
-              env: true,
-              args: false,
-              files: "filemock.yaml",
-            }
-          )
+            }),
+          })
+          .load({
+            env: true,
+            args: false,
+            files: "filemock.yaml",
+          })
       ).toThrow("Invalid config file 'filemock.yaml'");
     });
   });
@@ -1724,38 +1635,36 @@ describe("Settings", () => {
         throw new Error(code?.toString());
       });
       // const spyConsoleError = jest.spyOn(console, "error");
-      expect(
-        () =>
-          new Settings<TestSettingsFile>(
-            {
-              string: option.string({ required: true }),
-              number: option.number({ required: true }),
-              object: {
+      expect(() =>
+        option
+          .schema({
+            string: option.string({ required: true }),
+            number: option.number({ required: true }),
+            object: {
+              value: option.number({ required: true }),
+              name: option.string({ required: true }),
+            },
+            stringArray: option.array({
+              required: true,
+              item: option.string(),
+            }),
+            numberArray: option.array({
+              required: true,
+              item: option.number(),
+            }),
+            objectArray: option.array({
+              required: true,
+              item: {
                 value: option.number({ required: true }),
                 name: option.string({ required: true }),
               },
-              stringArray: option.array({
-                required: true,
-                item: option.string(),
-              }),
-              numberArray: option.array({
-                required: true,
-                item: option.number(),
-              }),
-              objectArray: option.array({
-                required: true,
-                item: {
-                  value: option.number({ required: true }),
-                  name: option.string({ required: true }),
-                },
-              }),
-            },
-            {
-              env: true,
-              args: false,
-              files: "tests/__mocks__/wrongFile.yaml",
-            }
-          )
+            }),
+          })
+          .load({
+            env: true,
+            args: false,
+            files: "tests/__mocks__/wrongFile.yaml",
+          })
       ).toThrow("1");
       // TODO: fix this test, it is throwing 7 error messages instead of 6 (one for each root element)
       // expect(spyConsoleError).toHaveBeenCalledTimes(6);

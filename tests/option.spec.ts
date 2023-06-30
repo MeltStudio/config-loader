@@ -6,7 +6,7 @@ import {
   OptionErrors,
   PrimitiveOption,
 } from "@/option";
-import { option as optionFn } from "@/src";
+import optionFn from "@/src";
 
 const FILE = "./tests/__mocks__/fileMock.yaml";
 
