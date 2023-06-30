@@ -1,50 +1,47 @@
 import path from "path";
 
-import Settings, { option } from "@/src";
+import c from "@/src";
 
 const run = (): void => {
-  const settings = new Settings(
-    {
-      version: option.string({ required: true, cli: true }),
-      website: {
-        title: option.string({ required: true }),
-        url: option.string({
-          required: false,
-          defaultValue: "www.mywebsite.dev",
-        }),
-        description: option.string({ required: true }),
-        isProduction: option.bool({ required: true }),
-      },
-      database: {
-        host: option.string({ required: true }),
-        port: option.number({ required: true }),
-        credentials: {
-          username: option.string(),
-          password: option.string({
-            env: "DB_PASSWORD",
-            cli: true,
-          }),
-        },
-      },
-      socialMedia: option.array({
-        required: true,
-        item: option.string({ required: true }),
+  const settings = c.schema({
+    version: c.string({ required: true, cli: true }),
+    website: {
+      title: c.string({ required: true }),
+      url: c.string({
+        required: false,
+        defaultValue: "www.mywebsite.dev",
       }),
-      features: option.array({
-        required: true,
-        item: {
-          name: option.string(),
-          enabled: option.bool(),
-        },
-      }),
+      description: c.string({ required: true }),
+      isProduction: c.bool({ required: true }),
     },
-    {
-      env: false,
-      args: true,
-      files: path.join(__dirname, "./config.yaml"),
-    }
-  );
-  const config = settings.get();
+    database: {
+      host: c.string({ required: true }),
+      port: c.number({ required: true }),
+      credentials: {
+        username: c.string(),
+        password: c.string({
+          env: "DB_PASSWORD",
+          cli: true,
+        }),
+      },
+    },
+    socialMedia: c.array({
+      required: true,
+      item: c.string({ required: true }),
+    }),
+    features: c.array({
+      required: true,
+      item: {
+        name: c.string(),
+        enabled: c.bool(),
+      },
+    }),
+  });
+  const config = settings.load({
+    env: false,
+    args: true,
+    files: path.join(__dirname, "./config.yaml"),
+  });
   console.log(JSON.stringify(config, null, 2));
 };
 
