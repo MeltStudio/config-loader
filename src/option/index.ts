@@ -5,7 +5,7 @@ import OptionErrors from "./errors";
 // import ObjectOption from "./object";
 import PrimitiveOption from "./primitive";
 
-export type OptionTypes = PrimitiveOption | ArrayOption; // | ObjectOption;
+export type OptionTypes = PrimitiveOption | ArrayOption<Node | OptionTypes>; // | ObjectOption;
 
 export {
   ArrayOption,
