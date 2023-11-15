@@ -18,13 +18,27 @@ import type {
   PartialyBuiltSettings,
   Path,
   ProcessEnv,
+  RecursivePartial,
   SettingsSources,
+  TypeOfPrimitiveKind,
 } from "./types";
 
-class Settings<T> {
-  private readonly schema: Node;
+export type SchemaValue<T extends OptionBase | Node> = T extends OptionBase
+  ? T extends ArrayOption<Node | OptionTypes>
+    ? SchemaValue<T["item"]>[]
+    : T extends PrimitiveOption<infer R>
+    ? TypeOfPrimitiveKind<R>
+    : never
+  : T extends Node
+  ? {
+      [K in keyof T]: SchemaValue<T[K]>;
+    }
+  : never;
 
-  private readonly sources: SettingsSources<T>;
+class Settings<T extends Node> {
+  private readonly schema: T;
+
+  private readonly sources: SettingsSources<SchemaValue<T>>;
 
   private sourceFile: string | string[] = [];
 
@@ -34,11 +48,11 @@ class Settings<T> {
 
   private optionsTree: NodeTree = {};
 
-  private defaultData: Partial<T> = {};
+  private defaultData: RecursivePartial<SchemaValue<T>> = {};
 
   private program: Command;
 
-  constructor(schema: Node, sources: SettingsSources<T>) {
+  constructor(schema: T, sources: SettingsSources<SchemaValue<T>>) {
     this.schema = schema;
     this.sources = sources;
     this.program = new Command()
@@ -135,9 +149,9 @@ class Settings<T> {
   }
 
   private traverseOptions(
-    node: Node | OptionTypes,
+    node: Node | OptionBase,
     path: Path,
-    callback: (nodearg: OptionTypes, patharg: Path) => void
+    callback: (nodearg: OptionBase, patharg: Path) => void
   ): void {
     if (node instanceof OptionBase) {
       callback(node, path);
@@ -275,16 +289,16 @@ class Settings<T> {
     }
   }
 
-  private addArg(node: OptionTypes, path: Path = []): void {
+  private addArg(node: OptionBase, path: Path = []): void {
     if (node.params.cli) {
       const ident = path.join(".");
       this.program.option(`--${ident} <value>`, node.params.help);
     }
   }
 
-  private getValuesFromTree(
+  private getValuesFromTree<V extends OptionTypes | Node>(
     node: NodeTree | ConfigNode
-  ): Value | ArrayOption | null {
+  ): Value | ArrayValue | null {
     if (node instanceof ConfigNode) {
       if (node.value instanceof ConfigNodeArray) {
         return node.value.arrayValues.map(this.getValuesFromTree.bind(this));
@@ -294,15 +308,17 @@ class Settings<T> {
     return Object.entries(node).reduce<{ [key: string]: Value | null }>(
       (acc, item) => {
         const [key, value] = item;
-        acc[key] = this.getValuesFromTree(value);
+        acc[key] = this.getValuesFromTree<V>(value);
         return acc;
       },
       {}
     );
   }
 
-  public get(): T {
-    return this.getValuesFromTree(this.optionsTree) as unknown as T;
+  public get(): SchemaValue<T> {
+    return this.getValuesFromTree(
+      this.optionsTree
+    ) as unknown as SchemaValue<T>;
   }
 
   public getExtended(): NodeTree {

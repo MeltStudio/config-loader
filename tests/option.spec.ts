@@ -3,6 +3,7 @@ import ConfigNode from "@/nodes/configNode";
 import {
   ArrayOption,
   ArrayValueContainer,
+  OptionBase,
   OptionErrors,
   PrimitiveOption,
 } from "@/option";
@@ -338,7 +339,7 @@ describe("option", () => {
 
   describe("if the option kind is any", () => {
     it("should return the value", () => {
-      const option = new PrimitiveOption({
+      const option = new OptionBase({
         kind: "any",
         required: false,
         env: null,
