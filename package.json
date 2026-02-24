@@ -29,7 +29,7 @@
     "test": "jest --verbose",
     "replace-tspaths": "./scripts/replace-tspaths/index.mjs",
     "example:run": "ts-node -r tsconfig-paths/register ./example/index.ts",
-    "prepare": "husky install",
+    "prepare": "husky",
     "docs:install": "python -m venv ./mkdocs-py-env && ./mkdocs-py-env/Scripts/pip install -r ./mkdocs-requirements.txt",
     "docs:build": "./mkdocs-py-env/Scripts/mkdocs build",
     "docs:serve": "./mkdocs-py-env/Scripts/mkdocs serve"
@@ -51,7 +51,7 @@
     "eslint-plugin-jest": "^29.0.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "husky": "^8.0.3",
+    "husky": "^9.0.0",
     "jest": "^29.5.0",
     "jest-html-reporters": "^3.1.4",
     "lint-staged": "^16.0.0",
