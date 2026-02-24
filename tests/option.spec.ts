@@ -54,12 +54,12 @@ describe("option", () => {
       expect(
         option.getValue(FILE, ENV, { "site.id": "10" }, ["site", "id"])
       ).toEqual({
-        arg_name: "site.id",
+        argName: "site.id",
         file: null,
         path: "site.id",
-        source_type: "args",
+        sourceType: "args",
         value: "10",
-        variable_name: null,
+        variableName: null,
       });
     });
   });
@@ -75,12 +75,12 @@ describe("option", () => {
           help: "",
         });
         expect(option.getValue(FILE, {}, {}, ["site", "test"])).toEqual({
-          arg_name: null,
+          argName: null,
           file: null,
           path: "site.test",
-          source_type: "default",
+          sourceType: "default",
           value: "10",
-          variable_name: null,
+          variableName: null,
         });
       });
     });
@@ -95,12 +95,12 @@ describe("option", () => {
           help: "",
         });
         expect(option.getValue(FILE, {}, {}, ["site", "test"])).toEqual({
-          arg_name: null,
+          argName: null,
           file: null,
           path: "site.test",
-          source_type: "default",
+          sourceType: "default",
           value: "15",
-          variable_name: null,
+          variableName: null,
         });
       });
     });
@@ -168,12 +168,12 @@ describe("option", () => {
       });
       const value = option.getValue(FILE, ENV, {}, ["test", "boolean"]);
       expect(value).toEqual({
-        arg_name: null,
+        argName: null,
         file: "./tests/__mocks__/fileMock.yaml",
         path: "test.boolean",
-        source_type: "file",
+        sourceType: "file",
         value: true,
-        variable_name: null,
+        variableName: null,
       });
     });
   });
@@ -189,12 +189,12 @@ describe("option", () => {
       });
       const value = option.getValue(FILE, ENV, {}, ["test", "number"]);
       expect(value).toEqual({
-        arg_name: null,
+        argName: null,
         file: "./tests/__mocks__/fileMock.yaml",
         path: "test.number",
-        source_type: "file",
+        sourceType: "file",
         value: "1883",
-        variable_name: null,
+        variableName: null,
       });
     });
     describe("if the option value is different of a number", () => {
@@ -232,12 +232,12 @@ describe("option", () => {
           "booleanAsString",
         ]);
         expect(value).toEqual({
-          arg_name: null,
+          argName: null,
           file: "./tests/__mocks__/fileMock.yaml",
           path: "test.booleanAsString",
-          source_type: "file",
+          sourceType: "file",
           value: true,
-          variable_name: null,
+          variableName: null,
         });
       });
     });
@@ -271,12 +271,12 @@ describe("option", () => {
         });
         const value = option.getValue(FILE, ENV, {}, ["test", "number"]);
         expect(value).toEqual({
-          arg_name: null,
+          argName: null,
           file: "./tests/__mocks__/fileMock.yaml",
           path: "test.number",
-          source_type: "file",
+          sourceType: "file",
           value: 1883,
-          variable_name: null,
+          variableName: null,
         });
       });
       describe("if the value is a number as string", () => {
@@ -293,12 +293,12 @@ describe("option", () => {
             "numberAsString",
           ]);
           expect(value).toEqual({
-            arg_name: null,
+            argName: null,
             file: "./tests/__mocks__/fileMock.yaml",
             path: "test.numberAsString",
-            source_type: "file",
+            sourceType: "file",
             value: 1883,
-            variable_name: null,
+            variableName: null,
           });
         });
       });
