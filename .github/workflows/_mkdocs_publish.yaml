@@ -4,7 +4,7 @@ on:
   workflow_call:
     secrets:
       mkdocs-token:
-        description: 'GitHub token for mkdocs'
+        description: "GitHub token for mkdocs"
         required: true
 
 env:

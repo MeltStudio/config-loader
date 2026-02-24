@@ -4,10 +4,10 @@ on:
   workflow_call:
     secrets:
       semantic-release-token:
-        description: 'GitHub token for semantic release'
+        description: "GitHub token for semantic release"
         required: true
       npm-token:
-        description: 'NPM token for semantic release'
+        description: "NPM token for semantic release"
         required: true
 
 env:
@@ -24,11 +24,11 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: 'Setup node with cache'
+      - name: "Setup node with cache"
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'yarn'
+          node-version: "18"
+          cache: "yarn"
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Build to dist folder
@@ -42,4 +42,3 @@ jobs:
             @semantic-release/git@10.0.1
             @semantic-release/github@8.0.6
             @semantic-release/exec@6.0.3
-  

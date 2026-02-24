@@ -1,5 +1,5 @@
 database:
   engines:
-  - 1
-  - MySQL
-  - true
+    - 1
+    - MySQL
+    - true

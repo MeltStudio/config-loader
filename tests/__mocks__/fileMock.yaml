@@ -12,16 +12,16 @@ objectArray:
     name: testing
 test:
   boolean: true
-  booleanAsString: 'true'
+  booleanAsString: "true"
   number: 1883
-  numberAsString: '1883'
-  string: 'test'
+  numberAsString: "1883"
+  string: "test"
   any: {}
   array:
-    - 'test'
-    - 'test2'
+    - "test"
+    - "test2"
   booleanAsNumber: 1
-  booleanAsStringNumber: '1'
+  booleanAsStringNumber: "1"
 test2:
   nestedObjectArray:
     - name: test

@@ -1,21 +1,21 @@
 #! /usr/bin/env node
 // taken from https://github.com/joonhocho/tscpaths
-import { program } from 'commander';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { globbySync } from 'globby';
-import { dirname, relative, resolve } from 'path';
+import { program } from "commander";
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { globbySync } from "globby";
+import { dirname, relative, resolve } from "path";
 
-import { loadConfig } from './util.mjs';
+import { loadConfig } from "./util.mjs";
 
 program
-  .version('0.0.1')
-  .option('-p, --project <file>', 'path to tsconfig.json', './tsconfig.json')
-  .option('-s, --src <path>', 'source root path', './src')
-  .option('-o, --out <path>', 'output root path', './dist')
-  .option('-v, --verbose', 'output logs');
+  .version("0.0.1")
+  .option("-p, --project <file>", "path to tsconfig.json", "./tsconfig.json")
+  .option("-s, --src <path>", "source root path", "./src")
+  .option("-o, --out <path>", "output root path", "./dist")
+  .option("-v, --verbose", "output logs");
 
-program.on('--help', () => {
-  console.log('\n$ tscpath -p tsconfig.json\n');
+program.on("--help", () => {
+  console.log("\n$ tscpath -p tsconfig.json\n");
 });
 
 program.parse();
@@ -23,10 +23,10 @@ program.parse();
 const { project, src, out, verbose } = program.opts();
 
 if (!project) {
-  throw new Error('--project must be specified');
+  throw new Error("--project must be specified");
 }
 if (!src) {
-  throw new Error('--src must be specified');
+  throw new Error("--src must be specified");
 }
 
 const verboseLog = (message) => {
@@ -44,13 +44,13 @@ const outRoot = out && resolve(out);
 const { baseUrl, outDir, paths } = loadConfig(configFile);
 
 if (!baseUrl) {
-  throw new Error('compilerOptions.baseUrl is not set');
+  throw new Error("compilerOptions.baseUrl is not set");
 }
 if (!paths) {
-  throw new Error('compilerOptions.paths is not set');
+  throw new Error("compilerOptions.paths is not set");
 }
 if (!outDir) {
-  throw new Error('compilerOptions.outDir is not set');
+  throw new Error("compilerOptions.outDir is not set");
 }
 verboseLog(`baseUrl: ${baseUrl}`);
 verboseLog(`outDir: ${outDir}`);
@@ -68,9 +68,9 @@ const outFileToSrcFile = (x) => resolve(srcRoot, relative(outPath, x));
 
 const aliases = Object.keys(paths)
   .map((alias) => ({
-    prefix: alias.replace(/\*$/, ''),
+    prefix: alias.replace(/\*$/, ""),
     aliasPaths: paths[alias].map((p) =>
-      resolve(basePath, p.replace(/\*$/, ''))
+      resolve(basePath, p.replace(/\*$/, ""))
     ),
   }))
   .filter(({ prefix }) => prefix);
@@ -78,10 +78,10 @@ verboseLog(`aliases: ${JSON.stringify(aliases, null, 2)}`);
 
 const toRelative = (from, x) => {
   const rel = relative(from, x);
-  return (rel.startsWith('.') ? rel : `./${rel}`).replace(/\\/g, '/');
+  return (rel.startsWith(".") ? rel : `./${rel}`).replace(/\\/g, "/");
 };
 
-const exts = ['.js', '.jsx', '.ts', '.tsx', '.d.ts', '.json'];
+const exts = [".js", ".jsx", ".ts", ".tsx", ".d.ts", ".json"];
 
 let replaceCount = 0;
 
@@ -154,13 +154,13 @@ let changedFileCount = 0;
 const flen = files.length;
 for (let i = 0; i < flen; i += 1) {
   const file = files[i];
-  const text = readFileSync(file, 'utf8');
+  const text = readFileSync(file, "utf8");
   const prevReplaceCount = replaceCount;
   const newText = replaceAlias(text, file);
   if (text !== newText) {
     changedFileCount += 1;
     verboseLog(`${file}: replaced ${replaceCount - prevReplaceCount} paths`);
-    writeFileSync(file, newText, 'utf8');
+    writeFileSync(file, newText, "utf8");
   }
 }
 

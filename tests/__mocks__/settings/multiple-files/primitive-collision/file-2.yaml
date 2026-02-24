@@ -1,6 +1,6 @@
 file2Data:
   unique: true
-version: '2.1.0'
+version: "2.1.0"
 upgraded: false
 cpus: 4
 numberData: 256

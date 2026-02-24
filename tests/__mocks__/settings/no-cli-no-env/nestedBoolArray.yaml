@@ -1,18 +1,18 @@
 database:
   bools:
-  - true
-  - false
-  - 'true'
-  - 'false'
-  - "true"
-  - "false"
-  - !!str true
-  - !!str false
-  - 1
-  - 0
-  - '1'
-  - '0'
-  - "1"
-  - "0"
-  - !!str 1
-  - !!str 0
+    - true
+    - false
+    - "true"
+    - "false"
+    - "true"
+    - "false"
+    - !!str true
+    - !!str false
+    - 1
+    - 0
+    - "1"
+    - "0"
+    - "1"
+    - "0"
+    - !!str 1
+    - !!str 0

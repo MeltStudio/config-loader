@@ -3,5 +3,5 @@ hardware:
     max: 400
     min: 200
   brand:
-  - 400
-  - 200
+    - 400
+    - 200

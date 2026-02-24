@@ -1,11 +1,11 @@
 database:
   sizeOptions:
-  - 1
-  - "2"
-  - !!str 4
-  - '8'
+    - 1
+    - "2"
+    - !!str 4
+    - "8"
   bools:
-  - true
-  - false
-  - 'true'
-  - 'false'
+    - true
+    - false
+    - "true"
+    - "false"

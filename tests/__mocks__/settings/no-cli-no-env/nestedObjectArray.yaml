@@ -1,11 +1,11 @@
 database:
-  engines: 
-  - name: PostgreSQL
-    minRam: 8
-    openSource: true
-  - name: MySQL
-    minRam: 4
-    openSource: true
-  - name: Firestore
-    minRam: 16
-    openSource: false
+  engines:
+    - name: PostgreSQL
+      minRam: 8
+      openSource: true
+    - name: MySQL
+      minRam: 4
+      openSource: true
+    - name: Firestore
+      minRam: 16
+      openSource: false

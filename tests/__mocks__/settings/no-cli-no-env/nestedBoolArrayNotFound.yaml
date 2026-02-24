@@ -1,6 +1,6 @@
 database:
   sizeOptions:
-  - 1
-  - 2
-  - 4
-  - 8
+    - 1
+    - 2
+    - 4
+    - 8
