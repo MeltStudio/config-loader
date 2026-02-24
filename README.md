@@ -59,6 +59,10 @@ No separate interface to maintain. No `as` casts. The types flow from the schema
 - **Default values** — static or computed (via functions)
 - **Multiple files / directory loading** — load from a list of files or an entire directory
 
+## Requirements
+
+- Node.js >= 20
+
 ## Installation
 
 ```bash
