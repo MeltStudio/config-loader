@@ -1,6 +1,6 @@
 # @meltstudio/config-loader
 
-A type-safe configuration loader for Node.js. Define your schema once, load from YAML files, environment variables, and CLI arguments — and get a fully typed result with zero manual type annotations.
+A type-safe configuration loader for Node.js. Define your schema once, load from YAML or JSON files, environment variables, and CLI arguments — and get a fully typed result with zero manual type annotations.
 
 ## Why config-loader?
 
@@ -46,7 +46,7 @@ No separate interface to maintain. No `as` casts. The types flow from the schema
 ## Features
 
 - **Full type inference** — schema definition produces typed output automatically
-- **Multiple sources** — YAML files, environment variables, CLI arguments
+- **Multiple sources** — YAML files, JSON files, environment variables, CLI arguments
 - **Priority resolution** — CLI > Env > Files > Defaults
 - **Nested objects and arrays** — deeply nested configs with full type safety
 - **Structured errors** — typed `ConfigLoadError` with per-field error details instead of `process.exit(1)`
@@ -213,12 +213,15 @@ c.schema({
 .load({
   env: true,          // Read from process.env
   args: true,         // Read from CLI arguments (--database.port 3000)
-  files: "./config.yaml",                    // Single file
-  files: ["./base.yaml", "./overrides.yaml"], // Multiple files (first takes priority)
+  files: "./config.yaml",                    // Single YAML file
+  files: "./config.json",                    // Single JSON file
+  files: ["./base.yaml", "./overrides.json"], // Mix YAML and JSON (first takes priority)
   dir: "./config.d/",                        // All files in a directory (sorted)
   defaults: { port: 3000 },                  // Programmatic defaults
 })
 ```
+
+Both YAML (`.yaml`, `.yml`) and JSON (`.json`) files are supported. The format is detected automatically from the file extension.
 
 **Priority order:** CLI arguments > Environment variables > Files > Defaults
 
