@@ -1,4 +1,5 @@
-import type { ArrayValueContainer, Value } from "@/option";
+import type ArrayValueContainer from "@/option/arrayOption";
+import type { Value } from "@/option/base";
 import type { ArrayValue } from "@/types";
 
 type SourceTypes = "file" | "env" | "args" | "default";
@@ -8,28 +9,28 @@ class ConfigNode {
 
   path: string;
 
-  source_type: SourceTypes;
+  sourceType: SourceTypes;
 
   file: string | null;
 
-  variable_name: string | null;
+  variableName: string | null;
 
-  arg_name: string | null;
+  argName: string | null;
 
   constructor(
     value: Value | ArrayValue,
     path: string,
-    source_type: SourceTypes,
+    sourceType: SourceTypes,
     file: string | null,
-    variable_name: string | null,
-    arg_name: string | null
+    variableName: string | null,
+    argName: string | null
   ) {
     this.value = value;
     this.path = path;
-    this.source_type = source_type;
+    this.sourceType = sourceType;
     this.file = file;
-    this.variable_name = variable_name;
-    this.arg_name = arg_name;
+    this.variableName = variableName;
+    this.argName = argName;
   }
 }
 

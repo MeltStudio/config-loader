@@ -5,24 +5,27 @@ import * as fs from "fs";
 import { ConfigFileError, ConfigLoadError } from "./errors";
 import ConfigNode from "./nodes/configNode";
 import ConfigNodeArray from "./nodes/configNodeArray";
-import type { Node, OptionTypes, Value } from "./option";
+import type { Node, OptionTypes } from "./option";
 import {
   ArrayValueContainer,
   OptionBase,
   OptionErrors,
   PrimitiveOption,
 } from "./option";
+import type { Value } from "./option/base";
 import type {
   ArrayValue,
   ConfigFileData,
   NodeTree,
-  PartialyBuiltSettings,
   Path,
   ProcessEnv,
   RecursivePartial,
   SchemaValue,
   SettingsSources,
 } from "./types";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PartiallyBuiltSettings = any;
 
 class Settings<T extends Node> {
   private readonly schema: T;
@@ -159,7 +162,7 @@ class Settings<T extends Node> {
   }
 
   private buildOption(
-    result: PartialyBuiltSettings,
+    result: PartiallyBuiltSettings,
     configData: {
       sourceFile: string | string[];
       envData: ProcessEnv;
@@ -191,7 +194,7 @@ class Settings<T extends Node> {
     item: Node | OptionTypes,
     values: ArrayValue,
     file: string
-  ): Array<PartialyBuiltSettings> | ConfigNodeArray {
+  ): Array<PartiallyBuiltSettings> | ConfigNodeArray {
     if (item instanceof PrimitiveOption) {
       if (item.params.kind === "string") {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -226,10 +229,10 @@ class Settings<T extends Node> {
 
   private processArrayWithSchema(
     item: Node | OptionTypes,
-    v: PartialyBuiltSettings,
+    v: PartiallyBuiltSettings,
     file: string
-  ): PartialyBuiltSettings {
-    const result: PartialyBuiltSettings = {};
+  ): PartiallyBuiltSettings {
+    const result: PartiallyBuiltSettings = {};
     this.traverseOptions(
       item,
       [],
@@ -245,7 +248,7 @@ class Settings<T extends Node> {
   }
 
   private setOption(
-    options: PartialyBuiltSettings,
+    options: PartiallyBuiltSettings,
     path: Path,
     node: ConfigNode
   ): void {
@@ -268,7 +271,7 @@ class Settings<T extends Node> {
           options[child].value = this.getValidatedArray(
             node.value.item,
             node.value.val,
-            node.file || node.variable_name || node.arg_name || ""
+            node.file || node.variableName || node.argName || ""
           );
         } else {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -278,8 +281,8 @@ class Settings<T extends Node> {
     } else {
       throw new Error(
         `Invalid path '${node.path}' getting from '${
-          node.arg_name || node.file || node.variable_name || ""
-        }' in ' ${node.source_type}`
+          node.argName || node.file || node.variableName || ""
+        }' in ' ${node.sourceType}`
       );
     }
   }

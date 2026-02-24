@@ -3,8 +3,6 @@ import type { ArrayOption, Node, OptionBase, OptionTypes } from "./option";
 import type PrimitiveOption from "./option/primitive";
 
 export type ProcessEnv = { [key: string]: string | undefined };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type PartialyBuiltSettings = any;
 
 export type NodeTree = { [key: string]: NodeTree | ConfigNode };
 
