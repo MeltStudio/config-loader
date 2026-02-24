@@ -1,8 +1,20 @@
+import type { ConfigErrorEntry } from "@/errors";
+import { ConfigLoadError } from "@/errors";
 import ConfigNode from "@/nodes/configNode";
-import { OptionErrors } from "@/option";
+import OptionErrors from "@/option/errors";
 import option from "@/src";
 
 import { addCliArg } from "./utils/cli";
+
+function getLoadErrors(fn: () => unknown): ConfigErrorEntry[] {
+  try {
+    fn();
+  } catch (e) {
+    if (e instanceof ConfigLoadError) return e.errors;
+    throw e;
+  }
+  throw new Error("Expected function to throw");
+}
 
 let savedProcessEnv: NodeJS.ProcessEnv;
 
@@ -15,11 +27,11 @@ beforeAll(() => {
 beforeEach(() => {
   process.env = { ...savedProcessEnv };
   process.argv = [...savedProcessArgs];
-  OptionErrors.clearAll();
+  new OptionErrors().clearAll();
 });
 
 afterEach(() => {
-  OptionErrors.clearAll();
+  new OptionErrors().clearAll();
 });
 
 afterAll(() => {
@@ -289,7 +301,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               hardware: option.object({
@@ -304,8 +316,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedStringNotFound.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toContainEqual(
+        );
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'hardware.type' not provided.",
           }),
@@ -314,7 +326,7 @@ describe("Settings", () => {
 
       // TODO: Error message for array says required option not provided, instead of wrong type
       it("should throw an error if the value is wrong type (object or array)", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               hardware: option.object({
@@ -330,8 +342,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toContainEqual(
+        );
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
@@ -339,7 +351,7 @@ describe("Settings", () => {
             ),
           }),
         );
-        expect(OptionErrors.errors).toContainEqual(
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'hardware.brand' not provided.",
           }),
@@ -372,7 +384,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -390,8 +402,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedStringArrayNotFound.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toContainEqual(
+        );
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.engines' not provided.",
           }),
@@ -421,7 +433,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -436,8 +448,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberNotFound.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toContainEqual(
+        );
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.ram' not provided.",
           }),
@@ -445,7 +457,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the value cannot be parsed to number", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -463,8 +475,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberWrongType.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toHaveLength(4);
+        );
+        expect(loadErrors).toHaveLength(4);
         // TODO: fix error messages
         /* [
           "Cannot convert value 'MySQL' for 'database.ram1' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberWrongType.yaml.",
@@ -472,7 +484,7 @@ describe("Settings", () => {
           "Cannot convert value 'MySQL' for 'database.ram3' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberWrongType.yaml.",
           "Cannot convert value 'MySQL' for 'database.ram4' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberWrongType.yaml.",
         ].forEach((message) => {
-          expect(OptionErrors.errors).toContainEqual(
+          expect(loadErrors).toContainEqual(
             expect.objectContaining({ message })
           );
         }); */
@@ -504,7 +516,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -522,8 +534,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayNotFound.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toContainEqual(
+        );
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.sizeOptions' not provided.",
           }),
@@ -531,7 +543,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the array items cannot be parsed to number", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -549,12 +561,12 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongItemType.yaml",
             }),
-        ).toThrow();
+        );
         [
           /Cannot convert value 'MySQL' for 'database\.sizeOptions\.0' to number in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongItemType\.yaml(:\d+:\d+)?\./,
           /Cannot convert value 'Firebase' for 'database\.sizeOptions\.1' to number in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongItemType\.yaml(:\d+:\d+)?\./,
         ].forEach((pattern) => {
-          expect(OptionErrors.errors).toContainEqual(
+          expect(loadErrors).toContainEqual(
             expect.objectContaining({
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               message: expect.stringMatching(pattern),
@@ -564,7 +576,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the value is not an array", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -582,8 +594,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongType.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toContainEqual(
+        );
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
@@ -635,7 +647,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -650,8 +662,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolNotFound.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toContainEqual(
+        );
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.bool1' not provided.",
           }),
@@ -659,7 +671,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the array items cannot be parsed to boolean", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -676,14 +688,14 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml",
             }),
-        ).toThrow();
+        );
         const errorPatterns = [
           /Cannot convert value '2' for 'database\.bool1' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolWrongType\.yaml(:\d+:\d+)?\./,
           /Cannot convert value 'texto' for 'database\.bool2' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolWrongType\.yaml(:\d+:\d+)?\./,
           /Cannot convert value '-14' for 'database\.bool3' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolWrongType\.yaml(:\d+:\d+)?\./,
         ];
         errorPatterns.forEach((pattern) => {
-          expect(OptionErrors.errors).toContainEqual(
+          expect(loadErrors).toContainEqual(
             expect.objectContaining({
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               message: expect.stringMatching(pattern),
@@ -737,7 +749,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -755,8 +767,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayNotFound.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toContainEqual(
+        );
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.bools' not provided.",
           }),
@@ -764,7 +776,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the array items cannot be parsed to boolean", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -782,14 +794,14 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml",
             }),
-        ).toThrow();
+        );
         const errorPatterns = [
           /Cannot convert value '2' for 'database\.bools\.0' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolArrayWrongType\.yaml(:\d+:\d+)?\./,
           /Cannot convert value 'texto' for 'database\.bools\.1' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolArrayWrongType\.yaml(:\d+:\d+)?\./,
           /Cannot convert value '-14' for 'database\.bools\.2' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolArrayWrongType\.yaml(:\d+:\d+)?\./,
         ];
         errorPatterns.forEach((pattern) => {
-          expect(OptionErrors.errors).toContainEqual(
+          expect(loadErrors).toContainEqual(
             expect.objectContaining({
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               message: expect.stringMatching(pattern),
@@ -836,7 +848,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if it doesn't exist", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -860,8 +872,8 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedObjectArrayNotFound.yaml",
             }),
-        ).toThrow();
-        expect(OptionErrors.errors).toContainEqual(
+        );
+        expect(loadErrors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.engines' not provided.",
           }),
@@ -959,7 +971,7 @@ describe("Settings", () => {
       });
 
       it("should throw an error if the object is of a different kind", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -998,14 +1010,14 @@ describe("Settings", () => {
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedObjectWrongType.yaml",
             }),
-        ).toThrow();
+        );
         [
           "Cant get path from string value 'PostgreSQL'",
           "Cant get path from number value '4'",
           "Cant get path from boolean value 'true'",
           "Cant get path from array value '[1986,1990,1995]'",
         ].forEach((error) => {
-          expect(OptionErrors.errors).toContainEqual(
+          expect(loadErrors).toContainEqual(
             expect.objectContaining({ message: error }),
           );
         });
@@ -1494,7 +1506,7 @@ describe("Settings", () => {
 
     describe("if a required setting doesn't appear on any of the files", () => {
       it("should throw an error", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -1520,14 +1532,14 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/multiple-files/argument-not-found/file-3.yaml",
               ],
             }),
-        ).toThrow();
+        );
         const errors = [
           "Required option 'database.engine.name' not provided.",
           "Required option 'database.engine.minRam' not provided.",
           "Required option 'database.engine.openSource' not provided.",
         ];
         errors.forEach((error) => {
-          expect(OptionErrors.errors).toContainEqual(
+          expect(loadErrors).toContainEqual(
             expect.objectContaining({ message: error }),
           );
         });
@@ -1731,7 +1743,7 @@ describe("Settings", () => {
 
     describe("if a required setting doesn't appear on any of the files", () => {
       it("should throw an error", () => {
-        expect(() =>
+        const loadErrors = getLoadErrors(() =>
           option
             .schema({
               database: option.object({
@@ -1753,14 +1765,14 @@ describe("Settings", () => {
               args: false,
               dir: "tests/__mocks__/settings/multiple-files/argument-not-found",
             }),
-        ).toThrow();
+        );
         const errors = [
           "Required option 'database.engine.name' not provided.",
           "Required option 'database.engine.minRam' not provided.",
           "Required option 'database.engine.openSource' not provided.",
         ];
         errors.forEach((error) => {
-          expect(OptionErrors.errors).toContainEqual(
+          expect(loadErrors).toContainEqual(
             expect.objectContaining({ message: error }),
           );
         });
@@ -2186,7 +2198,7 @@ describe("Settings", () => {
     });
 
     it("should include line numbers in error messages for YAML-sourced values", () => {
-      expect(() =>
+      const loadErrors = getLoadErrors(() =>
         option
           .schema({
             hardware: option.object({
@@ -2201,10 +2213,8 @@ describe("Settings", () => {
             files:
               "tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml",
           }),
-      ).toThrow();
-      const errorWithLine = OptionErrors.errors.find(
-        (e) => e.path === "hardware.size",
       );
+      const errorWithLine = loadErrors.find((e) => e.path === "hardware.size");
       expect(errorWithLine).toBeDefined();
       expect(errorWithLine!.message).toMatch(/\.yaml:\d+:\d+\./);
     });

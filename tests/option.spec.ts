@@ -10,12 +10,14 @@ const FILE = "./tests/__mocks__/fileMock.yaml";
 
 const ENV = {};
 
+let errors: OptionErrors;
+
 beforeEach(() => {
-  OptionErrors.clearAll();
+  errors = new OptionErrors();
 });
 
 afterEach(() => {
-  OptionErrors.clearAll();
+  errors.clearAll();
 });
 
 describe("option", () => {
@@ -48,7 +50,16 @@ describe("option", () => {
         help: "",
       });
       expect(
-        option.getValue(FILE, ENV, { "site.id": "10" }, ["site", "id"]),
+        option.getValue(
+          FILE,
+          ENV,
+          { "site.id": "10" },
+          ["site", "id"],
+          undefined,
+          undefined,
+          undefined,
+          errors,
+        ),
       ).toEqual({
         argName: "site.id",
         file: null,
@@ -72,7 +83,18 @@ describe("option", () => {
           defaultValue: (): string => "10",
           help: "",
         });
-        expect(option.getValue(FILE, {}, {}, ["site", "test"])).toEqual({
+        expect(
+          option.getValue(
+            FILE,
+            {},
+            {},
+            ["site", "test"],
+            undefined,
+            undefined,
+            undefined,
+            errors,
+          ),
+        ).toEqual({
           argName: null,
           file: null,
           path: "site.test",
@@ -94,7 +116,18 @@ describe("option", () => {
           defaultValue: "15",
           help: "",
         });
-        expect(option.getValue(FILE, {}, {}, ["site", "test"])).toEqual({
+        expect(
+          option.getValue(
+            FILE,
+            {},
+            {},
+            ["site", "test"],
+            undefined,
+            undefined,
+            undefined,
+            errors,
+          ),
+        ).toEqual({
           argName: null,
           file: null,
           path: "site.test",
@@ -122,8 +155,11 @@ describe("option", () => {
         {},
         ["site", "test"],
         "./tests/__mocks__/fileMock.yaml",
+        undefined,
+        undefined,
+        errors,
       );
-      expect(OptionErrors.errors).toContainEqual(
+      expect(errors.errors).toContainEqual(
         expect.objectContaining({
           message: "Required option 'site.test' not provided.",
         }),
@@ -136,7 +172,16 @@ describe("option", () => {
         required: true,
         item: optionFn.string({ required: true }),
       });
-      const value = option.getValue(FILE, ENV, {}, ["test", "array"]);
+      const value = option.getValue(
+        FILE,
+        ENV,
+        {},
+        ["test", "array"],
+        undefined,
+        undefined,
+        undefined,
+        errors,
+      );
       expect(value).toMatchObject({
         value: new ArrayValueContainer(
           new PrimitiveOption({
@@ -172,7 +217,16 @@ describe("option", () => {
         cli: false,
         help: "",
       });
-      const value = option.getValue(FILE, ENV, {}, ["test", "boolean"]);
+      const value = option.getValue(
+        FILE,
+        ENV,
+        {},
+        ["test", "boolean"],
+        undefined,
+        undefined,
+        undefined,
+        errors,
+      );
       expect(value).toMatchObject({
         argName: null,
         file: "./tests/__mocks__/fileMock.yaml",
@@ -199,7 +253,16 @@ describe("option", () => {
         cli: false,
         help: "",
       });
-      const value = option.getValue(FILE, ENV, {}, ["test", "number"]);
+      const value = option.getValue(
+        FILE,
+        ENV,
+        {},
+        ["test", "number"],
+        undefined,
+        undefined,
+        undefined,
+        errors,
+      );
       expect(value).toMatchObject({
         argName: null,
         file: "./tests/__mocks__/fileMock.yaml",
@@ -224,8 +287,17 @@ describe("option", () => {
           cli: false,
           help: "",
         });
-        option.getValue(FILE, ENV, {}, ["test", "boolean"]);
-        expect(OptionErrors.errors).toContainEqual(
+        option.getValue(
+          FILE,
+          ENV,
+          {},
+          ["test", "boolean"],
+          undefined,
+          undefined,
+          undefined,
+          errors,
+        );
+        expect(errors.errors).toContainEqual(
           expect.objectContaining({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
@@ -247,10 +319,16 @@ describe("option", () => {
           cli: false,
           help: "",
         });
-        const value = option.getValue(FILE, ENV, {}, [
-          "test",
-          "booleanAsString",
-        ]);
+        const value = option.getValue(
+          FILE,
+          ENV,
+          {},
+          ["test", "booleanAsString"],
+          undefined,
+          undefined,
+          undefined,
+          errors,
+        );
         expect(value).toMatchObject({
           argName: null,
           file: "./tests/__mocks__/fileMock.yaml",
@@ -276,8 +354,17 @@ describe("option", () => {
           cli: false,
           help: "",
         });
-        option.getValue(FILE, ENV, {}, ["test", "string"]);
-        expect(OptionErrors.errors).toContainEqual(
+        option.getValue(
+          FILE,
+          ENV,
+          {},
+          ["test", "string"],
+          undefined,
+          undefined,
+          undefined,
+          errors,
+        );
+        expect(errors.errors).toContainEqual(
           expect.objectContaining({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
@@ -297,7 +384,16 @@ describe("option", () => {
           cli: false,
           help: "",
         });
-        const value = option.getValue(FILE, ENV, {}, ["test", "number"]);
+        const value = option.getValue(
+          FILE,
+          ENV,
+          {},
+          ["test", "number"],
+          undefined,
+          undefined,
+          undefined,
+          errors,
+        );
         expect(value).toMatchObject({
           argName: null,
           file: "./tests/__mocks__/fileMock.yaml",
@@ -322,10 +418,16 @@ describe("option", () => {
             cli: false,
             help: "",
           });
-          const value = option.getValue(FILE, ENV, {}, [
-            "test",
-            "numberAsString",
-          ]);
+          const value = option.getValue(
+            FILE,
+            ENV,
+            {},
+            ["test", "numberAsString"],
+            undefined,
+            undefined,
+            undefined,
+            errors,
+          );
           expect(value).toMatchObject({
             argName: null,
             file: "./tests/__mocks__/fileMock.yaml",
@@ -351,8 +453,17 @@ describe("option", () => {
             cli: false,
             help: "",
           });
-          option.getValue(FILE, ENV, {}, ["test", "string"]);
-          expect(OptionErrors.errors).toContainEqual(
+          option.getValue(
+            FILE,
+            ENV,
+            {},
+            ["test", "string"],
+            undefined,
+            undefined,
+            undefined,
+            errors,
+          );
+          expect(errors.errors).toContainEqual(
             expect.objectContaining({
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               message: expect.stringMatching(
@@ -371,8 +482,17 @@ describe("option", () => {
             cli: false,
             help: "",
           });
-          option.getValue(FILE, ENV, {}, ["test", "undefined"]);
-          expect(OptionErrors.errors).toContainEqual(
+          option.getValue(
+            FILE,
+            ENV,
+            {},
+            ["test", "undefined"],
+            undefined,
+            undefined,
+            undefined,
+            errors,
+          );
+          expect(errors.errors).toContainEqual(
             expect.objectContaining({
               message: "Required option 'test.undefined' not provided.",
             }),
@@ -392,12 +512,23 @@ describe("option", () => {
         cli: false,
         help: "",
       });
-      expect(() => option.getValue(FILE, ENV, {}, ["test", "any"])).toThrow(
+      expect(() =>
+        option.getValue(
+          FILE,
+          ENV,
+          {},
+          ["test", "any"],
+          undefined,
+          undefined,
+          undefined,
+          errors,
+        ),
+      ).toThrow(
         new Error(
           "Invalid kind. Must be 'string', 'number', 'boolean' or 'array'",
         ),
       );
-      expect(OptionErrors.errors).toContainEqual(
+      expect(errors.errors).toContainEqual(
         expect.objectContaining({
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           message: expect.stringMatching(

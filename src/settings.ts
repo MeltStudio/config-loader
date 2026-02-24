@@ -12,10 +12,10 @@ import {
   ArrayValueContainer,
   ObjectOption,
   OptionBase,
-  OptionErrors,
   PrimitiveOption,
 } from "./option";
 import type { Value } from "./option/base";
+import OptionErrors from "./option/errors";
 import type {
   ArrayValue,
   ConfigFileData,
@@ -47,6 +47,8 @@ class Settings<T extends Node> {
   private defaultData: RecursivePartial<SchemaValue<T>> = {};
 
   private envFileResults: EnvFileResult[] = [];
+
+  private readonly errors = new OptionErrors();
 
   private program: Command;
 
@@ -162,27 +164,28 @@ class Settings<T extends Node> {
         argsData: this.argsData,
         defaultValue: this.defaultData,
         envFileResults: this.envFileResults,
+        errors: this.errors,
       }),
     );
 
     // if then of the execution has warnings
-    if (OptionErrors.warnings.length > 0) {
-      for (let index = 0; index < OptionErrors.warnings.length; index += 1) {
-        console.warn(`[Warning]: ${OptionErrors.warnings[index]}`);
+    if (this.errors.warnings.length > 0) {
+      for (let index = 0; index < this.errors.warnings.length; index += 1) {
+        console.warn(`[Warning]: ${this.errors.warnings[index]}`);
       }
     }
 
     // if then of the execution has errors
-    if (OptionErrors.errors.length > 0) {
+    if (this.errors.errors.length > 0) {
       if (this.sources.exitOnError) {
-        for (let index = 0; index < OptionErrors.errors.length; index += 1) {
-          console.error(`[Error]: ${OptionErrors.errors[index].message}`);
+        for (let index = 0; index < this.errors.errors.length; index += 1) {
+          console.error(`[Error]: ${this.errors.errors[index].message}`);
         }
         process.exit(1);
       }
       throw new ConfigLoadError(
-        [...OptionErrors.errors],
-        [...OptionErrors.warnings],
+        [...this.errors.errors],
+        [...this.errors.warnings],
       );
     }
   }
@@ -217,6 +220,7 @@ class Settings<T extends Node> {
       defaultValue?: RecursivePartial<SchemaValue<T>>;
       objectFromArray?: { value: ConfigFileData; file: string };
       envFileResults?: EnvFileResult[];
+      errors?: OptionErrors;
     },
     node: OptionBase,
     path: Path,
@@ -228,6 +232,7 @@ class Settings<T extends Node> {
       defaultValue = {},
       objectFromArray,
       envFileResults,
+      errors,
     } = configData;
     const value = node.getValue(
       sourceFile,
@@ -237,6 +242,7 @@ class Settings<T extends Node> {
       defaultValue,
       objectFromArray,
       envFileResults,
+      errors,
     );
     if (value === null) {
       // Value not found
@@ -290,6 +296,7 @@ class Settings<T extends Node> {
           value: v,
           file,
         },
+        errors: this.errors,
       }),
     );
     return result;

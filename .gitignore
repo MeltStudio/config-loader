@@ -135,3 +135,7 @@ dist
 
 # docs build location
 /site
+
+# Project notes
+RECOMMENDATIONS.md
+TODO.md

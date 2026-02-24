@@ -14,6 +14,7 @@ import { InvalidValue } from "@/types";
 import { valueIsInvalid } from "@/utils";
 
 import ArrayValueContainer from "./arrayOption";
+import type OptionErrors from "./errors";
 
 function valueToString(val: unknown): string {
   if (typeof val === "object" && val !== null) {
@@ -21,7 +22,6 @@ function valueToString(val: unknown): string {
   }
   return String(val);
 }
-import OptionErrors from "./errors";
 
 export type Value = boolean | string | number | object | InvalidValue;
 export type DefaultValue =
@@ -98,13 +98,14 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       } | null;
     },
     envFileResults?: EnvFileResult[],
+    errors?: OptionErrors,
   ): ConfigNode | null {
     const ident = path.join(".");
 
     if (this.params.cli && args) {
       if (ident in args) {
         return new ConfigNode(
-          this.checkType(args[ident], path, "args"),
+          this.checkType(args[ident], path, "args", errors),
           ident,
           "args",
           null,
@@ -125,7 +126,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           );
           if (envFileSource) {
             return new ConfigNode(
-              this.checkType(val, path, "envFile"),
+              this.checkType(val, path, "envFile", errors),
               ident,
               "envFile",
               envFileSource.filePath,
@@ -136,7 +137,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
             );
           }
           return new ConfigNode(
-            this.checkType(val, path, "env"),
+            this.checkType(val, path, "env", errors),
             ident,
             "env",
             null,
@@ -148,11 +149,16 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     }
     if (typeof sourceFile === "string") {
       const { data, sourceMap } = loadConfigFile(sourceFile);
-      const val = this.findInObject(data || {}, path);
+      const val = this.findInObject(data || {}, path, errors);
       const loc = lookupLocation(sourceMap, path);
       if (val instanceof ArrayValueContainer) {
         return new ConfigNode(
-          this.checkType(val, path, formatFileLocation(sourceFile, loc)),
+          this.checkType(
+            val,
+            path,
+            formatFileLocation(sourceFile, loc),
+            errors,
+          ),
           ident,
           "file",
           sourceFile,
@@ -165,7 +171,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       // the following line checks if the value is different to null or undefined
       if (!valueIsInvalid(val)) {
         return new ConfigNode(
-          this.checkType(val, path, formatFileLocation(sourceFile, loc)),
+          this.checkType(
+            val,
+            path,
+            formatFileLocation(sourceFile, loc),
+            errors,
+          ),
           ident,
           "file",
           sourceFile,
@@ -181,11 +192,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       for (let index = 0; index < sourceFile.length; index += 1) {
         const file = sourceFile[index];
         const { data, sourceMap } = loadConfigFile(file);
-        const val = this.findInObject(data || {}, path);
+        const val = this.findInObject(data || {}, path, errors);
         const loc = lookupLocation(sourceMap, path);
         if (val instanceof ArrayValueContainer) {
           return new ConfigNode(
-            this.checkType(val, path, formatFileLocation(file, loc)),
+            this.checkType(val, path, formatFileLocation(file, loc), errors),
             ident,
             "file",
             file,
@@ -199,7 +210,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         // the following line checks if the value is different to null or undefined
         if (!valueIsInvalid(val)) {
           return new ConfigNode(
-            this.checkType(val, path, formatFileLocation(file, loc)),
+            this.checkType(val, path, formatFileLocation(file, loc), errors),
             ident,
             "file",
             file,
@@ -214,13 +225,14 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
 
     if (objectFromArray) {
       const loc = lookupLocation(objectFromArray.sourceMap, path);
-      const val = this.findInObject(objectFromArray.value, path);
+      const val = this.findInObject(objectFromArray.value, path, errors);
       if (val instanceof ArrayValueContainer) {
         return new ConfigNode(
           this.checkType(
             val,
             path,
             formatFileLocation(objectFromArray.file, loc),
+            errors,
           ),
           ident,
           "file",
@@ -238,6 +250,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
             val,
             path,
             formatFileLocation(objectFromArray.file, loc),
+            errors,
           ),
           ident,
           "file",
@@ -251,10 +264,14 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     }
 
     if (defaultValues) {
-      const val = this.findInObject(defaultValues as ConfigFileData, path);
+      const val = this.findInObject(
+        defaultValues as ConfigFileData,
+        path,
+        errors,
+      );
       if (val instanceof ArrayValueContainer) {
         return new ConfigNode(
-          this.checkType(val, path, "default"),
+          this.checkType(val, path, "default", errors),
           ident,
           "default",
           null,
@@ -264,7 +281,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       }
       if (!valueIsInvalid(val)) {
         return new ConfigNode(
-          this.checkType(val, path, "default"),
+          this.checkType(val, path, "default", errors),
           ident,
           "default",
           null,
@@ -284,11 +301,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         defaultValue = this.params.defaultValue;
       }
       if (this.params.kind === "array" && Array.isArray(defaultValue)) {
-        defaultValue = this.buildArrayOption(defaultValue);
+        defaultValue = this.buildArrayOption(defaultValue, errors);
       }
       if (!valueIsInvalid(defaultValue)) {
         return new ConfigNode(
-          this.checkType(defaultValue, path, "default"),
+          this.checkType(defaultValue, path, "default", errors),
           ident,
           "default",
           null,
@@ -300,7 +317,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
 
     // If required and no value anywhere
     if (this.params.required) {
-      OptionErrors.errors.push({
+      errors?.errors.push({
         message: `Required option '${ident}' not provided.`,
         path: ident,
         kind: "required",
@@ -343,11 +360,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     val: Value,
     pathStr: string,
     sourceOfVal: string,
+    errors?: OptionErrors,
   ): Value {
     if (typeof val === "string") {
       const parseVal = parseInt(val, 10);
       if (Number.isNaN(parseVal)) {
-        OptionErrors.errors.push({
+        errors?.errors.push({
           message: `Cannot convert value '${val}' for '${pathStr}' to number in ${sourceOfVal}.`,
           path: pathStr,
           source: sourceOfVal,
@@ -355,12 +373,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         });
         return new InvalidValue();
       }
-      OptionErrors.warnings.push(
+      errors?.warnings.push(
         `The option ${pathStr} is stated as a number but is provided as a string`,
       );
       return parseVal;
     }
-    OptionErrors.errors.push({
+    errors?.errors.push({
       message: `Invalid state. Invalid kind in ${sourceOfVal}`,
       source: sourceOfVal,
       kind: "invalid_state",
@@ -368,11 +386,16 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     return new InvalidValue();
   }
 
-  public checkType(val: Value, path: Path, sourceOfVal: string): Value {
+  public checkType(
+    val: Value,
+    path: Path,
+    sourceOfVal: string,
+    errors?: OptionErrors,
+  ): Value {
     const ident = path.join(".");
 
     if (valueIsInvalid(val)) {
-      OptionErrors.errors.push({
+      errors?.errors.push({
         message: `Invalid state. Invalid kind in ${sourceOfVal}`,
         source: sourceOfVal,
         kind: "invalid_state",
@@ -386,12 +409,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
 
     if (this.params.kind === "string") {
       if (typeof val === "number") {
-        OptionErrors.warnings.push(
+        errors?.warnings.push(
           `The option ${ident} is stated as a string but is provided as a number`,
         );
         return val.toString();
       }
-      OptionErrors.errors.push({
+      errors?.errors.push({
         message: `Cannot convert value '${valueToString(
           val,
         )}' for '${ident}' to string in ${sourceOfVal}.`,
@@ -410,7 +433,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           return false;
         }
       }
-      OptionErrors.errors.push({
+      errors?.errors.push({
         message: `Cannot convert value '${valueToString(
           val,
         )}' for '${ident}' to boolean in ${sourceOfVal}.`,
@@ -421,9 +444,9 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       return new InvalidValue();
     }
     if (this.params.kind === "number") {
-      return this.checkNumberType(val, ident, sourceOfVal);
+      return this.checkNumberType(val, ident, sourceOfVal, errors);
     }
-    OptionErrors.errors.push({
+    errors?.errors.push({
       message: `Invalid state. Invalid kind in ${sourceOfVal}`,
       source: sourceOfVal,
       kind: "invalid_state",
@@ -433,34 +456,38 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     );
   }
 
-  protected findInObject(obj: ConfigFileData, path: Path): Value | ArrayValue {
+  protected findInObject(
+    obj: ConfigFileData,
+    path: Path,
+    errors?: OptionErrors,
+  ): Value | ArrayValue {
     if (path.length > 1) {
       const [child, ...rest] = path;
       const val = obj[child];
 
       if (typeof val === "string") {
-        OptionErrors.errors.push({
+        errors?.errors.push({
           message: `Cant get path from string value '${val}'`,
           kind: "invalid_path",
         });
         return new InvalidValue();
       }
       if (typeof val === "number") {
-        OptionErrors.errors.push({
+        errors?.errors.push({
           message: `Cant get path from number value '${val}'`,
           kind: "invalid_path",
         });
         return new InvalidValue();
       }
       if (typeof val === "boolean") {
-        OptionErrors.errors.push({
+        errors?.errors.push({
           message: `Cant get path from boolean value '${val.toString()}'`,
           kind: "invalid_path",
         });
         return new InvalidValue();
       }
       if (Array.isArray(val)) {
-        OptionErrors.errors.push({
+        errors?.errors.push({
           message: `Cant get path from array value '${valueToString(val)}'`,
           kind: "invalid_path",
         });
@@ -469,7 +496,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       if (val == null) {
         return new InvalidValue();
       }
-      return this.findInObject(val, rest);
+      return this.findInObject(val, rest, errors);
     }
     if (path.length === 1) {
       const val = obj[path[0]];
@@ -484,15 +511,15 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         return val;
       }
       if (Array.isArray(val)) {
-        return this.buildArrayOption(val);
+        return this.buildArrayOption(val, errors);
       }
-      OptionErrors.errors.push({
+      errors?.errors.push({
         message: `Invalid path '${path.join(".")}': ${typeof val}`,
         kind: "invalid_path",
       });
       return new InvalidValue();
     }
-    OptionErrors.errors.push({
+    errors?.errors.push({
       message: `Invalid path '${path.join()}'`,
       kind: "invalid_path",
     });
@@ -503,6 +530,8 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
   buildArrayOption(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _val: string[] | ConfigFileData[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _errors?: OptionErrors,
   ): ArrayValueContainer | InvalidValue {
     return new InvalidValue();
   }
