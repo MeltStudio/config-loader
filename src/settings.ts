@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import { Command } from "commander";
 import * as fs from "fs";
 
@@ -210,7 +209,7 @@ class Settings<T extends Node> {
         return values.map((v) => parseInt(v, 10));
       }
       if (item.params.kind === "boolean") {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return values.map((v) => {
           if (v === "true") return true;
           if (v === "1") return true;
