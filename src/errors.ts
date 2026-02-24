@@ -9,6 +9,8 @@ export interface ConfigErrorEntry {
     | "invalid_path"
     | "invalid_state"
     | "file_validation";
+  line?: number;
+  column?: number;
 }
 
 export class ConfigLoadError extends Error {

@@ -289,7 +289,9 @@ const extended = c
 //   sourceType: "env" | "file" | "args" | "default",
 //   file: "./config.yaml" | null,
 //   variableName: "PORT" | null,
-//   argName: null
+//   argName: null,
+//   line: 5 | null,      // YAML source line (1-based), null for env/args/default/JSON
+//   column: 3 | null      // YAML source column (1-based), null for env/args/default/JSON
 // }
 console.log(extended.port.value); // 3000
 console.log(extended.port.sourceType); // "env"

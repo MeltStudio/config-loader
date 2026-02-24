@@ -1,4 +1,3 @@
-import ConfigNode from "@/nodes/configNode";
 import {
   ArrayOption,
   ArrayValueContainer,
@@ -57,6 +56,8 @@ describe("option", () => {
         sourceType: "args",
         value: "10",
         variableName: null,
+        line: null,
+        column: null,
       });
     });
   });
@@ -78,6 +79,8 @@ describe("option", () => {
           sourceType: "default",
           value: "10",
           variableName: null,
+          line: null,
+          column: null,
         });
       });
     });
@@ -98,6 +101,8 @@ describe("option", () => {
           sourceType: "default",
           value: "15",
           variableName: null,
+          line: null,
+          column: null,
         });
       });
     });
@@ -132,24 +137,28 @@ describe("option", () => {
         item: optionFn.string({ required: true }),
       });
       const value = option.getValue(FILE, ENV, {}, ["test", "array"]);
-      expect(value).toEqual(
-        new ConfigNode(
-          new ArrayValueContainer(
-            new PrimitiveOption({
-              kind: "string",
-              required: true,
-              env: null,
-              cli: false,
-              help: "",
-            }),
-            ["test", "test2"]
-          ), // COSA
-          "test.array",
-          "file",
-          "./tests/__mocks__/fileMock.yaml",
-          null,
-          null
-        )
+      expect(value).toMatchObject({
+        value: new ArrayValueContainer(
+          new PrimitiveOption({
+            kind: "string",
+            required: true,
+            env: null,
+            cli: false,
+            help: "",
+          }),
+          ["test", "test2"]
+        ),
+        path: "test.array",
+        sourceType: "file",
+        file: "./tests/__mocks__/fileMock.yaml",
+        variableName: null,
+        argName: null,
+      });
+      expect(typeof value?.line === "number" || value?.line === null).toBe(
+        true
+      );
+      expect(typeof value?.column === "number" || value?.column === null).toBe(
+        true
       );
     });
   });
@@ -164,7 +173,7 @@ describe("option", () => {
         help: "",
       });
       const value = option.getValue(FILE, ENV, {}, ["test", "boolean"]);
-      expect(value).toEqual({
+      expect(value).toMatchObject({
         argName: null,
         file: "./tests/__mocks__/fileMock.yaml",
         path: "test.boolean",
@@ -172,6 +181,12 @@ describe("option", () => {
         value: true,
         variableName: null,
       });
+      expect(typeof value?.line === "number" || value?.line === null).toBe(
+        true
+      );
+      expect(typeof value?.column === "number" || value?.column === null).toBe(
+        true
+      );
     });
   });
 
@@ -185,7 +200,7 @@ describe("option", () => {
         help: "",
       });
       const value = option.getValue(FILE, ENV, {}, ["test", "number"]);
-      expect(value).toEqual({
+      expect(value).toMatchObject({
         argName: null,
         file: "./tests/__mocks__/fileMock.yaml",
         path: "test.number",
@@ -193,6 +208,12 @@ describe("option", () => {
         value: "1883",
         variableName: null,
       });
+      expect(typeof value?.line === "number" || value?.line === null).toBe(
+        true
+      );
+      expect(typeof value?.column === "number" || value?.column === null).toBe(
+        true
+      );
     });
     describe("if the option value is different of a number", () => {
       it("should save an error", () => {
@@ -206,8 +227,10 @@ describe("option", () => {
         option.getValue(FILE, ENV, {}, ["test", "boolean"]);
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
-            message:
-              "Cannot convert value 'true' for 'test.boolean' to string in ./tests/__mocks__/fileMock.yaml.",
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            message: expect.stringMatching(
+              /Cannot convert value 'true' for 'test\.boolean' to string in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./
+            ),
           })
         );
       });
@@ -228,7 +251,7 @@ describe("option", () => {
           "test",
           "booleanAsString",
         ]);
-        expect(value).toEqual({
+        expect(value).toMatchObject({
           argName: null,
           file: "./tests/__mocks__/fileMock.yaml",
           path: "test.booleanAsString",
@@ -236,6 +259,12 @@ describe("option", () => {
           value: true,
           variableName: null,
         });
+        expect(typeof value?.line === "number" || value?.line === null).toBe(
+          true
+        );
+        expect(
+          typeof value?.column === "number" || value?.column === null
+        ).toBe(true);
       });
     });
     describe("if the option value is not a boolean or is a object", () => {
@@ -250,8 +279,10 @@ describe("option", () => {
         option.getValue(FILE, ENV, {}, ["test", "string"]);
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
-            message:
-              "Cannot convert value 'test' for 'test.string' to boolean in ./tests/__mocks__/fileMock.yaml.",
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            message: expect.stringMatching(
+              /Cannot convert value 'test' for 'test\.string' to boolean in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./
+            ),
           })
         );
       });
@@ -267,7 +298,7 @@ describe("option", () => {
           help: "",
         });
         const value = option.getValue(FILE, ENV, {}, ["test", "number"]);
-        expect(value).toEqual({
+        expect(value).toMatchObject({
           argName: null,
           file: "./tests/__mocks__/fileMock.yaml",
           path: "test.number",
@@ -275,6 +306,12 @@ describe("option", () => {
           value: 1883,
           variableName: null,
         });
+        expect(typeof value?.line === "number" || value?.line === null).toBe(
+          true
+        );
+        expect(
+          typeof value?.column === "number" || value?.column === null
+        ).toBe(true);
       });
       describe("if the value is a number as string", () => {
         it("should convert the value to number", () => {
@@ -289,7 +326,7 @@ describe("option", () => {
             "test",
             "numberAsString",
           ]);
-          expect(value).toEqual({
+          expect(value).toMatchObject({
             argName: null,
             file: "./tests/__mocks__/fileMock.yaml",
             path: "test.numberAsString",
@@ -297,6 +334,12 @@ describe("option", () => {
             value: 1883,
             variableName: null,
           });
+          expect(typeof value?.line === "number" || value?.line === null).toBe(
+            true
+          );
+          expect(
+            typeof value?.column === "number" || value?.column === null
+          ).toBe(true);
         });
       });
       describe("if the value is a string of letters", () => {
@@ -311,8 +354,10 @@ describe("option", () => {
           option.getValue(FILE, ENV, {}, ["test", "string"]);
           expect(OptionErrors.errors).toContainEqual(
             expect.objectContaining({
-              message:
-                "Cannot convert value 'test' for 'test.string' to number in ./tests/__mocks__/fileMock.yaml.",
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              message: expect.stringMatching(
+                /Cannot convert value 'test' for 'test\.string' to number in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./
+              ),
             })
           );
         });
@@ -354,8 +399,10 @@ describe("option", () => {
       );
       expect(OptionErrors.errors).toContainEqual(
         expect.objectContaining({
-          message:
-            "Invalid state. Invalid kind in ./tests/__mocks__/fileMock.yaml",
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          message: expect.stringMatching(
+            /Invalid state\. Invalid kind in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?/
+          ),
         })
       );
     });

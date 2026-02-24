@@ -331,16 +331,19 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml",
             })
         ).toThrow();
-        [
-          `Cannot convert value '{"max":400,"min":200}' for 'hardware.size' to string in tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml.`,
-          "Required option 'hardware.brand' not provided.",
-          // TODO: should use below error message
-          // "Cannot convert value '400,200' for 'hardware.brand' to string in tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml.",
-        ].forEach((message) => {
-          expect(OptionErrors.errors).toContainEqual(
-            expect.objectContaining({ message })
-          );
-        });
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            message: expect.stringMatching(
+              /Cannot convert value '\{"max":400,"min":200\}' for 'hardware\.size' to string in tests\/__mocks__\/settings\/no-cli-no-env\/nestedStringWrongType\.yaml(:\d+:\d+)?\./
+            ),
+          })
+        );
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message: "Required option 'hardware.brand' not provided.",
+          })
+        );
       });
     });
 
@@ -548,11 +551,12 @@ describe("Settings", () => {
             })
         ).toThrow();
         [
-          "Cannot convert value 'MySQL' for 'database.sizeOptions.0' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongItemType.yaml.",
-          "Cannot convert value 'Firebase' for 'database.sizeOptions.1' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongItemType.yaml.",
-        ].forEach((message) => {
+          /Cannot convert value 'MySQL' for 'database\.sizeOptions\.0' to number in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongItemType\.yaml(:\d+:\d+)?\./,
+          /Cannot convert value 'Firebase' for 'database\.sizeOptions\.1' to number in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongItemType\.yaml(:\d+:\d+)?\./,
+        ].forEach((pattern) => {
           expect(OptionErrors.errors).toContainEqual(
-            expect.objectContaining({ message })
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            expect.objectContaining({ message: expect.stringMatching(pattern) })
           );
         });
       });
@@ -579,8 +583,10 @@ describe("Settings", () => {
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
-            message:
-              "Invalid state. Invalid kind in tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongType.yaml",
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            message: expect.stringMatching(
+              /Invalid state\. Invalid kind in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongType\.yaml(:\d+:\d+)?/
+            ),
           })
         );
       });
@@ -669,14 +675,15 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml",
             })
         ).toThrow();
-        const errorMessages = [
-          "Cannot convert value '2' for 'database.bool1' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml.",
-          "Cannot convert value 'texto' for 'database.bool2' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml.",
-          "Cannot convert value '-14' for 'database.bool3' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml.",
+        const errorPatterns = [
+          /Cannot convert value '2' for 'database\.bool1' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolWrongType\.yaml(:\d+:\d+)?\./,
+          /Cannot convert value 'texto' for 'database\.bool2' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolWrongType\.yaml(:\d+:\d+)?\./,
+          /Cannot convert value '-14' for 'database\.bool3' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolWrongType\.yaml(:\d+:\d+)?\./,
         ];
-        errorMessages.forEach((message) => {
+        errorPatterns.forEach((pattern) => {
           expect(OptionErrors.errors).toContainEqual(
-            expect.objectContaining({ message })
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            expect.objectContaining({ message: expect.stringMatching(pattern) })
           );
         });
       });
@@ -772,14 +779,15 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml",
             })
         ).toThrow();
-        const errorMessages = [
-          "Cannot convert value '2' for 'database.bools.0' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml.",
-          "Cannot convert value 'texto' for 'database.bools.1' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml.",
-          "Cannot convert value '-14' for 'database.bools.2' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml.",
+        const errorPatterns = [
+          /Cannot convert value '2' for 'database\.bools\.0' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolArrayWrongType\.yaml(:\d+:\d+)?\./,
+          /Cannot convert value 'texto' for 'database\.bools\.1' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolArrayWrongType\.yaml(:\d+:\d+)?\./,
+          /Cannot convert value '-14' for 'database\.bools\.2' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolArrayWrongType\.yaml(:\d+:\d+)?\./,
         ];
-        errorMessages.forEach((message) => {
+        errorPatterns.forEach((pattern) => {
           expect(OptionErrors.errors).toContainEqual(
-            expect.objectContaining({ message })
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            expect.objectContaining({ message: expect.stringMatching(pattern) })
           );
         });
       });
@@ -2049,6 +2057,129 @@ describe("Settings", () => {
       expect(node.variableName).toBe("MY_VAR");
       expect(node.file).toBeNull();
       expect(node.argName).toBeNull();
+    });
+  });
+
+  describe("line and column metadata", () => {
+    it("should populate line and column for values from YAML files", () => {
+      const result = option
+        .schema({
+          object: option.object({
+            item: {
+              value: option.number({ required: true }),
+              name: option.string({ required: true }),
+            },
+          }),
+        })
+        .loadExtended({
+          env: false,
+          args: false,
+          files: "tests/__mocks__/fileMock.yaml",
+        });
+
+      const nameNode = (result.object as unknown as { name: ConfigNode }).name;
+      expect(nameNode).toBeInstanceOf(ConfigNode);
+      expect(nameNode.sourceType).toBe("file");
+      expect(typeof nameNode.line).toBe("number");
+      expect(typeof nameNode.column).toBe("number");
+    });
+
+    it("should have null line and column for env-sourced values", () => {
+      process.env.MY_VAR = "env-value";
+      const result = option
+        .schema({
+          myVar: option.string({ env: "MY_VAR" }),
+        })
+        .loadExtended({
+          env: true,
+          args: false,
+          files: "tests/__mocks__/emptyFile.yaml",
+        });
+
+      const node = result.myVar as unknown as ConfigNode;
+      expect(node).toBeInstanceOf(ConfigNode);
+      expect(node.sourceType).toBe("env");
+      expect(node.line).toBeNull();
+      expect(node.column).toBeNull();
+    });
+
+    it("should have null line and column for default values", () => {
+      const result = option
+        .schema({
+          myVar: option.string({ defaultValue: "fallback" }),
+        })
+        .loadExtended({
+          env: false,
+          args: false,
+          files: "tests/__mocks__/emptyFile.yaml",
+        });
+
+      const node = result.myVar as unknown as ConfigNode;
+      expect(node).toBeInstanceOf(ConfigNode);
+      expect(node.sourceType).toBe("default");
+      expect(node.line).toBeNull();
+      expect(node.column).toBeNull();
+    });
+
+    it("should have null line and column for CLI arg values", () => {
+      addCliArg("myVar", "cli-value");
+      const result = option
+        .schema({
+          myVar: option.string({ cli: true }),
+        })
+        .loadExtended({
+          env: false,
+          args: true,
+          files: "tests/__mocks__/emptyFile.yaml",
+        });
+
+      const node = result.myVar as unknown as ConfigNode;
+      expect(node).toBeInstanceOf(ConfigNode);
+      expect(node.sourceType).toBe("args");
+      expect(node.line).toBeNull();
+      expect(node.column).toBeNull();
+    });
+
+    it("should have null line and column for JSON file values", () => {
+      const result = option
+        .schema({
+          string: option.string({ required: true }),
+        })
+        .loadExtended({
+          env: false,
+          args: false,
+          files: "tests/__mocks__/fileMock.json",
+        });
+
+      const node = result.string as unknown as ConfigNode;
+      expect(node).toBeInstanceOf(ConfigNode);
+      expect(node.sourceType).toBe("file");
+      expect(node.line).toBeNull();
+      expect(node.column).toBeNull();
+    });
+
+    it("should include line numbers in error messages for YAML-sourced values", () => {
+      expect(() =>
+        option
+          .schema({
+            hardware: option.object({
+              item: {
+                size: option.string({ required: true }),
+              },
+            }),
+          })
+          .load({
+            env: false,
+            args: false,
+            files:
+              "tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml",
+          })
+      ).toThrow();
+      const errorWithLine = OptionErrors.errors.find(
+        (e) => e.path === "hardware.size"
+      );
+      expect(errorWithLine).toBeDefined();
+      expect(errorWithLine!.message).toMatch(/\.yaml:\d+:\d+\./);
     });
   });
 });

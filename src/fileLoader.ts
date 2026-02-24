@@ -1,9 +1,15 @@
 import * as fs from "fs";
 import yaml from "js-yaml";
+import SourceMap from "js-yaml-source-map";
 import * as path from "path";
 
 import { ConfigFileError } from "@/errors";
 import type { ConfigFileData } from "@/types";
+
+export interface LoadResult {
+  data: ConfigFileData;
+  sourceMap: SourceMap | null;
+}
 
 /**
  * Loads a config file and parses it based on its extension.
@@ -11,16 +17,18 @@ import type { ConfigFileData } from "@/types";
  * - `.yaml` / `.yml` files (and any other extension as fallback) are parsed with js-yaml
  * Throws ConfigFileError if the file cannot be parsed.
  */
-export function loadConfigFile(filePath: string): ConfigFileData {
+export function loadConfigFile(filePath: string): LoadResult {
   const content = fs.readFileSync(filePath, "utf-8");
   const ext = path.extname(filePath).toLowerCase();
 
   try {
     if (ext === ".json") {
-      return JSON.parse(content) as ConfigFileData;
+      return { data: JSON.parse(content) as ConfigFileData, sourceMap: null };
     }
 
-    return yaml.load(content) as ConfigFileData;
+    const sourceMap = new SourceMap();
+    const data = yaml.load(content, { listener: sourceMap.listen() });
+    return { data: data as ConfigFileData, sourceMap };
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Unknown parsing error";

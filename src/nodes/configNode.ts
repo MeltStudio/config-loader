@@ -17,13 +17,19 @@ class ConfigNode {
 
   argName: string | null;
 
+  line: number | null;
+
+  column: number | null;
+
   constructor(
     value: Value | ArrayValue,
     path: string,
     sourceType: SourceTypes,
     file: string | null,
     variableName: string | null,
-    argName: string | null
+    argName: string | null,
+    line: number | null = null,
+    column: number | null = null
   ) {
     this.value = value;
     this.path = path;
@@ -31,6 +37,8 @@ class ConfigNode {
     this.file = file;
     this.variableName = variableName;
     this.argName = argName;
+    this.line = line;
+    this.column = column;
   }
 }
 

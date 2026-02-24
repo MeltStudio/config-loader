@@ -1,4 +1,6 @@
 /* eslint-disable max-lines */
+import type SourceMap from "js-yaml-source-map";
+
 import { loadConfigFile } from "@/fileLoader";
 import ConfigNode from "@/nodes/configNode";
 import type {
@@ -49,6 +51,24 @@ interface OptionClassParams<T extends OptionKind> {
   // };
 }
 
+function lookupLocation(
+  sourceMap: SourceMap | null | undefined,
+  path: Path
+): { line: number; column: number } | null {
+  if (!sourceMap) return null;
+  const loc = sourceMap.lookup(path.map(String));
+  if (!loc) return null;
+  return { line: loc.line, column: loc.column };
+}
+
+function formatFileLocation(
+  file: string,
+  loc: { line: number; column: number } | null
+): string {
+  if (!loc) return file;
+  return `${file}:${loc.line}:${loc.column}`;
+}
+
 export default class OptionBase<T extends OptionKind = OptionKind> {
   public readonly params: OptionClassParams<T>;
 
@@ -62,7 +82,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     args: { [key: string]: string | boolean },
     path: Path,
     defaultValues?: Partial<U>,
-    objectFromArray?: { value: ConfigFileData; file: string }
+    objectFromArray?: {
+      value: ConfigFileData;
+      file: string;
+      sourceMap?: SourceMap | null;
+    }
   ): ConfigNode | null {
     const ident = path.join(".");
 
@@ -94,27 +118,32 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       }
     }
     if (typeof sourceFile === "string") {
-      const data = loadConfigFile(sourceFile);
+      const { data, sourceMap } = loadConfigFile(sourceFile);
       const val = this.findInObject(data || {}, path);
+      const loc = lookupLocation(sourceMap, path);
       if (val instanceof ArrayValueContainer) {
         return new ConfigNode(
-          this.checkType(val, path, sourceFile),
+          this.checkType(val, path, formatFileLocation(sourceFile, loc)),
           ident,
           "file",
           sourceFile,
           null,
-          null
+          null,
+          loc?.line ?? null,
+          loc?.column ?? null
         );
       }
       // the following line checks if the value is different to null or undefined
       if (!valueIsInvalid(val)) {
         return new ConfigNode(
-          this.checkType(val, path, sourceFile),
+          this.checkType(val, path, formatFileLocation(sourceFile, loc)),
           ident,
           "file",
           sourceFile,
           null,
-          null
+          null,
+          loc?.line ?? null,
+          loc?.column ?? null
         );
       }
     }
@@ -122,54 +151,72 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (Array.isArray(sourceFile)) {
       for (let index = 0; index < sourceFile.length; index += 1) {
         const file = sourceFile[index];
-        const data = loadConfigFile(file);
+        const { data, sourceMap } = loadConfigFile(file);
         const val = this.findInObject(data || {}, path);
+        const loc = lookupLocation(sourceMap, path);
         if (val instanceof ArrayValueContainer) {
           return new ConfigNode(
-            this.checkType(val, path, file),
+            this.checkType(val, path, formatFileLocation(file, loc)),
             ident,
             "file",
             file,
             null,
-            null
+            null,
+            loc?.line ?? null,
+            loc?.column ?? null
           );
         }
 
         // the following line checks if the value is different to null or undefined
         if (!valueIsInvalid(val)) {
           return new ConfigNode(
-            this.checkType(val, path, file),
+            this.checkType(val, path, formatFileLocation(file, loc)),
             ident,
             "file",
             file,
             null,
-            null
+            null,
+            loc?.line ?? null,
+            loc?.column ?? null
           );
         }
       }
     }
 
     if (objectFromArray) {
+      const loc = lookupLocation(objectFromArray.sourceMap, path);
       const val = this.findInObject(objectFromArray.value, path);
       if (val instanceof ArrayValueContainer) {
         return new ConfigNode(
-          this.checkType(val, path, objectFromArray.file),
+          this.checkType(
+            val,
+            path,
+            formatFileLocation(objectFromArray.file, loc)
+          ),
           ident,
           "file",
           objectFromArray.file,
           null,
-          null
+          null,
+          loc?.line ?? null,
+          loc?.column ?? null
         );
       }
       // the following line checks if the value is different to null or undefined
       if (!valueIsInvalid(val)) {
         return new ConfigNode(
-          this.checkType(val, path, objectFromArray.file),
+          this.checkType(
+            val,
+            path,
+            formatFileLocation(objectFromArray.file, loc)
+          ),
           ident,
           "file",
           objectFromArray.file,
           null,
-          null
+          null,
+          loc?.line ?? null,
+          loc?.column ?? null
         );
       }
     }
