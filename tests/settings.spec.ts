@@ -1,3 +1,4 @@
+import ConfigNode from "@/nodes/configNode";
 import { OptionErrors } from "@/option";
 import Settings from "@/settings";
 import option from "@/src";
@@ -1876,6 +1877,73 @@ describe("Settings", () => {
           number: 1,
         });
       });
+    });
+  });
+
+  describe("loadExtended", () => {
+    it("should return a NodeTree with ConfigNode instances containing source metadata", () => {
+      const result = option
+        .schema({
+          string: option.string({ required: true }),
+          number: option.number({ required: true }),
+          object: {
+            value: option.number({ required: true }),
+            name: option.string({ required: true }),
+          },
+        })
+        .loadExtended({
+          env: false,
+          args: false,
+          files: "tests/__mocks__/fileMock.yaml",
+        });
+
+      // Top-level keys should be ConfigNode instances
+      expect(result.string).toBeInstanceOf(ConfigNode);
+      expect(result.number).toBeInstanceOf(ConfigNode);
+
+      // Verify source metadata on a ConfigNode
+      const stringNode = result.string as unknown as ConfigNode;
+      expect(stringNode.value).toBe("testString");
+      expect(stringNode.sourceType).toBe("file");
+      expect(stringNode.file).toBe("tests/__mocks__/fileMock.yaml");
+      expect(stringNode.variableName).toBeNull();
+      expect(stringNode.argName).toBeNull();
+
+      const numberNode = result.number as unknown as ConfigNode;
+      expect(numberNode.value).toBe(1);
+      expect(numberNode.sourceType).toBe("file");
+
+      // Nested object should contain ConfigNode instances
+      const objectNode = result.object as unknown as {
+        value: ConfigNode;
+        name: ConfigNode;
+      };
+      expect(objectNode.value).toBeInstanceOf(ConfigNode);
+      expect(objectNode.name).toBeInstanceOf(ConfigNode);
+      expect(objectNode.value.value).toBe(1);
+      expect(objectNode.name.value).toBe("testing");
+      expect(objectNode.name.sourceType).toBe("file");
+    });
+
+    it("should reflect env source metadata when loaded from environment", () => {
+      process.env = { MY_VAR: "from-env" };
+      const result = option
+        .schema({
+          myVar: option.string({ required: true, env: "MY_VAR" }),
+        })
+        .loadExtended({
+          env: true,
+          args: false,
+          files: "tests/__mocks__/emptyFile.yaml",
+        });
+
+      const node = result.myVar as unknown as ConfigNode;
+      expect(node).toBeInstanceOf(ConfigNode);
+      expect(node.value).toBe("from-env");
+      expect(node.sourceType).toBe("env");
+      expect(node.variableName).toBe("MY_VAR");
+      expect(node.file).toBeNull();
+      expect(node.argName).toBeNull();
     });
   });
 });
