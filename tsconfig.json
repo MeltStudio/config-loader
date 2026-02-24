@@ -15,6 +15,7 @@
       "@/option": ["src/option"],
       "@/option/*": ["src/option/*"],
       "@/src": ["src"],
+      "@/errors": ["src/errors"],
       "@/settings": ["src/settings"],
       "@/types": ["src/types"],
       "@/utils": ["src/utils"]

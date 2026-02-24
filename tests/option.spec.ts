@@ -13,22 +13,12 @@ const FILE = "./tests/__mocks__/fileMock.yaml";
 
 const ENV = {};
 
-beforeAll(() => {
-  jest.spyOn(process, "exit").mockImplementation((code?: number) => {
-    throw new Error(code?.toString());
-  });
-});
-
 beforeEach(() => {
   OptionErrors.clearAll();
 });
 
 afterEach(() => {
   OptionErrors.clearAll();
-});
-
-afterAll(() => {
-  jest.restoreAllMocks();
 });
 
 describe("option", () => {
@@ -131,8 +121,10 @@ describe("option", () => {
         ["site", "test"],
         "./tests/__mocks__/fileMock.yaml"
       );
-      expect(OptionErrors.errors).toContain(
-        "Required option 'site.test' not provided."
+      expect(OptionErrors.errors).toContainEqual(
+        expect.objectContaining({
+          message: "Required option 'site.test' not provided.",
+        })
       );
     });
   });
@@ -215,8 +207,11 @@ describe("option", () => {
           help: "",
         });
         option.getValue(FILE, ENV, {}, ["test", "boolean"]);
-        expect(OptionErrors.errors).toContain(
-          "Cannot convert value 'true' for 'test.boolean' to string in ./tests/__mocks__/fileMock.yaml."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message:
+              "Cannot convert value 'true' for 'test.boolean' to string in ./tests/__mocks__/fileMock.yaml.",
+          })
         );
       });
     });
@@ -256,8 +251,11 @@ describe("option", () => {
           help: "",
         });
         option.getValue(FILE, ENV, {}, ["test", "string"]);
-        expect(OptionErrors.errors).toContain(
-          "Cannot convert value 'test' for 'test.string' to boolean in ./tests/__mocks__/fileMock.yaml."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message:
+              "Cannot convert value 'test' for 'test.string' to boolean in ./tests/__mocks__/fileMock.yaml.",
+          })
         );
       });
     });
@@ -314,8 +312,11 @@ describe("option", () => {
             help: "",
           });
           option.getValue(FILE, ENV, {}, ["test", "string"]);
-          expect(OptionErrors.errors).toContain(
-            "Cannot convert value 'test' for 'test.string' to number in ./tests/__mocks__/fileMock.yaml."
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({
+              message:
+                "Cannot convert value 'test' for 'test.string' to number in ./tests/__mocks__/fileMock.yaml.",
+            })
           );
         });
       });
@@ -329,8 +330,10 @@ describe("option", () => {
             help: "",
           });
           option.getValue(FILE, ENV, {}, ["test", "undefined"]);
-          expect(OptionErrors.errors).toContain(
-            "Required option 'test.undefined' not provided."
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({
+              message: "Required option 'test.undefined' not provided.",
+            })
           );
         });
       });
@@ -375,8 +378,11 @@ describe("option", () => {
           "Invalid kind. Must be 'string', 'number', 'boolean', 'array' or 'any'"
         )
       );
-      expect(OptionErrors.errors).toContain(
-        "Invalid state. Invalid kind in ./tests/__mocks__/fileMock.yaml"
+      expect(OptionErrors.errors).toContainEqual(
+        expect.objectContaining({
+          message:
+            "Invalid state. Invalid kind in ./tests/__mocks__/fileMock.yaml",
+        })
       );
     });
   });

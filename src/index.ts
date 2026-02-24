@@ -4,6 +4,9 @@ import type { Node, OptionTypes } from "./option";
 import { ArrayOption, PrimitiveOption } from "./option";
 import type { SchemaValue } from "./settings";
 
+export type { ConfigErrorEntry } from "./errors";
+export { ConfigFileError, ConfigLoadError } from "./errors";
+
 interface OptionPropsArgs<T> {
   required?: boolean;
   env?: string | null;

@@ -14,6 +14,7 @@ module.exports = {
     },
   },
   moduleNameMapper: {
+    "^@/errors$": "<rootDir>/src/errors",
     "^@/builder": "<rootDir>/src/builder",
     "^@/builder/(.*)": "<rootDir>/src/builder/$1",
     "^@/nodes/(.*)": "<rootDir>/src/nodes/$1",

@@ -213,7 +213,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
 
     // If required and no value anywhere
     if (this.params.required) {
-      OptionErrors.errors.push(`Required option '${ident}' not provided.`);
+      OptionErrors.errors.push({
+        message: `Required option '${ident}' not provided.`,
+        path: ident,
+        kind: "required",
+      });
     }
 
     return null;
@@ -228,9 +232,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (typeof val === "string") {
       const parseVal = parseInt(val, 10);
       if (Number.isNaN(parseVal)) {
-        OptionErrors.errors.push(
-          `Cannot convert value '${val}' for '${pathStr}' to number in ${sourceOfVal}.`
-        );
+        OptionErrors.errors.push({
+          message: `Cannot convert value '${val}' for '${pathStr}' to number in ${sourceOfVal}.`,
+          path: pathStr,
+          source: sourceOfVal,
+          kind: "type_conversion",
+        });
         return new InvalidValue();
       }
       OptionErrors.warnings.push(
@@ -238,7 +245,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       );
       return parseVal;
     }
-    OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
+    OptionErrors.errors.push({
+      message: `Invalid state. Invalid kind in ${sourceOfVal}`,
+      source: sourceOfVal,
+      kind: "invalid_state",
+    });
     return new InvalidValue();
   }
 
@@ -246,7 +257,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     const ident = path.join(".");
 
     if (valueIsInvalid(val)) {
-      OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
+      OptionErrors.errors.push({
+        message: `Invalid state. Invalid kind in ${sourceOfVal}`,
+        source: sourceOfVal,
+        kind: "invalid_state",
+      });
       return val;
     }
 
@@ -261,9 +276,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         );
         return val.toString();
       }
-      OptionErrors.errors.push(
-        `Cannot convert value '${val.toString()}' for '${ident}' to string in ${sourceOfVal}.`
-      );
+      OptionErrors.errors.push({
+        message: `Cannot convert value '${val.toString()}' for '${ident}' to string in ${sourceOfVal}.`,
+        path: ident,
+        source: sourceOfVal,
+        kind: "type_conversion",
+      });
       return new InvalidValue();
     }
     if (this.params.kind === "boolean") {
@@ -275,9 +293,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           return false;
         }
       }
-      OptionErrors.errors.push(
-        `Cannot convert value '${val.toString()}' for '${ident}' to boolean in ${sourceOfVal}.`
-      );
+      OptionErrors.errors.push({
+        message: `Cannot convert value '${val.toString()}' for '${ident}' to boolean in ${sourceOfVal}.`,
+        path: ident,
+        source: sourceOfVal,
+        kind: "type_conversion",
+      });
       return new InvalidValue();
     }
     if (this.params.kind === "number") {
@@ -286,7 +307,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (this.params.kind === "any") {
       return val;
     }
-    OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
+    OptionErrors.errors.push({
+      message: `Invalid state. Invalid kind in ${sourceOfVal}`,
+      source: sourceOfVal,
+      kind: "invalid_state",
+    });
     throw new Error(
       "Invalid kind. Must be 'string', 'number', 'boolean', 'array' or 'any'"
     );
@@ -298,23 +323,31 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       const val = obj[child];
 
       if (typeof val === "string") {
-        OptionErrors.errors.push(`Cant get path from string value '${val}'`);
+        OptionErrors.errors.push({
+          message: `Cant get path from string value '${val}'`,
+          kind: "invalid_path",
+        });
         return new InvalidValue();
       }
       if (typeof val === "number") {
-        OptionErrors.errors.push(`Cant get path from number value '${val}'`);
+        OptionErrors.errors.push({
+          message: `Cant get path from number value '${val}'`,
+          kind: "invalid_path",
+        });
         return new InvalidValue();
       }
       if (typeof val === "boolean") {
-        OptionErrors.errors.push(
-          `Cant get path from boolean value '${val.toString()}'`
-        );
+        OptionErrors.errors.push({
+          message: `Cant get path from boolean value '${val.toString()}'`,
+          kind: "invalid_path",
+        });
         return new InvalidValue();
       }
       if (Array.isArray(val)) {
-        OptionErrors.errors.push(
-          `Cant get path from array value '${val.toString()}'`
-        );
+        OptionErrors.errors.push({
+          message: `Cant get path from array value '${val.toString()}'`,
+          kind: "invalid_path",
+        });
         return new InvalidValue();
       }
       if (val == null) {
@@ -337,12 +370,16 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       if (Array.isArray(val)) {
         return this.buildArrayOption(val);
       }
-      OptionErrors.errors.push(
-        `Invalid path '${path.join(".")}': ${typeof val}`
-      );
+      OptionErrors.errors.push({
+        message: `Invalid path '${path.join(".")}': ${typeof val}`,
+        kind: "invalid_path",
+      });
       return new InvalidValue();
     }
-    OptionErrors.errors.push(`Invalid path '${path.join()}'`);
+    OptionErrors.errors.push({
+      message: `Invalid path '${path.join()}'`,
+      kind: "invalid_path",
+    });
     return new InvalidValue();
   }
 

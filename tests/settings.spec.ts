@@ -10,10 +10,6 @@ let _proccessEnv: NodeJS.ProcessEnv;
 // eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
 let _processArgs: string[];
 beforeAll(() => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  jest.spyOn(process, "exit").mockImplementation((_code?: number) => {
-    throw new Error(OptionErrors.errors.toString());
-  });
   _proccessEnv = process.env;
   _processArgs = process.argv;
 });
@@ -31,7 +27,6 @@ afterEach(() => {
 afterAll(() => {
   process.env = _proccessEnv;
   process.argv = _processArgs;
-  jest.restoreAllMocks();
 });
 
 describe("Settings", () => {
@@ -281,8 +276,10 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedStringNotFound.yaml",
             })
         ).toThrow();
-        expect(OptionErrors.errors).toContain(
-          "Required option 'hardware.type' not provided."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message: "Required option 'hardware.type' not provided.",
+          })
         );
       });
 
@@ -309,7 +306,9 @@ describe("Settings", () => {
           // TODO: should use below error message
           // "Cannot convert value '400,200' for 'hardware.brand' to string in tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml.",
         ].forEach((message) => {
-          expect(OptionErrors.errors).toContain(message);
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({ message })
+          );
         });
       });
     });
@@ -354,8 +353,10 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedStringArrayNotFound.yaml",
             })
         ).toThrow();
-        expect(OptionErrors.errors).toContain(
-          "Required option 'database.engines' not provided."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message: "Required option 'database.engines' not provided.",
+          })
         );
       });
     });
@@ -394,8 +395,10 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberNotFound.yaml",
             })
         ).toThrow();
-        expect(OptionErrors.errors).toContain(
-          "Required option 'database.ram' not provided."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message: "Required option 'database.ram' not provided.",
+          })
         );
       });
 
@@ -425,7 +428,9 @@ describe("Settings", () => {
           "Cannot convert value 'MySQL' for 'database.ram3' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberWrongType.yaml.",
           "Cannot convert value 'MySQL' for 'database.ram4' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberWrongType.yaml.",
         ].forEach((message) => {
-          expect(OptionErrors.errors).toContain(message);
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({ message })
+          );
         }); */
       });
     });
@@ -470,8 +475,10 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayNotFound.yaml",
             })
         ).toThrow();
-        expect(OptionErrors.errors).toContain(
-          "Required option 'database.sizeOptions' not provided."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message: "Required option 'database.sizeOptions' not provided.",
+          })
         );
       });
 
@@ -497,7 +504,9 @@ describe("Settings", () => {
           "Cannot convert value 'MySQL' for 'database.sizeOptions.0' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongItemType.yaml.",
           "Cannot convert value 'Firebase' for 'database.sizeOptions.1' to number in tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongItemType.yaml.",
         ].forEach((message) => {
-          expect(OptionErrors.errors).toContain(message);
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({ message })
+          );
         });
       });
 
@@ -519,8 +528,11 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongType.yaml",
             })
         ).toThrow();
-        expect(OptionErrors.errors).toContain(
-          "Invalid state. Invalid kind in tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongType.yaml"
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message:
+              "Invalid state. Invalid kind in tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongType.yaml",
+          })
         );
       });
     });
@@ -578,8 +590,10 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolNotFound.yaml",
             })
         ).toThrow();
-        expect(OptionErrors.errors).toContain(
-          "Required option 'database.bool1' not provided."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message: "Required option 'database.bool1' not provided.",
+          })
         );
       });
 
@@ -606,7 +620,9 @@ describe("Settings", () => {
           "Cannot convert value '-14' for 'database.bool3' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml.",
         ];
         errorMessages.forEach((message) => {
-          expect(OptionErrors.errors).toContain(message);
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({ message })
+          );
         });
       });
     });
@@ -670,8 +686,10 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayNotFound.yaml",
             })
         ).toThrow();
-        expect(OptionErrors.errors).toContain(
-          "Required option 'database.bools' not provided."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message: "Required option 'database.bools' not provided.",
+          })
         );
       });
 
@@ -699,7 +717,9 @@ describe("Settings", () => {
           "Cannot convert value '-14' for 'database.bools.2' to boolean in tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml.",
         ];
         errorMessages.forEach((message) => {
-          expect(OptionErrors.errors).toContain(message);
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({ message })
+          );
         });
       });
     });
@@ -758,8 +778,10 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/no-cli-no-env/nestedObjectArrayNotFound.yaml",
             })
         ).toThrow();
-        expect(OptionErrors.errors).toContain(
-          "Required option 'database.engines' not provided."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message: "Required option 'database.engines' not provided.",
+          })
         );
       });
 
@@ -880,7 +902,9 @@ describe("Settings", () => {
           "Cant get path from boolean value 'true'",
           "Cant get path from array value '1986,1990,1995'",
         ].forEach((error) => {
-          expect(OptionErrors.errors).toContain(error);
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({ message: error })
+          );
         });
       });
     });
@@ -1352,7 +1376,9 @@ describe("Settings", () => {
           "Required option 'database.engine.openSource' not provided.",
         ];
         errors.forEach((error) => {
-          expect(OptionErrors.errors).toContain(error);
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({ message: error })
+          );
         });
       });
     });
@@ -1562,7 +1588,9 @@ describe("Settings", () => {
           "Required option 'database.engine.openSource' not provided.",
         ];
         errors.forEach((error) => {
-          expect(OptionErrors.errors).toContain(error);
+          expect(OptionErrors.errors).toContainEqual(
+            expect.objectContaining({ message: error })
+          );
         });
       });
     });
@@ -1630,11 +1658,7 @@ describe("Settings", () => {
 
   describe("if the file is wrong", () => {
     // eslint-disable-next-line jest/no-disabled-tests
-    it("should throw an error", () => {
-      jest.spyOn(process, "exit").mockImplementation((code?: number) => {
-        throw new Error(code?.toString());
-      });
-      // const spyConsoleError = jest.spyOn(console, "error");
+    it("should throw a ConfigLoadError", () => {
       expect(() =>
         option
           .schema({
@@ -1665,9 +1689,7 @@ describe("Settings", () => {
             args: false,
             files: "tests/__mocks__/wrongFile.yaml",
           })
-      ).toThrow("1");
-      // TODO: fix this test, it is throwing 7 error messages instead of 6 (one for each root element)
-      // expect(spyConsoleError).toHaveBeenCalledTimes(6);
+      ).toThrow("Configuration loading failed");
     });
   });
   describe("Implementation details", () => {
@@ -1698,8 +1720,11 @@ describe("Settings", () => {
             "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml"
           )[0]
         ).toBeInstanceOf(InvalidValue);
-        expect(OptionErrors.errors).toContain(
-          "Cannot convert value 'invalid1' for 'database.sizeOptions.0' to number in tests/__mocks__/settings/implementation-details/getValidatedArray.yaml."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message:
+              "Cannot convert value 'invalid1' for 'database.sizeOptions.0' to number in tests/__mocks__/settings/implementation-details/getValidatedArray.yaml.",
+          })
         );
       });
 
@@ -1729,8 +1754,11 @@ describe("Settings", () => {
             "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml"
           )[0]
         ).toBeInstanceOf(InvalidValue);
-        expect(OptionErrors.errors).toContain(
-          "Cannot convert value 'invalid2' for 'database.bools.0' to boolean in tests/__mocks__/settings/implementation-details/getValidatedArray.yaml."
+        expect(OptionErrors.errors).toContainEqual(
+          expect.objectContaining({
+            message:
+              "Cannot convert value 'invalid2' for 'database.bools.0' to boolean in tests/__mocks__/settings/implementation-details/getValidatedArray.yaml.",
+          })
         );
       });
     });
