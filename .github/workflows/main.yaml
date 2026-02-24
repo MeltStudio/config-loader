@@ -24,11 +24,11 @@ jobs:
       id-token: write
 
   publish-docs:
-    name: Publish mkdocs to GitHub Pages
+    name: Publish docs to GitHub Pages
     needs: [release]
-    uses: ./.github/workflows/_mkdocs_publish.yaml
+    uses: ./.github/workflows/_docusaurus_publish.yaml
     secrets:
-      mkdocs-token: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
+      docs-token: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
     permissions:
       contents: write
       issues: write

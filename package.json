@@ -30,9 +30,9 @@
     "replace-tspaths": "./scripts/replace-tspaths/index.mjs",
     "example:run": "ts-node -r tsconfig-paths/register ./example/index.ts",
     "prepare": "husky",
-    "docs:install": "python -m venv ./mkdocs-py-env && ./mkdocs-py-env/Scripts/pip install -r ./mkdocs-requirements.txt",
-    "docs:build": "./mkdocs-py-env/Scripts/mkdocs build",
-    "docs:serve": "./mkdocs-py-env/Scripts/mkdocs serve"
+    "docs:build": "docusaurus build",
+    "docs:serve": "docusaurus serve",
+    "docs:start": "docusaurus start"
   },
   "dependencies": {
     "commander": "^14.0.0",
@@ -62,6 +62,11 @@
     "tsconfig-paths": "^4.2.0",
     "tsup": "^8.0.0",
     "typescript": "^5.0.4",
-    "typescript-eslint": "^8.24.0"
+    "typescript-eslint": "^8.24.0",
+    "@docusaurus/core": "^3.7.0",
+    "@docusaurus/preset-classic": "^3.7.0",
+    "@mdx-js/react": "^3.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

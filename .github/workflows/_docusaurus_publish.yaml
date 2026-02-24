@@ -1,0 +1,35 @@
+name: Deploy Docusaurus
+
+on:
+  workflow_call:
+    secrets:
+      docs-token:
+        description: "GitHub token for deploying docs"
+        required: true
+
+env:
+  HUSKY: 0
+
+jobs:
+  deploy:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Build Docusaurus
+        run: yarn docs:build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.docs-token }}
+          publish_dir: ./build

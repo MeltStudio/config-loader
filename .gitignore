@@ -129,12 +129,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# pip env
-/mkdocsPyEnv
-/mkdocs-py-env
-
-# docs build location
-/site
+# Docusaurus build output
+/build
 
 # Project notes
 RECOMMENDATIONS.md
