@@ -1,7 +1,6 @@
 import type { Node } from "@/option";
-import type { SchemaValue } from "@/settings";
 import Settings from "@/settings";
-import type { SettingsSources } from "@/types";
+import type { SchemaValue, SettingsSources } from "@/types";
 
 export class SettingsBuilder<T extends Node> {
   private readonly schema: T;

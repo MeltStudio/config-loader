@@ -2,7 +2,7 @@ import { SettingsBuilder } from "@/builder";
 
 import type { Node, OptionTypes } from "./option";
 import { ArrayOption, PrimitiveOption } from "./option";
-import type { SchemaValue } from "./settings";
+import type { SchemaValue } from "./types";
 
 export type { ConfigErrorEntry } from "./errors";
 export { ConfigFileError, ConfigLoadError } from "./errors";

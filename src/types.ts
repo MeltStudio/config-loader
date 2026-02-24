@@ -1,4 +1,6 @@
 import type ConfigNode from "./nodes/configNode";
+import type { ArrayOption, Node, OptionBase, OptionTypes } from "./option";
+import type PrimitiveOption from "./option/primitive";
 
 export type ProcessEnv = { [key: string]: string | undefined };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,7 +29,10 @@ export type OptionKind =
   | "array"
   | "object";
 
-export type PrimitiveKind = "boolean" | "string" | "number";
+export type PrimitiveKind = Extract<
+  OptionKind,
+  "boolean" | "string" | "number"
+>;
 
 export type TypeOfPrimitiveKind<T extends PrimitiveKind> = T extends "boolean"
   ? boolean
@@ -35,6 +40,18 @@ export type TypeOfPrimitiveKind<T extends PrimitiveKind> = T extends "boolean"
   ? string
   : T extends "number"
   ? number
+  : never;
+
+export type SchemaValue<T extends OptionBase | Node> = T extends OptionBase
+  ? T extends ArrayOption<Node | OptionTypes>
+    ? SchemaValue<T["item"]>[]
+    : T extends PrimitiveOption<infer R>
+    ? TypeOfPrimitiveKind<R>
+    : never
+  : T extends Node
+  ? {
+      [K in keyof T]: SchemaValue<T[K]>;
+    }
   : never;
 
 export type Path = Array<string | number>;

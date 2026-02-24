@@ -5,7 +5,7 @@ import * as fs from "fs";
 import { ConfigFileError, ConfigLoadError } from "./errors";
 import ConfigNode from "./nodes/configNode";
 import ConfigNodeArray from "./nodes/configNodeArray";
-import type { ArrayOption, Node, OptionTypes, Value } from "./option";
+import type { Node, OptionTypes, Value } from "./option";
 import {
   ArrayValueContainer,
   OptionBase,
@@ -20,21 +20,9 @@ import type {
   Path,
   ProcessEnv,
   RecursivePartial,
+  SchemaValue,
   SettingsSources,
-  TypeOfPrimitiveKind,
 } from "./types";
-
-export type SchemaValue<T extends OptionBase | Node> = T extends OptionBase
-  ? T extends ArrayOption<Node | OptionTypes>
-    ? SchemaValue<T["item"]>[]
-    : T extends PrimitiveOption<infer R>
-    ? TypeOfPrimitiveKind<R>
-    : never
-  : T extends Node
-  ? {
-      [K in keyof T]: SchemaValue<T[K]>;
-    }
-  : never;
 
 class Settings<T extends Node> {
   private readonly schema: T;
@@ -303,7 +291,7 @@ class Settings<T extends Node> {
     }
   }
 
-  private getValuesFromTree<V extends OptionTypes | Node>(
+  private getValuesFromTree(
     node: NodeTree | ConfigNode
   ): Value | ArrayValue | null {
     if (node instanceof ConfigNode) {
@@ -315,7 +303,7 @@ class Settings<T extends Node> {
     return Object.entries(node).reduce<{ [key: string]: Value | null }>(
       (acc, item) => {
         const [key, value] = item;
-        acc[key] = this.getValuesFromTree<V>(value);
+        acc[key] = this.getValuesFromTree(value);
         return acc;
       },
       {}
