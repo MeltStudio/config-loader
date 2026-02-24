@@ -21,6 +21,7 @@ export type SettingsSources<T> = {
   args: boolean;
   files?: string | string[] | false;
   dir?: string | false;
+  envFile?: string | string[] | false;
   defaults?: RecursivePartial<T>;
   exitOnError?: boolean;
 };

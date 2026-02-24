@@ -1,6 +1,5 @@
 /* eslint-disable max-lines */
-import type SourceMap from "js-yaml-source-map";
-
+import type { EnvFileResult } from "@/envFileLoader";
 import { loadConfigFile } from "@/fileLoader";
 import ConfigNode from "@/nodes/configNode";
 import type {
@@ -52,7 +51,14 @@ interface OptionClassParams<T extends OptionKind> {
 }
 
 function lookupLocation(
-  sourceMap: SourceMap | null | undefined,
+  sourceMap:
+    | {
+        lookup(
+          path: string | string[],
+        ): { line: number; column: number } | undefined;
+      }
+    | null
+    | undefined,
   path: Path,
 ): { line: number; column: number } | null {
   if (!sourceMap) return null;
@@ -85,8 +91,13 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     objectFromArray?: {
       value: ConfigFileData;
       file: string;
-      sourceMap?: SourceMap | null;
+      sourceMap?: {
+        lookup(
+          path: string | string[],
+        ): { line: number; column: number } | undefined;
+      } | null;
     },
+    envFileResults?: EnvFileResult[],
   ): ConfigNode | null {
     const ident = path.join(".");
 
@@ -106,6 +117,24 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       if (this.params.env in env) {
         const val = env[this.params.env];
         if (val) {
+          // Determine if this came from a .env file or process.env
+          const envFileSource = this.findEnvFileSource(
+            this.params.env,
+            val,
+            envFileResults,
+          );
+          if (envFileSource) {
+            return new ConfigNode(
+              this.checkType(val, path, "envFile"),
+              ident,
+              "envFile",
+              envFileSource.filePath,
+              this.params.env,
+              null,
+              envFileSource.line,
+              envFileSource.column,
+            );
+          }
           return new ConfigNode(
             this.checkType(val, path, "env"),
             ident,
@@ -278,6 +307,34 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       });
     }
 
+    return null;
+  }
+
+  /**
+   * Checks if the value for an env key came from a .env file rather than process.env.
+   * A value is from a .env file if:
+   * 1. The key exists in the .env file entries
+   * 2. The value matches (meaning process.env didn't override it)
+   */
+  // eslint-disable-next-line class-methods-use-this
+  private findEnvFileSource(
+    envKey: string,
+    currentValue: string,
+    envFileResults?: EnvFileResult[],
+  ): { filePath: string; line: number; column: number } | null {
+    if (!envFileResults) return null;
+    // Search in reverse order so later files take precedence
+    for (let i = envFileResults.length - 1; i >= 0; i--) {
+      const result = envFileResults[i];
+      const entry = result.entries.get(envKey);
+      if (entry && entry.value === currentValue) {
+        return {
+          filePath: result.filePath,
+          line: entry.line,
+          column: entry.column,
+        };
+      }
+    }
     return null;
   }
 

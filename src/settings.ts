@@ -2,6 +2,8 @@
 import { Command } from "commander";
 import * as fs from "fs";
 
+import type { EnvFileResult } from "./envFileLoader";
+import { loadEnvFile } from "./envFileLoader";
 import { ConfigFileError, ConfigLoadError } from "./errors";
 import ConfigNode from "./nodes/configNode";
 import ConfigNodeArray from "./nodes/configNodeArray";
@@ -43,6 +45,8 @@ class Settings<T extends Node> {
   private optionsTree: NodeTree = {};
 
   private defaultData: RecursivePartial<SchemaValue<T>> = {};
+
+  private envFileResults: EnvFileResult[] = [];
 
   private program: Command;
 
@@ -102,11 +106,45 @@ class Settings<T extends Node> {
     }
   }
 
+  private loadEnvFiles(): void {
+    const { envFile } = this.sources;
+    if (!envFile) return;
+
+    const envFiles = Array.isArray(envFile) ? envFile : [envFile];
+    for (const file of envFiles) {
+      if (!fs.existsSync(file)) {
+        throw new ConfigFileError(`Invalid env file '${file}'`);
+      }
+      const result = loadEnvFile(file);
+      this.envFileResults.push(result);
+    }
+
+    // Merge .env values into envData: .env first, then process.env on top
+    const merged: ProcessEnv = {};
+
+    // Apply .env file values (later files override earlier ones)
+    for (const result of this.envFileResults) {
+      for (const [key, entry] of result.entries) {
+        merged[key] = entry.value;
+      }
+    }
+
+    // process.env always wins
+    for (const [key, value] of Object.entries(this.envData)) {
+      if (value !== undefined) {
+        merged[key] = value;
+      }
+    }
+
+    this.envData = merged;
+  }
+
   private load(): void {
     this.validateFiles();
     if (this.sources.env) {
-      this.envData = process.env;
+      this.envData = { ...process.env };
     }
+    this.loadEnvFiles();
     if (this.sources.args) {
       this.traverseOptions(this.schema, [], this.addArg.bind(this));
       this.program.parse(process.argv);
@@ -123,6 +161,7 @@ class Settings<T extends Node> {
         envData: this.envData,
         argsData: this.argsData,
         defaultValue: this.defaultData,
+        envFileResults: this.envFileResults,
       }),
     );
 
@@ -177,6 +216,7 @@ class Settings<T extends Node> {
       argsData?: { [key: string]: string };
       defaultValue?: RecursivePartial<SchemaValue<T>>;
       objectFromArray?: { value: ConfigFileData; file: string };
+      envFileResults?: EnvFileResult[];
     },
     node: OptionBase,
     path: Path,
@@ -187,6 +227,7 @@ class Settings<T extends Node> {
       argsData = {},
       defaultValue = {},
       objectFromArray,
+      envFileResults,
     } = configData;
     const value = node.getValue(
       sourceFile,
@@ -195,6 +236,7 @@ class Settings<T extends Node> {
       path,
       defaultValue,
       objectFromArray,
+      envFileResults,
     );
     if (value === null) {
       // Value not found

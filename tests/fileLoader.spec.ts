@@ -38,9 +38,25 @@ describe("loadConfigFile", () => {
     expect(loc).toHaveProperty("column", expect.any(Number));
   });
 
-  it("should return null sourceMap for JSON files", () => {
+  it("should return a sourceMap for JSON files", () => {
     const { sourceMap } = loadConfigFile("tests/__mocks__/fileMock.json");
-    expect(sourceMap).toBeNull();
+    expect(sourceMap).not.toBeNull();
+  });
+
+  it("should track line numbers for top-level JSON keys", () => {
+    const { sourceMap } = loadConfigFile("tests/__mocks__/fileMock.json");
+    expect(sourceMap).not.toBeNull();
+    const loc = sourceMap!.lookup(["string"]);
+    expect(loc).toBeDefined();
+    expect(loc!.line).toBeGreaterThan(0);
+  });
+
+  it("should track line numbers for nested JSON keys", () => {
+    const { sourceMap } = loadConfigFile("tests/__mocks__/fileMock.json");
+    expect(sourceMap).not.toBeNull();
+    const loc = sourceMap!.lookup(["object", "name"]);
+    expect(loc).toBeDefined();
+    expect(loc!.line).toBeGreaterThan(0);
   });
 
   it("should throw ConfigFileError for invalid YAML", () => {
@@ -74,7 +90,7 @@ describe("file cache", () => {
     const json = loadConfigFile("tests/__mocks__/fileMock.json");
     expect(yaml).not.toBe(json);
     expect(yaml.sourceMap).not.toBeNull();
-    expect(json.sourceMap).toBeNull();
+    expect(json.sourceMap).not.toBeNull();
   });
 
   it("should re-read from disk after clearFileCache()", () => {

@@ -19,7 +19,8 @@
       "@/settings": ["src/settings"],
       "@/types": ["src/types"],
       "@/utils": ["src/utils"],
-      "@/fileLoader": ["src/fileLoader"]
+      "@/fileLoader": ["src/fileLoader"],
+      "@/envFileLoader": ["src/envFileLoader"]
     }
   },
   "include": ["src", "tests", "example"]

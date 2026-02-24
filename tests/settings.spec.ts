@@ -2146,7 +2146,7 @@ describe("Settings", () => {
       expect(node.column).toBeNull();
     });
 
-    it("should have null line and column for JSON file values", () => {
+    it("should include line and column for JSON file values", () => {
       const result = option
         .schema({
           string: option.string({ required: true }),
@@ -2160,8 +2160,29 @@ describe("Settings", () => {
       const node = result.string as unknown as ConfigNode;
       expect(node).toBeInstanceOf(ConfigNode);
       expect(node.sourceType).toBe("file");
-      expect(node.line).toBeNull();
-      expect(node.column).toBeNull();
+      expect(node.line).toBeGreaterThan(0);
+      expect(node.column).toBeGreaterThan(0);
+    });
+
+    it("should include line and column for nested JSON values", () => {
+      const result = option
+        .schema({
+          object: option.object({
+            item: {
+              name: option.string({ required: true }),
+            },
+          }),
+        })
+        .loadExtended({
+          env: false,
+          args: false,
+          files: "tests/__mocks__/fileMock.json",
+        });
+
+      const objectNode = result.object as unknown as { name: ConfigNode };
+      expect(objectNode.name).toBeInstanceOf(ConfigNode);
+      expect(objectNode.name.line).toBeGreaterThan(0);
+      expect(objectNode.name.column).toBeGreaterThan(0);
     });
 
     it("should include line numbers in error messages for YAML-sourced values", () => {
@@ -2186,6 +2207,175 @@ describe("Settings", () => {
       );
       expect(errorWithLine).toBeDefined();
       expect(errorWithLine!.message).toMatch(/\.yaml:\d+:\d+\./);
+    });
+  });
+
+  describe("env file support", () => {
+    it("should load values from a .env file", () => {
+      const data = option
+        .schema({
+          host: option.string({ env: "DB_HOST" }),
+          port: option.number({ env: "DB_PORT" }),
+        })
+        .load({
+          env: false,
+          args: false,
+          envFile: "tests/__mocks__/settings/env-file/.env",
+        });
+      expect(data).toStrictEqual({
+        host: "localhost",
+        port: 5432,
+      });
+    });
+
+    it("should give process.env priority over .env file", () => {
+      process.env.DB_HOST = "prod-server";
+      const data = option
+        .schema({
+          host: option.string({ env: "DB_HOST" }),
+          port: option.number({ env: "DB_PORT" }),
+        })
+        .load({
+          env: true,
+          args: false,
+          envFile: "tests/__mocks__/settings/env-file/.env",
+        });
+      expect(data.host).toBe("prod-server");
+      // DB_PORT not in process.env, should come from .env
+      expect(data.port).toBe(5432);
+    });
+
+    it("should give env file priority over config files", () => {
+      const data = option
+        .schema({
+          host: option.string({ env: "DB_HOST" }),
+          port: option.number({ env: "DB_PORT" }),
+          name: option.string({ required: true }),
+        })
+        .load({
+          env: false,
+          args: false,
+          envFile: "tests/__mocks__/settings/env-file/.env",
+          files: "tests/__mocks__/settings/env-file/data.yaml",
+        });
+      // env file should win over yaml for fields with env mapping
+      expect(data.host).toBe("localhost");
+      expect(data.port).toBe(5432);
+      // field without env mapping should come from yaml
+      expect(data.name).toBe("from-yaml");
+    });
+
+    it("should support multiple .env files (later overrides earlier)", () => {
+      const data = option
+        .schema({
+          port: option.number({ env: "DB_PORT" }),
+          logLevel: option.string({ env: "LOG_LEVEL" }),
+          host: option.string({ env: "DB_HOST" }),
+        })
+        .load({
+          env: false,
+          args: false,
+          envFile: [
+            "tests/__mocks__/settings/env-file/.env",
+            "tests/__mocks__/settings/env-file/.env.override",
+          ],
+        });
+      // DB_PORT is in both files — override file should win
+      expect(data.port).toBe(3306);
+      // LOG_LEVEL only in override file
+      expect(data.logLevel).toBe("debug");
+      // DB_HOST only in first file
+      expect(data.host).toBe("localhost");
+    });
+
+    it("should report envFile sourceType in loadExtended()", () => {
+      const extended = option
+        .schema({
+          host: option.string({ env: "DB_HOST" }),
+          port: option.number({ env: "DB_PORT" }),
+        })
+        .loadExtended({
+          env: false,
+          args: false,
+          envFile: "tests/__mocks__/settings/env-file/.env",
+        });
+      const hostNode = extended.host as ConfigNode;
+      expect(hostNode.sourceType).toBe("envFile");
+      expect(hostNode.file).toBe("tests/__mocks__/settings/env-file/.env");
+      expect(hostNode.variableName).toBe("DB_HOST");
+      expect(hostNode.line).toBe(2);
+      expect(hostNode.column).toBe(1);
+    });
+
+    it("should report env sourceType when process.env overrides .env file", () => {
+      process.env.DB_HOST = "override-host";
+      const extended = option
+        .schema({
+          host: option.string({ env: "DB_HOST" }),
+        })
+        .loadExtended({
+          env: true,
+          args: false,
+          envFile: "tests/__mocks__/settings/env-file/.env",
+        });
+      const hostNode = extended.host as ConfigNode;
+      expect(hostNode.sourceType).toBe("env");
+      expect(hostNode.file).toBeNull();
+      expect(hostNode.value).toBe("override-host");
+    });
+
+    it("should throw for missing .env file", () => {
+      expect(() =>
+        option.schema({ port: option.number({ env: "PORT" }) }).load({
+          env: false,
+          args: false,
+          envFile: "tests/__mocks__/nonexistent.env",
+        }),
+      ).toThrow(/Invalid env file/);
+    });
+
+    it("should handle envFile: false (no .env loading)", () => {
+      const data = option
+        .schema({
+          host: option.string({ env: "DB_HOST", defaultValue: "fallback" }),
+        })
+        .load({
+          env: false,
+          args: false,
+          envFile: false,
+        });
+      expect(data.host).toBe("fallback");
+    });
+
+    it("should handle .env file with quoted values", () => {
+      const data = option
+        .schema({
+          password: option.string({ env: "DB_PASSWORD" }),
+          appName: option.string({ env: "APP_NAME" }),
+        })
+        .load({
+          env: false,
+          args: false,
+          envFile: "tests/__mocks__/settings/env-file/.env",
+        });
+      expect(data.password).toBe("s3cret");
+      expect(data.appName).toBe("My App");
+    });
+
+    it("should combine .env file with CLI args (CLI wins)", () => {
+      addCliArg("host", "cli-host");
+      const data = option
+        .schema({
+          host: option.string({ env: "DB_HOST", cli: true }),
+          port: option.number({ env: "DB_PORT" }),
+        })
+        .load({
+          env: false,
+          args: true,
+          envFile: "tests/__mocks__/settings/env-file/.env",
+        });
+      expect(data.host).toBe("cli-host");
+      expect(data.port).toBe(5432);
     });
   });
 });

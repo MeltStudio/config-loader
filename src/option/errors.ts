@@ -1,3 +1,4 @@
+import { clearEnvFileCache } from "@/envFileLoader";
 import type { ConfigErrorEntry } from "@/errors";
 import { clearFileCache } from "@/fileLoader";
 
@@ -10,5 +11,6 @@ export default class OptionErrors {
     OptionErrors.errors = [];
     OptionErrors.warnings = [];
     clearFileCache();
+    clearEnvFileCache();
   }
 }

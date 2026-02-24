@@ -1,6 +1,6 @@
 # @meltstudio/config-loader
 
-A type-safe configuration loader for Node.js. Define your schema once, load from YAML or JSON files, environment variables, and CLI arguments — and get a fully typed result with zero manual type annotations.
+A type-safe configuration loader for Node.js. Define your schema once, load from YAML or JSON files, `.env` files, environment variables, and CLI arguments — and get a fully typed result with zero manual type annotations.
 
 ## Why config-loader?
 
@@ -52,8 +52,9 @@ No separate interface to maintain. No `as` casts. The types flow from the schema
 ## Features
 
 - **Full type inference** — schema definition produces typed output automatically
-- **Multiple sources** — YAML files, JSON files, environment variables, CLI arguments
-- **Priority resolution** — CLI > Env > Files > Defaults
+- **Multiple sources** — YAML files, JSON files, `.env` files, environment variables, CLI arguments
+- **Priority resolution** — CLI > process.env > `.env` files > Config files > Defaults
+- **`.env` file support** — load environment variables from `.env` files with automatic line tracking
 - **Nested objects and arrays** — deeply nested configs with full type safety
 - **Structured errors** — typed `ConfigLoadError` with per-field error details instead of `process.exit(1)`
 - **Default values** — static or computed (via functions)
@@ -256,13 +257,15 @@ c.array({
   files: "./config.json",                    // Single JSON file
   files: ["./base.yaml", "./overrides.json"], // Mix YAML and JSON (first takes priority)
   dir: "./config.d/",                        // All files in a directory (sorted)
+  envFile: "./.env",                         // Single .env file
+  envFile: ["./.env", "./.env.local"],       // Multiple .env files (later overrides earlier)
   defaults: { port: 3000 },                  // Programmatic defaults
 })
 ```
 
 Both YAML (`.yaml`, `.yml`) and JSON (`.json`) files are supported. The format is detected automatically from the file extension.
 
-**Priority order:** CLI arguments > Environment variables > Files > Defaults
+**Priority order:** CLI arguments > `process.env` > `.env` files > Config files > Defaults
 
 ## Extended Loading (Source Metadata)
 
@@ -286,12 +289,12 @@ const extended = c
 // {
 //   value: 3000,
 //   path: "port",
-//   sourceType: "env" | "file" | "args" | "default",
-//   file: "./config.yaml" | null,
+//   sourceType: "env" | "envFile" | "file" | "args" | "default",
+//   file: "./config.yaml" | "./.env" | null,
 //   variableName: "PORT" | null,
 //   argName: null,
-//   line: 5 | null,      // YAML source line (1-based), null for env/args/default/JSON
-//   column: 3 | null      // YAML source column (1-based), null for env/args/default/JSON
+//   line: 5 | null,      // source line (1-based) for YAML, JSON, and .env files; null for env/args/default
+//   column: 3 | null      // source column (1-based) for YAML, JSON, and .env files; null for env/args/default
 // }
 console.log(extended.port.value); // 3000
 console.log(extended.port.sourceType); // "env"
@@ -356,6 +359,59 @@ c.schema({
   }),
 }).load({ env: true, args: false, files: "./config.yaml" });
 ```
+
+## `.env` File Support
+
+Load environment variables from `.env` files using the `envFile` option. Options with an `env` mapping automatically pick up values from `.env` files — no new syntax needed on individual fields.
+
+**.env:**
+
+```bash
+DB_HOST=localhost
+DB_PORT=5432
+DB_PASSWORD="s3cret"
+APP_NAME='My App'
+# This is a comment
+```
+
+**Usage:**
+
+```typescript
+const config = c
+  .schema({
+    host: c.string({ env: "DB_HOST" }),
+    port: c.number({ env: "DB_PORT" }),
+    password: c.string({ env: "DB_PASSWORD" }),
+  })
+  .load({
+    env: true,
+    args: false,
+    envFile: "./.env",
+  });
+```
+
+`process.env` always takes precedence over `.env` file values. This means you can use `.env` files for development defaults while overriding them in production via real environment variables.
+
+**Multiple `.env` files:**
+
+```typescript
+.load({
+  env: true,
+  args: false,
+  envFile: ["./.env", "./.env.local"],  // .env.local overrides .env
+})
+```
+
+When using multiple files, later files override earlier ones for the same key.
+
+The `.env` parser supports:
+
+- `KEY=VALUE` pairs (whitespace trimmed)
+- Comments (lines starting with `#`)
+- Quoted values (double `"..."` or single `'...'` quotes stripped)
+- Empty values (`KEY=`)
+
+When using `loadExtended()`, values from `.env` files have `sourceType: "envFile"` with `file`, `line`, and `column` metadata pointing to the `.env` file location.
 
 ## License
 

@@ -2,7 +2,7 @@ import type ArrayValueContainer from "@/option/arrayOption";
 import type { Value } from "@/option/base";
 import type { ArrayValue } from "@/types";
 
-type SourceTypes = "file" | "env" | "args" | "default";
+type SourceTypes = "file" | "env" | "envFile" | "args" | "default";
 
 class ConfigNode {
   value: Value | ArrayValueContainer;

@@ -1,0 +1,3 @@
+host: yaml-host
+port: 9999
+name: from-yaml

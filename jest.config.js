@@ -25,6 +25,7 @@ module.exports = {
     "^@/types$": "<rootDir>/src/types",
     "^@/utils$": "<rootDir>/src/utils",
     "^@/fileLoader$": "<rootDir>/src/fileLoader",
+    "^@/envFileLoader$": "<rootDir>/src/envFileLoader",
   },
   reporters: [
     "default",
