@@ -64,7 +64,6 @@ type ConfigFileStructure<T> = {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ConfigFileData extends ConfigFileStructure<ConfigFileData> {}
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ArrayValue = Array<any>;
+export type ArrayValue = Array<string | number | boolean | ConfigFileData>;
 
 export class InvalidValue {}

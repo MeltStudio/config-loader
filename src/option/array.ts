@@ -55,7 +55,6 @@ export default class ArrayOption<
           this.item instanceof OptionBase &&
           !(this.item instanceof ObjectOption)
         ) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           this.item.checkType(v, [...path, i], sourceOfVal, errors);
         }
       });

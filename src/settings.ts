@@ -1,10 +1,7 @@
-/* eslint-disable max-lines */
 import { Command } from "commander";
-import * as fs from "fs";
 
 import type { EnvFileResult } from "./envFileLoader";
-import { loadEnvFile } from "./envFileLoader";
-import { ConfigFileError, ConfigLoadError } from "./errors";
+import { ConfigLoadError } from "./errors";
 import ConfigNode from "./nodes/configNode";
 import ConfigNodeArray from "./nodes/configNodeArray";
 import type { Node, OptionTypes } from "./option";
@@ -16,6 +13,7 @@ import {
 } from "./option";
 import type { Value } from "./option/base";
 import OptionErrors from "./option/errors";
+import { loadEnvFiles, validateFiles } from "./sourceValidation";
 import type {
   ArrayValue,
   ConfigFileData,
@@ -33,23 +31,14 @@ type PartiallyBuiltSettings = {
 
 class Settings<T extends Node> {
   private readonly schema: T;
-
   private readonly sources: SettingsSources<SchemaValue<T>>;
-
-  private sourceFile: string | string[] = [];
-
-  private argsData: { [key: string]: string } = {};
-
-  private envData: ProcessEnv = {};
-
-  private optionsTree: NodeTree = {};
-
-  private defaultData: RecursivePartial<SchemaValue<T>> = {};
-
-  private envFileResults: EnvFileResult[] = [];
-
   private readonly errors = new OptionErrors();
-
+  private sourceFile: string | string[] = [];
+  private argsData: { [key: string]: string } = {};
+  private envData: ProcessEnv = {};
+  private optionsTree: NodeTree = {};
+  private defaultData: RecursivePartial<SchemaValue<T>> = {};
+  private envFileResults: EnvFileResult[] = [];
   private program: Command;
 
   constructor(schema: T, sources: SettingsSources<SchemaValue<T>>) {
@@ -61,92 +50,25 @@ class Settings<T extends Node> {
     this.load();
   }
 
-  private validateFiles(): void {
-    const { files, dir } = this.sources;
-
-    if (files && dir)
-      throw new ConfigFileError("Dir and files are specified, choose one");
-
-    if (files) {
-      // if is an array of configs
-      if (Array.isArray(files)) {
-        files.forEach((file) => {
-          if (!fs.existsSync(file)) {
-            throw new ConfigFileError(`Invalid config file '${file}'`);
-          } else {
-            if (!Array.isArray(this.sourceFile)) {
-              this.sourceFile = [];
-            }
-            this.sourceFile.push(file);
-          }
-        });
-      } else {
-        if (!fs.existsSync(files)) {
-          throw new ConfigFileError(`Invalid config file '${files}'`);
-        }
-
-        this.sourceFile = files;
-      }
-    }
-
-    // if is a directory
-    if (dir) {
-      if (!(fs.existsSync(dir) && fs.lstatSync(dir).isDirectory())) {
-        throw new ConfigFileError(`'${dir}' not exists or is not a dir`);
-      }
-      const filesInDirectory = fs.readdirSync(dir).sort();
-
-      if (filesInDirectory.length === 0) {
-        throw new ConfigFileError(`Directory '${dir}' is empty`);
-      }
-      filesInDirectory.forEach((file) => {
-        if (!Array.isArray(this.sourceFile)) {
-          this.sourceFile = [];
-        }
-        this.sourceFile.push(`${dir}/${file}`);
-      });
-    }
+  private validateAndLoadFiles(): void {
+    this.sourceFile = validateFiles(this.sources.files, this.sources.dir);
   }
 
-  private loadEnvFiles(): void {
-    const { envFile } = this.sources;
-    if (!envFile) return;
-
-    const envFiles = Array.isArray(envFile) ? envFile : [envFile];
-    for (const file of envFiles) {
-      if (!fs.existsSync(file)) {
-        throw new ConfigFileError(`Invalid env file '${file}'`);
-      }
-      const result = loadEnvFile(file);
-      this.envFileResults.push(result);
-    }
-
-    // Merge .env values into envData: .env first, then process.env on top
-    const merged: ProcessEnv = {};
-
-    // Apply .env file values (later files override earlier ones)
-    for (const result of this.envFileResults) {
-      for (const [key, entry] of result.entries) {
-        merged[key] = entry.value;
-      }
-    }
-
-    // process.env always wins
-    for (const [key, value] of Object.entries(this.envData)) {
-      if (value !== undefined) {
-        merged[key] = value;
-      }
-    }
-
-    this.envData = merged;
+  private loadAndMergeEnvFiles(): void {
+    const { envFileResults, mergedEnvData } = loadEnvFiles(
+      this.sources.envFile,
+      this.envData,
+    );
+    this.envFileResults = envFileResults;
+    this.envData = mergedEnvData;
   }
 
   private load(): void {
-    this.validateFiles();
+    this.validateAndLoadFiles();
     if (this.sources.env) {
       this.envData = { ...process.env };
     }
-    this.loadEnvFiles();
+    this.loadAndMergeEnvFiles();
     if (this.sources.args) {
       this.traverseOptions(this.schema, [], this.addArg.bind(this));
       this.program.parse(process.argv);
@@ -174,7 +96,6 @@ class Settings<T extends Node> {
         console.warn(`[Warning]: ${this.errors.warnings[index]}`);
       }
     }
-
     // if then of the execution has errors
     if (this.errors.errors.length > 0) {
       if (this.sources.exitOnError) {
@@ -244,9 +165,7 @@ class Settings<T extends Node> {
       envFileResults,
       errors,
     );
-    if (value === null) {
-      // Value not found
-    } else {
+    if (value !== null) {
       this.setOption(result, path, value);
     }
   }

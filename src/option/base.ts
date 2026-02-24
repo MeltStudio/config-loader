@@ -67,6 +67,63 @@ function lookupLocation(
   return { line: loc.line, column: loc.column };
 }
 
+/**
+ * Checks if the value for an env key came from a .env file rather than process.env.
+ * A value is from a .env file if:
+ * 1. The key exists in the .env file entries
+ * 2. The value matches (meaning process.env didn't override it)
+ */
+function findEnvFileSource(
+  envKey: string,
+  currentValue: string,
+  envFileResults?: EnvFileResult[],
+): { filePath: string; line: number; column: number } | null {
+  if (!envFileResults) return null;
+  // Search in reverse order so later files take precedence
+  for (let i = envFileResults.length - 1; i >= 0; i--) {
+    const result = envFileResults[i];
+    const entry = result.entries.get(envKey);
+    if (entry && entry.value === currentValue) {
+      return {
+        filePath: result.filePath,
+        line: entry.line,
+        column: entry.column,
+      };
+    }
+  }
+  return null;
+}
+
+function checkNumberType(
+  val: Value,
+  pathStr: string,
+  sourceOfVal: string,
+  errors?: OptionErrors,
+): Value {
+  if (typeof val === "string") {
+    const parseVal = parseInt(val, 10);
+    if (Number.isNaN(parseVal)) {
+      errors?.errors.push({
+        message: `Cannot convert value '${val}' for '${pathStr}' to number in ${sourceOfVal}.`,
+        path: pathStr,
+        source: sourceOfVal,
+        kind: "type_conversion",
+      });
+      return new InvalidValue();
+    }
+    errors?.warnings.push(
+      `The option ${pathStr} is stated as a number but is provided as a string`,
+    );
+    return parseVal;
+  }
+  errors?.errors.push({
+    message: `Invalid state. Invalid kind in ${sourceOfVal}`,
+    source: sourceOfVal,
+    kind: "invalid_state",
+  });
+  return new InvalidValue();
+}
+
 function formatFileLocation(
   file: string,
   loc: { line: number; column: number } | null,
@@ -119,7 +176,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         const val = env[this.params.env];
         if (val) {
           // Determine if this came from a .env file or process.env
-          const envFileSource = this.findEnvFileSource(
+          const envFileSource = findEnvFileSource(
             this.params.env,
             val,
             envFileResults,
@@ -149,118 +206,43 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     }
     if (typeof sourceFile === "string") {
       const { data, sourceMap } = loadConfigFile(sourceFile);
-      const val = this.findInObject(data || {}, path, errors);
-      const loc = lookupLocation(sourceMap, path);
-      if (val instanceof ArrayValueContainer) {
-        return new ConfigNode(
-          this.checkType(
-            val,
-            path,
-            formatFileLocation(sourceFile, loc),
-            errors,
-          ),
-          ident,
-          "file",
-          sourceFile,
-          null,
-          null,
-          loc?.line ?? null,
-          loc?.column ?? null,
-        );
-      }
-      // the following line checks if the value is different to null or undefined
-      if (!valueIsInvalid(val)) {
-        return new ConfigNode(
-          this.checkType(
-            val,
-            path,
-            formatFileLocation(sourceFile, loc),
-            errors,
-          ),
-          ident,
-          "file",
-          sourceFile,
-          null,
-          null,
-          loc?.line ?? null,
-          loc?.column ?? null,
-        );
-      }
+      const node = this.resolveFromFileData(
+        data || {},
+        sourceFile,
+        sourceMap,
+        path,
+        ident,
+        errors,
+      );
+      if (node) return node;
     }
 
     if (Array.isArray(sourceFile)) {
       for (let index = 0; index < sourceFile.length; index += 1) {
         const file = sourceFile[index];
         const { data, sourceMap } = loadConfigFile(file);
-        const val = this.findInObject(data || {}, path, errors);
-        const loc = lookupLocation(sourceMap, path);
-        if (val instanceof ArrayValueContainer) {
-          return new ConfigNode(
-            this.checkType(val, path, formatFileLocation(file, loc), errors),
-            ident,
-            "file",
-            file,
-            null,
-            null,
-            loc?.line ?? null,
-            loc?.column ?? null,
-          );
-        }
-
-        // the following line checks if the value is different to null or undefined
-        if (!valueIsInvalid(val)) {
-          return new ConfigNode(
-            this.checkType(val, path, formatFileLocation(file, loc), errors),
-            ident,
-            "file",
-            file,
-            null,
-            null,
-            loc?.line ?? null,
-            loc?.column ?? null,
-          );
-        }
+        const node = this.resolveFromFileData(
+          data || {},
+          file,
+          sourceMap,
+          path,
+          ident,
+          errors,
+        );
+        if (node) return node;
       }
     }
 
     if (objectFromArray) {
-      const loc = lookupLocation(objectFromArray.sourceMap, path);
-      const val = this.findInObject(objectFromArray.value, path, errors);
-      if (val instanceof ArrayValueContainer) {
-        return new ConfigNode(
-          this.checkType(
-            val,
-            path,
-            formatFileLocation(objectFromArray.file, loc),
-            errors,
-          ),
-          ident,
-          "file",
-          objectFromArray.file,
-          null,
-          null,
-          loc?.line ?? null,
-          loc?.column ?? null,
-        );
-      }
-      // the following line checks if the value is different to null or undefined
-      if (!valueIsInvalid(val)) {
-        return new ConfigNode(
-          this.checkType(
-            val,
-            path,
-            formatFileLocation(objectFromArray.file, loc),
-            errors,
-          ),
-          ident,
-          "file",
-          objectFromArray.file,
-          null,
-          null,
-          loc?.line ?? null,
-          loc?.column ?? null,
-        );
-      }
+      const node = this.resolveFromFileData(
+        objectFromArray.value,
+        objectFromArray.file,
+        objectFromArray.sourceMap ?? null,
+        path,
+        ident,
+        errors,
+      );
+      if (node) return node;
     }
 
     if (defaultValues) {
@@ -294,11 +276,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     // If value not found but has default value
     if (this.params.defaultValue !== undefined) {
       let defaultValue: DefaultValue;
-      if (typeof this.params.defaultValue === "function") {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        defaultValue = this.params.defaultValue();
+      const rawDefault = this.params.defaultValue;
+      if (typeof rawDefault === "function") {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- deferred conditional type: TypedDefaultValue<T> can't be narrowed by typeof
+        defaultValue = rawDefault();
       } else {
-        defaultValue = this.params.defaultValue;
+        defaultValue = rawDefault;
       }
       if (this.params.kind === "array" && Array.isArray(defaultValue)) {
         defaultValue = this.buildArrayOption(defaultValue, errors);
@@ -327,63 +310,33 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     return null;
   }
 
-  /**
-   * Checks if the value for an env key came from a .env file rather than process.env.
-   * A value is from a .env file if:
-   * 1. The key exists in the .env file entries
-   * 2. The value matches (meaning process.env didn't override it)
-   */
-  // eslint-disable-next-line class-methods-use-this
-  private findEnvFileSource(
-    envKey: string,
-    currentValue: string,
-    envFileResults?: EnvFileResult[],
-  ): { filePath: string; line: number; column: number } | null {
-    if (!envFileResults) return null;
-    // Search in reverse order so later files take precedence
-    for (let i = envFileResults.length - 1; i >= 0; i--) {
-      const result = envFileResults[i];
-      const entry = result.entries.get(envKey);
-      if (entry && entry.value === currentValue) {
-        return {
-          filePath: result.filePath,
-          line: entry.line,
-          column: entry.column,
-        };
-      }
+  private resolveFromFileData(
+    data: ConfigFileData,
+    file: string,
+    sourceMap: {
+      lookup(
+        path: string | string[],
+      ): { line: number; column: number } | undefined;
+    } | null,
+    path: Path,
+    ident: string,
+    errors?: OptionErrors,
+  ): ConfigNode | null {
+    const val = this.findInObject(data, path, errors);
+    const loc = lookupLocation(sourceMap, path);
+    if (val instanceof ArrayValueContainer || !valueIsInvalid(val)) {
+      return new ConfigNode(
+        this.checkType(val, path, formatFileLocation(file, loc), errors),
+        ident,
+        "file",
+        file,
+        null,
+        null,
+        loc?.line ?? null,
+        loc?.column ?? null,
+      );
     }
     return null;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  protected checkNumberType(
-    val: Value,
-    pathStr: string,
-    sourceOfVal: string,
-    errors?: OptionErrors,
-  ): Value {
-    if (typeof val === "string") {
-      const parseVal = parseInt(val, 10);
-      if (Number.isNaN(parseVal)) {
-        errors?.errors.push({
-          message: `Cannot convert value '${val}' for '${pathStr}' to number in ${sourceOfVal}.`,
-          path: pathStr,
-          source: sourceOfVal,
-          kind: "type_conversion",
-        });
-        return new InvalidValue();
-      }
-      errors?.warnings.push(
-        `The option ${pathStr} is stated as a number but is provided as a string`,
-      );
-      return parseVal;
-    }
-    errors?.errors.push({
-      message: `Invalid state. Invalid kind in ${sourceOfVal}`,
-      source: sourceOfVal,
-      kind: "invalid_state",
-    });
-    return new InvalidValue();
   }
 
   public checkType(
@@ -444,7 +397,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       return new InvalidValue();
     }
     if (this.params.kind === "number") {
-      return this.checkNumberType(val, ident, sourceOfVal, errors);
+      return checkNumberType(val, ident, sourceOfVal, errors);
     }
     errors?.errors.push({
       message: `Invalid state. Invalid kind in ${sourceOfVal}`,
