@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 export interface ConfigErrorEntry {
   message: string;
   path?: string;

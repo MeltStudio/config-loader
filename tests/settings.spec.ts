@@ -6,8 +6,10 @@ import { InvalidValue } from "@/types";
 
 import { addCliArg } from "./utils/cli";
 
+// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
 let _proccessEnv: NodeJS.ProcessEnv;
 
+// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
 let _processArgs: string[];
 beforeAll(() => {
   _proccessEnv = process.env;
