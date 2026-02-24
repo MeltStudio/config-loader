@@ -70,7 +70,7 @@ const aliases = Object.keys(paths)
   .map((alias) => ({
     prefix: alias.replace(/\*$/, ""),
     aliasPaths: paths[alias].map((p) =>
-      resolve(basePath, p.replace(/\*$/, ""))
+      resolve(basePath, p.replace(/\*$/, "")),
     ),
   }))
   .filter(({ prefix }) => prefix);
@@ -109,8 +109,8 @@ const absToRel = (modulePath, outFile) => {
           verboseLog(
             `\treplacing '${modulePath}' -> '${rel}' referencing ${relative(
               basePath,
-              moduleSrc
-            )}`
+              moduleSrc,
+            )}`,
           );
           return rel;
         }
@@ -136,10 +136,10 @@ const replaceImportStatement = (orig, matched, outFile) => {
 const replaceAlias = (text, outFile) =>
   text
     .replace(requireRegex, (orig, matched) =>
-      replaceImportStatement(orig, matched, outFile)
+      replaceImportStatement(orig, matched, outFile),
     )
     .replace(importRegex, (orig, matched) =>
-      replaceImportStatement(orig, matched, outFile)
+      replaceImportStatement(orig, matched, outFile),
     );
 
 // import relative to absolute path

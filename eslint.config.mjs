@@ -150,5 +150,5 @@ export default tseslint.config(
       "jest/no-disabled-tests": "error",
       "max-lines": "off",
     },
-  }
+  },
 );
