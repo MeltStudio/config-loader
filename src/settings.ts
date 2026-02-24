@@ -164,17 +164,22 @@ class Settings<T extends Node> {
   private buildOption(
     result: PartiallyBuiltSettings,
     configData: {
-      sourceFile: string | string[];
-      envData: ProcessEnv;
-      argsData: { [key: string]: string };
-      defaultValue: Partial<T>;
+      sourceFile?: string | string[];
+      envData?: ProcessEnv;
+      argsData?: { [key: string]: string };
+      defaultValue?: RecursivePartial<SchemaValue<T>>;
       objectFromArray?: { value: ConfigFileData; file: string };
     },
-    node: OptionTypes,
+    node: OptionBase,
     path: Path
   ): void {
-    const { sourceFile, envData, argsData, defaultValue, objectFromArray } =
-      configData;
+    const {
+      sourceFile = [],
+      envData = {},
+      argsData = {},
+      defaultValue = {},
+      objectFromArray,
+    } = configData;
     const value = node.getValue(
       sourceFile,
       envData,
