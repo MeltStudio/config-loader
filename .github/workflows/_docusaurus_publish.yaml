@@ -2,10 +2,6 @@ name: Deploy Docusaurus
 
 on:
   workflow_call:
-    secrets:
-      docs-token:
-        description: "GitHub token for deploying docs"
-        required: true
 
 env:
   HUSKY: 0
@@ -31,5 +27,5 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.docs-token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build
