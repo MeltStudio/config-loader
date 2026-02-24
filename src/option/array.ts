@@ -41,7 +41,6 @@ export default class ArrayOption<
     return new ArrayValueContainer(this.item, val);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   public override checkType(
     val: Value,
     path: Path,

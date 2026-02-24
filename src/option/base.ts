@@ -1,11 +1,19 @@
-/* eslint-disable max-lines */
-import { loadConfigFile } from "@/fileLoader";
+import * as fs from "fs";
+import yaml from "js-yaml";
+
 import ConfigNode from "@/nodes/configNode";
 import type { ArrayValue, ConfigFileData, OptionKind, Path } from "@/types";
 import { InvalidValue } from "@/types";
 import { valueIsInvalid } from "@/utils";
 
 import ArrayValueContainer from "./arrayOption";
+
+function valueToString(val: unknown): string {
+  if (typeof val === "object" && val !== null) {
+    return JSON.stringify(val);
+  }
+  return String(val);
+}
 // import ArrayOption from "./arrayOption";
 import OptionErrors from "./errors";
 
@@ -17,7 +25,8 @@ export type DefaultValue =
   | (() => boolean);
 
 type RecursiveNode<T> = { [key: string]: OptionBase | T };
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface Node extends RecursiveNode<Node> {}
 
 interface OptionClassParams<T extends OptionKind> {
@@ -77,7 +86,9 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       }
     }
     if (typeof sourceFile === "string") {
-      const data = loadConfigFile(sourceFile);
+      const data = yaml.load(
+        fs.readFileSync(sourceFile, "utf-8")
+      ) as ConfigFileData;
       const val = this.findInObject(data || {}, path);
       if (val instanceof ArrayValueContainer) {
         return new ConfigNode(
@@ -105,7 +116,9 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (Array.isArray(sourceFile)) {
       for (let index = 0; index < sourceFile.length; index += 1) {
         const file = sourceFile[index];
-        const data = loadConfigFile(file);
+        const data = yaml.load(
+          fs.readFileSync(file, "utf-8")
+        ) as ConfigFileData;
         const val = this.findInObject(data || {}, path);
         if (val instanceof ArrayValueContainer) {
           return new ConfigNode(
@@ -217,7 +230,6 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     return null;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   protected checkNumberType(
     val: Value,
     pathStr: string,
@@ -271,7 +283,9 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         return val.toString();
       }
       OptionErrors.errors.push({
-        message: `Cannot convert value '${val.toString()}' for '${ident}' to string in ${sourceOfVal}.`,
+        message: `Cannot convert value '${valueToString(
+          val
+        )}' for '${ident}' to string in ${sourceOfVal}.`,
         path: ident,
         source: sourceOfVal,
         kind: "type_conversion",
@@ -288,7 +302,9 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         }
       }
       OptionErrors.errors.push({
-        message: `Cannot convert value '${val.toString()}' for '${ident}' to boolean in ${sourceOfVal}.`,
+        message: `Cannot convert value '${valueToString(
+          val
+        )}' for '${ident}' to boolean in ${sourceOfVal}.`,
         path: ident,
         source: sourceOfVal,
         kind: "type_conversion",
@@ -339,7 +355,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       }
       if (Array.isArray(val)) {
         OptionErrors.errors.push({
-          message: `Cant get path from array value '${val.toString()}'`,
+          message: `Cant get path from array value '${valueToString(val)}'`,
           kind: "invalid_path",
         });
         return new InvalidValue();
@@ -377,7 +393,6 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     return new InvalidValue();
   }
 
-  // eslint-disable-next-line class-methods-use-this
   buildArrayOption(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _val: string[] | ConfigFileData[]

@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-disabled-tests */
 import ConfigNode from "@/nodes/configNode";
 import {
   ArrayOption,
@@ -22,7 +21,6 @@ afterEach(() => {
 });
 
 describe("option", () => {
-  // eslint-disable-next-line jest/no-disabled-tests
   it("should return the option", () => {
     const option = new PrimitiveOption({
       kind: "string",

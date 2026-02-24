@@ -57,7 +57,8 @@ export type Path = Array<string | number>;
 type ConfigFileStructure<T> = {
   [key: string]: string | T | number | boolean | Array<T> | string[];
 };
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ConfigFileData extends ConfigFileStructure<ConfigFileData> {}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -6,9 +6,8 @@ import { InvalidValue } from "@/types";
 
 import { addCliArg } from "./utils/cli";
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
 let _proccessEnv: NodeJS.ProcessEnv;
-// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
+
 let _processArgs: string[];
 beforeAll(() => {
   _proccessEnv = process.env;
@@ -92,7 +91,6 @@ describe("Settings", () => {
     });
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
   describe("if the arguments are set via CLI", () => {
     describe("if no arguments are passed", () => {
       it("should return the object as it appears in the yaml file", () => {
@@ -302,7 +300,7 @@ describe("Settings", () => {
             })
         ).toThrow();
         [
-          "Cannot convert value '[object Object]' for 'hardware.size' to string in tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml.",
+          `Cannot convert value '{"max":400,"min":200}' for 'hardware.size' to string in tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml.`,
           "Required option 'hardware.brand' not provided.",
           // TODO: should use below error message
           // "Cannot convert value '400,200' for 'hardware.brand' to string in tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml.",
@@ -786,7 +784,6 @@ describe("Settings", () => {
         );
       });
 
-      // eslint-disable-next-line jest/no-disabled-tests
       it("should throw an error if the array items aren't objects", () => {
         expect(() =>
           option
@@ -840,7 +837,6 @@ describe("Settings", () => {
         });
       });
 
-      // eslint-disable-next-line jest/no-disabled-tests
       it("should throw an error if it doesn't exist", () => {
         expect(() =>
           option
@@ -901,7 +897,7 @@ describe("Settings", () => {
           "Cant get path from string value 'PostgreSQL'",
           "Cant get path from number value '4'",
           "Cant get path from boolean value 'true'",
-          "Cant get path from array value '1986,1990,1995'",
+          "Cant get path from array value '[1986,1990,1995]'",
         ].forEach((error) => {
           expect(OptionErrors.errors).toContainEqual(
             expect.objectContaining({ message: error })
@@ -1482,7 +1478,6 @@ describe("Settings", () => {
       });
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
     describe("if data has collisions on primitive values", () => {
       it("should prioritize first loaded file", () => {
         const data = option
@@ -1514,7 +1509,6 @@ describe("Settings", () => {
       });
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
     describe("if data has collisions on objects", () => {
       it("should prioritize first loaded file", () => {
         const data = option
@@ -1544,7 +1538,6 @@ describe("Settings", () => {
       });
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
     describe("if data has collisions on arrays", () => {
       it("should prioritize first loaded file", () => {
         const data = option
@@ -1658,7 +1651,6 @@ describe("Settings", () => {
   });
 
   describe("if the file is wrong", () => {
-    // eslint-disable-next-line jest/no-disabled-tests
     it("should throw a ConfigLoadError", () => {
       expect(() =>
         option
