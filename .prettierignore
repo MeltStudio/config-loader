@@ -4,6 +4,7 @@ build/
 .claude/
 node_modules/
 tests/__mocks__/invalidSyntax.*
+CHANGELOG.md
 CLAUDE.md
 RECOMMENDATIONS.md
 TODO.md
