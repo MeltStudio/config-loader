@@ -1,24 +1,20 @@
 import ConfigNode from "@/nodes/configNode";
 import { OptionErrors } from "@/option";
-import Settings from "@/settings";
 import option from "@/src";
-import { InvalidValue } from "@/types";
 
 import { addCliArg } from "./utils/cli";
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
-let _proccessEnv: NodeJS.ProcessEnv;
+let savedProcessEnv: NodeJS.ProcessEnv;
 
-// eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle
-let _processArgs: string[];
+let savedProcessArgs: string[];
 beforeAll(() => {
-  _proccessEnv = process.env;
-  _processArgs = process.argv;
+  savedProcessEnv = process.env;
+  savedProcessArgs = process.argv;
 });
 
 beforeEach(() => {
-  process.env = { ..._proccessEnv };
-  process.argv = [..._processArgs];
+  process.env = { ...savedProcessEnv };
+  process.argv = [...savedProcessArgs];
   OptionErrors.clearAll();
 });
 
@@ -27,8 +23,8 @@ afterEach(() => {
 });
 
 afterAll(() => {
-  process.env = _proccessEnv;
-  process.argv = _processArgs;
+  process.env = savedProcessEnv;
+  process.argv = savedProcessArgs;
 });
 
 describe("Settings", () => {
@@ -1685,77 +1681,6 @@ describe("Settings", () => {
             files: "tests/__mocks__/wrongFile.yaml",
           })
       ).toThrow("Configuration loading failed");
-    });
-  });
-  describe("Implementation details", () => {
-    describe("when using getValidatedArray", () => {
-      // eslint-disable-next-line jest/no-disabled-tests
-      it.skip("should return a number validated array", () => {
-        const settings = new Settings(
-          {
-            database: {
-              sizeOptions: option.array({
-                required: true,
-                item: option.number({ required: true }),
-              }),
-            },
-          },
-          {
-            env: false,
-            args: false,
-            files:
-              "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml",
-          }
-        );
-        expect(
-          // @ts-expect-error - To call a private method in a test
-          settings.getValidatedArray(
-            option.number({ required: true }),
-            ["invalid1"],
-            "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml"
-          )[0]
-        ).toBeInstanceOf(InvalidValue);
-        expect(OptionErrors.errors).toContainEqual(
-          expect.objectContaining({
-            message:
-              "Cannot convert value 'invalid1' for 'database.sizeOptions.0' to number in tests/__mocks__/settings/implementation-details/getValidatedArray.yaml.",
-          })
-        );
-      });
-
-      // eslint-disable-next-line jest/no-disabled-tests
-      it.skip("should return a boolean validated array", () => {
-        const settings = new Settings(
-          {
-            database: {
-              bools: option.array({
-                required: true,
-                item: option.bool({ required: true }),
-              }),
-            },
-          },
-          {
-            env: false,
-            args: false,
-            files:
-              "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml",
-          }
-        );
-        expect(
-          // @ts-expect-error - To call a private method in a test
-          settings.getValidatedArray(
-            option.bool({ required: true }),
-            ["invalid2"],
-            "tests/__mocks__/settings/implementation-details/getValidatedArray.yaml"
-          )[0]
-        ).toBeInstanceOf(InvalidValue);
-        expect(OptionErrors.errors).toContainEqual(
-          expect.objectContaining({
-            message:
-              "Cannot convert value 'invalid2' for 'database.bools.0' to boolean in tests/__mocks__/settings/implementation-details/getValidatedArray.yaml.",
-          })
-        );
-      });
     });
   });
 
