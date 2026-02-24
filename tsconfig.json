@@ -9,17 +9,44 @@
     "noUncheckedIndexedAccess": false,
     "outDir": "./dist",
     "paths": {
-      "@/builder": ["src/builder"],
-      "@/builder/*": ["src/builder/*"],
-      "@/nodes/*": ["src/nodes/*"],
-      "@/option": ["src/option"],
-      "@/option/*": ["src/option/*"],
-      "@/src": ["src"],
-      "@/errors": ["src/errors"],
-      "@/settings": ["src/settings"],
-      "@/types": ["src/types"],
-      "@/utils": ["src/utils"]
+      "@/builder": [
+        "src/builder"
+      ],
+      "@/builder/*": [
+        "src/builder/*"
+      ],
+      "@/nodes/*": [
+        "src/nodes/*"
+      ],
+      "@/option": [
+        "src/option"
+      ],
+      "@/option/*": [
+        "src/option/*"
+      ],
+      "@/src": [
+        "src"
+      ],
+      "@/errors": [
+        "src/errors"
+      ],
+      "@/settings": [
+        "src/settings"
+      ],
+      "@/types": [
+        "src/types"
+      ],
+      "@/utils": [
+        "src/utils"
+      ],
+      "@/fileLoader": [
+        "src/fileLoader"
+      ]
     }
   },
-  "include": ["src", "tests", "example"]
+  "include": [
+    "src",
+    "tests",
+    "example"
+  ]
 }

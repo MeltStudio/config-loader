@@ -1,7 +1,5 @@
 /* eslint-disable max-lines */
-import * as fs from "fs";
-import yaml from "js-yaml";
-
+import { loadConfigFile } from "@/fileLoader";
 import ConfigNode from "@/nodes/configNode";
 import type { ArrayValue, ConfigFileData, OptionKind, Path } from "@/types";
 import { InvalidValue } from "@/types";
@@ -79,9 +77,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       }
     }
     if (typeof sourceFile === "string") {
-      const data = yaml.load(
-        fs.readFileSync(sourceFile, "utf-8")
-      ) as ConfigFileData;
+      const data = loadConfigFile(sourceFile);
       const val = this.findInObject(data || {}, path);
       if (val instanceof ArrayValueContainer) {
         return new ConfigNode(
@@ -109,9 +105,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (Array.isArray(sourceFile)) {
       for (let index = 0; index < sourceFile.length; index += 1) {
         const file = sourceFile[index];
-        const data = yaml.load(
-          fs.readFileSync(file, "utf-8")
-        ) as ConfigFileData;
+        const data = loadConfigFile(file);
         const val = this.findInObject(data || {}, path);
         if (val instanceof ArrayValueContainer) {
           return new ConfigNode(
