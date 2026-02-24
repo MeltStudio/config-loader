@@ -19,13 +19,7 @@ export type SettingsSources<T> = {
   exitOnError?: boolean;
 };
 
-export type OptionKind =
-  | "boolean"
-  | "string"
-  | "number"
-  | "any"
-  | "array"
-  | "object";
+export type OptionKind = "boolean" | "string" | "number" | "array";
 
 export type PrimitiveKind = Extract<
   OptionKind,

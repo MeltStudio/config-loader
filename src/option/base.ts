@@ -320,16 +320,13 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (this.params.kind === "number") {
       return this.checkNumberType(val, ident, sourceOfVal);
     }
-    if (this.params.kind === "any") {
-      return val;
-    }
     OptionErrors.errors.push({
       message: `Invalid state. Invalid kind in ${sourceOfVal}`,
       source: sourceOfVal,
       kind: "invalid_state",
     });
     throw new Error(
-      "Invalid kind. Must be 'string', 'number', 'boolean', 'array' or 'any'"
+      "Invalid kind. Must be 'string', 'number', 'boolean' or 'array'"
     );
   }
 

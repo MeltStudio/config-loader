@@ -2,7 +2,6 @@ import ConfigNode from "@/nodes/configNode";
 import {
   ArrayOption,
   ArrayValueContainer,
-  OptionBase,
   OptionErrors,
   PrimitiveOption,
 } from "@/option";
@@ -338,29 +337,6 @@ describe("option", () => {
     });
   });
 
-  describe("if the option kind is any", () => {
-    it("should return the value", () => {
-      const option = new OptionBase({
-        kind: "any",
-        required: false,
-        env: null,
-        cli: false,
-        help: "",
-      });
-      const value = option.getValue(FILE, ENV, {}, ["test", "any"]);
-      expect(value).toEqual(
-        new ConfigNode(
-          {},
-          "test.any",
-          "file",
-          "./tests/__mocks__/fileMock.yaml",
-          null,
-          null
-        )
-      );
-    });
-  });
-
   describe("if the option kind is not supported", () => {
     it("should save an error", () => {
       const option = new PrimitiveOption({
@@ -373,7 +349,7 @@ describe("option", () => {
       });
       expect(() => option.getValue(FILE, ENV, {}, ["test", "any"])).toThrow(
         new Error(
-          "Invalid kind. Must be 'string', 'number', 'boolean', 'array' or 'any'"
+          "Invalid kind. Must be 'string', 'number', 'boolean' or 'array'"
         )
       );
       expect(OptionErrors.errors).toContainEqual(
