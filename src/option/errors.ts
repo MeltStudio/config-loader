@@ -1,5 +1,7 @@
+import type { ConfigErrorEntry } from "@/errors";
+
 export default class OptionErrors {
-  public static errors: string[] = [];
+  public static errors: ConfigErrorEntry[] = [];
 
   public static warnings: string[] = [];
 

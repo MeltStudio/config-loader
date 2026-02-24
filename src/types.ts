@@ -16,6 +16,7 @@ export type SettingsSources<T> = {
   files?: string | string[] | false;
   dir?: string | false;
   defaults?: RecursivePartial<T>;
+  exitOnError?: boolean;
 };
 
 export type OptionKind =

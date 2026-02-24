@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import * as fs from "fs";
 
+import { ConfigFileError, ConfigLoadError } from "./errors";
 import ConfigNode from "./nodes/configNode";
 import ConfigNodeArray from "./nodes/configNodeArray";
 import type { ArrayOption, Node, OptionTypes, Value } from "./option";
@@ -65,14 +66,14 @@ class Settings<T extends Node> {
     const { files, dir } = this.sources;
 
     if (files && dir)
-      throw new Error("Dir and files are specified, choose one");
+      throw new ConfigFileError("Dir and files are specified, choose one");
 
     if (files) {
       // if is an array of configs
       if (Array.isArray(files)) {
         files.forEach((file) => {
           if (!fs.existsSync(file)) {
-            throw new Error(`Invalid config file '${file}'`);
+            throw new ConfigFileError(`Invalid config file '${file}'`);
           } else {
             if (!Array.isArray(this.sourceFile)) {
               this.sourceFile = [];
@@ -82,7 +83,7 @@ class Settings<T extends Node> {
         });
       } else {
         if (!fs.existsSync(files)) {
-          throw new Error(`Invalid config file '${files}'`);
+          throw new ConfigFileError(`Invalid config file '${files}'`);
         }
 
         this.sourceFile = files;
@@ -92,12 +93,12 @@ class Settings<T extends Node> {
     // if is a directory
     if (dir) {
       if (!(fs.existsSync(dir) && fs.lstatSync(dir).isDirectory())) {
-        throw new Error(`'${dir}' not exists or is not a dir`);
+        throw new ConfigFileError(`'${dir}' not exists or is not a dir`);
       }
       const filesInDirectory = fs.readdirSync(dir).sort();
 
       if (filesInDirectory.length === 0) {
-        throw new Error(`Directory '${dir}' is empty`);
+        throw new ConfigFileError(`Directory '${dir}' is empty`);
       }
       filesInDirectory.forEach((file) => {
         if (!Array.isArray(this.sourceFile)) {
@@ -141,10 +142,16 @@ class Settings<T extends Node> {
 
     // if then of the execution has errors
     if (OptionErrors.errors.length > 0) {
-      for (let index = 0; index < OptionErrors.errors.length; index += 1) {
-        console.error(`[Error]: ${OptionErrors.errors[index]}`);
+      if (this.sources.exitOnError) {
+        for (let index = 0; index < OptionErrors.errors.length; index += 1) {
+          console.error(`[Error]: ${OptionErrors.errors[index].message}`);
+        }
+        process.exit(1);
       }
-      process.exit(1);
+      throw new ConfigLoadError(
+        [...OptionErrors.errors],
+        [...OptionErrors.warnings]
+      );
     }
   }
 

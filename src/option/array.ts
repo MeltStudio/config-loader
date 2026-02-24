@@ -32,7 +32,10 @@ export default class ArrayOption<
     val: string[] | ConfigFileData[]
   ): ArrayValueContainer | InvalidValue {
     if (this.item === null) {
-      OptionErrors.errors.push(`Array item cannot be null`);
+      OptionErrors.errors.push({
+        message: `Array item cannot be null`,
+        kind: "invalid_state",
+      });
       return new InvalidValue();
     }
     return new ArrayValueContainer(this.item, val);
@@ -53,7 +56,11 @@ export default class ArrayOption<
       });
       return val;
     }
-    OptionErrors.errors.push(`Invalid state. Invalid kind in ${sourceOfVal}`);
+    OptionErrors.errors.push({
+      message: `Invalid state. Invalid kind in ${sourceOfVal}`,
+      source: sourceOfVal,
+      kind: "invalid_state",
+    });
     return new InvalidValue();
   }
 }
