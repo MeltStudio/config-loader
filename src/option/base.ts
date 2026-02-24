@@ -1,7 +1,14 @@
 /* eslint-disable max-lines */
 import { loadConfigFile } from "@/fileLoader";
 import ConfigNode from "@/nodes/configNode";
-import type { ArrayValue, ConfigFileData, OptionKind, Path } from "@/types";
+import type {
+  ArrayValue,
+  ConfigFileData,
+  OptionKind,
+  Path,
+  PrimitiveKind,
+  TypeOfPrimitiveKind,
+} from "@/types";
 import { InvalidValue } from "@/types";
 import { valueIsInvalid } from "@/utils";
 
@@ -22,6 +29,10 @@ export type DefaultValue =
   | (() => number)
   | (() => boolean);
 
+export type TypedDefaultValue<T extends OptionKind> = T extends PrimitiveKind
+  ? TypeOfPrimitiveKind<T> | (() => TypeOfPrimitiveKind<T>)
+  : DefaultValue;
+
 type RecursiveNode<T> = { [key: string]: OptionBase | T };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -33,7 +44,7 @@ interface OptionClassParams<T extends OptionKind> {
   env: string | null;
   cli: boolean;
   help: string;
-  defaultValue?: DefaultValue;
+  defaultValue?: TypedDefaultValue<T>;
   // properties: {
   //   [key: string]: Option;
   // };

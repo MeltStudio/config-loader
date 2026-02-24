@@ -1,15 +1,15 @@
-import type { ConfigFileData, Path } from "@/types";
+import type { ConfigFileData, Path, SchemaValue } from "@/types";
 import { InvalidValue } from "@/types";
 
 import type { OptionTypes } from ".";
 import ArrayValueContainer from "./arrayOption";
-import type { DefaultValue, Node, Value } from "./base";
+import type { Node, Value } from "./base";
 import OptionBase from "./base";
 import OptionErrors from "./errors";
 
 interface ArrayOptionClassParams<T extends Node | OptionTypes> {
   required: boolean;
-  defaultValue?: DefaultValue;
+  defaultValue?: SchemaValue<T>[] | (() => SchemaValue<T>[]);
   item: T;
 }
 export default class ArrayOption<
