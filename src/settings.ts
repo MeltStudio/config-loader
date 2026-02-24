@@ -24,8 +24,9 @@ import type {
   SettingsSources,
 } from "./types";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type PartiallyBuiltSettings = any;
+type PartiallyBuiltSettings = {
+  [key: string]: ConfigNode | PartiallyBuiltSettings;
+};
 
 class Settings<T extends Node> {
   private readonly schema: T;
@@ -199,51 +200,44 @@ class Settings<T extends Node> {
     item: Node | OptionTypes,
     values: ArrayValue,
     file: string
-  ): Array<PartiallyBuiltSettings> | ConfigNodeArray {
+  ): ArrayValue | ConfigNodeArray {
     if (item instanceof PrimitiveOption) {
       if (item.params.kind === "string") {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return values.map((v) => v);
+        return (values as string[]).map((v: string) => v);
       }
       if (item.params.kind === "number") {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        return values.map((v) => parseInt(v, 10));
+        return (values as string[]).map((v: string) => parseInt(v, 10));
       }
       if (item.params.kind === "boolean") {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return values.map((v) => {
+        return (values as unknown[]).map((v: unknown) => {
           if (v === "true") return true;
           if (v === "1") return true;
           if (v === 1) return true;
           if (v === "false") return false;
           if (v === "0") return false;
           if (v === 0) return false;
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-          return v;
+          return v as boolean;
         });
       }
     }
 
-    const arrayValues = values.map((v) =>
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    const arrayValues = (values as ConfigFileData[]).map((v: ConfigFileData) =>
       this.processArrayWithSchema(item, v, file)
     );
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    return new ConfigNodeArray(arrayValues);
+    return new ConfigNodeArray(arrayValues as unknown as ConfigNode[]);
   }
 
   private processArrayWithSchema(
     item: Node | OptionTypes,
-    v: PartiallyBuiltSettings,
+    v: ConfigFileData,
     file: string
-  ): PartiallyBuiltSettings {
-    const result: PartiallyBuiltSettings = {};
+  ): NodeTree {
+    const result: NodeTree = {};
     this.traverseOptions(
       item,
       [],
       this.buildOption.bind(this, result, {
         objectFromArray: {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           value: v,
           file,
         },
@@ -259,28 +253,27 @@ class Settings<T extends Node> {
   ): void {
     if (path.length > 1) {
       const [child, ...rest] = path;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (!options[child]) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         options[child] = {};
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      this.setOption(options[child], rest, node);
+      this.setOption(
+        options[child as string] as PartiallyBuiltSettings,
+        rest,
+        node
+      );
     } else if (path.length === 1) {
       const [child] = path;
       if (node != null) {
         if (node.value instanceof ArrayValueContainer) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          options[child] = node;
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          options[child].value = this.getValidatedArray(
-            node.value.item,
-            node.value.val,
-            node.file || node.variableName || node.argName || ""
-          );
+          options[child as string] = node;
+          (options[child as string] as ConfigNode).value =
+            this.getValidatedArray(
+              node.value.item,
+              node.value.val,
+              node.file || node.variableName || node.argName || ""
+            );
         } else {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          options[child] = node;
+          options[child as string] = node;
         }
       }
     } else {
