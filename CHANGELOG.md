@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/MeltStudio/config-loader/compare/v2.0.0...v2.0.1) (2026-02-24)
+
+
+### Bug Fixes
+
+* **ci:** use GITHUB_TOKEN for docs deployment instead of PAT ([80cfbf2](https://github.com/MeltStudio/config-loader/commit/80cfbf233f21fdb9d991f2cb4c97ec7f41b33f2e)), closes [#pages](https://github.com/MeltStudio/config-loader/issues/pages)
+
 # [2.0.0](https://github.com/MeltStudio/config-loader/compare/v1.1.0...v2.0.0) (2026-02-24)
 
 - feat!: remove dead "any" and "object" option kinds ([1b84afa](https://github.com/MeltStudio/config-loader/commit/1b84afa46932e8e8dd9ffed879a87f3219ebd226))
