@@ -29,12 +29,6 @@ jobs:
       - name: Build to dist folder
         run: yarn build
       - name: Release
-        uses: cycjimmy/semantic-release-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          semantic_version: 25
-          extra_plugins: |
-            @semantic-release/npm@^13
-            @semantic-release/changelog
-            @semantic-release/git
+        run: npx semantic-release
