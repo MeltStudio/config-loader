@@ -1,3 +1,4 @@
+import { ConfigFileError } from "@/errors";
 import { loadConfigFile } from "@/fileLoader";
 
 describe("loadConfigFile", () => {
@@ -22,5 +23,23 @@ describe("loadConfigFile", () => {
     const yamlData = loadConfigFile("tests/__mocks__/fileMock.yaml");
     const jsonData = loadConfigFile("tests/__mocks__/fileMock.json");
     expect(jsonData).toStrictEqual(yamlData);
+  });
+
+  it("should throw ConfigFileError for invalid YAML", () => {
+    expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.yaml")).toThrow(
+      ConfigFileError
+    );
+    expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.yaml")).toThrow(
+      /Failed to parse config file/
+    );
+  });
+
+  it("should throw ConfigFileError for invalid JSON", () => {
+    expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.json")).toThrow(
+      ConfigFileError
+    );
+    expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.json")).toThrow(
+      /Failed to parse config file/
+    );
   });
 });
