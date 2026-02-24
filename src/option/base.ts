@@ -33,10 +33,9 @@ export type TypedDefaultValue<T extends OptionKind> = T extends PrimitiveKind
   ? TypeOfPrimitiveKind<T> | (() => TypeOfPrimitiveKind<T>)
   : DefaultValue;
 
-type RecursiveNode<T> = { [key: string]: OptionBase | T };
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface Node extends RecursiveNode<Node> {}
+export interface Node {
+  [key: string]: OptionBase;
+}
 
 interface OptionClassParams<T extends OptionKind> {
   kind: T;

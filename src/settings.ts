@@ -8,6 +8,7 @@ import ConfigNodeArray from "./nodes/configNodeArray";
 import type { Node, OptionTypes } from "./option";
 import {
   ArrayValueContainer,
+  ObjectOption,
   OptionBase,
   OptionErrors,
   PrimitiveOption,
@@ -152,9 +153,15 @@ class Settings<T extends Node> {
     path: Path,
     callback: (nodearg: OptionBase, patharg: Path) => void
   ): void {
-    if (node instanceof OptionBase) {
+    if (node instanceof ObjectOption) {
+      const item = node.item as Node;
+      Object.keys(item).forEach((key: string) => {
+        this.traverseOptions(item[key], [...path, key], callback);
+      });
+    } else if (node instanceof OptionBase) {
       callback(node, path);
     } else {
+      // Root-level Node only
       Object.keys(node).forEach((key: string) => {
         const val = node[key];
         this.traverseOptions(val, [...path, key], callback);
@@ -197,7 +204,7 @@ class Settings<T extends Node> {
   }
 
   private getValidatedArray(
-    item: Node | OptionTypes,
+    item: OptionTypes,
     values: ArrayValue,
     file: string
   ): ArrayValue | ConfigNodeArray {
@@ -228,7 +235,7 @@ class Settings<T extends Node> {
   }
 
   private processArrayWithSchema(
-    item: Node | OptionTypes,
+    item: OptionTypes,
     v: ConfigFileData,
     file: string
   ): NodeTree {

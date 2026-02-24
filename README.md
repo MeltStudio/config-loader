@@ -12,19 +12,25 @@ import c from "@meltstudio/config-loader";
 const config = c
   .schema({
     port: c.number({ required: true, env: "PORT" }),
-    database: {
-      host: c.string({ required: true }),
-      credentials: {
-        username: c.string(),
-        password: c.string({ env: "DB_PASSWORD" }),
+    database: c.object({
+      item: {
+        host: c.string({ required: true }),
+        credentials: c.object({
+          item: {
+            username: c.string(),
+            password: c.string({ env: "DB_PASSWORD" }),
+          },
+        }),
       },
-    },
+    }),
     features: c.array({
       required: true,
-      item: {
-        name: c.string(),
-        enabled: c.bool(),
-      },
+      item: c.object({
+        item: {
+          name: c.string(),
+          enabled: c.bool(),
+        },
+      }),
     }),
   })
   .load({
@@ -99,33 +105,41 @@ import c from "@meltstudio/config-loader";
 const config = c
   .schema({
     version: c.string({ required: true, cli: true }),
-    website: {
-      title: c.string({ required: true }),
-      url: c.string({
-        required: false,
-        defaultValue: "www.mywebsite.dev",
-      }),
-      description: c.string({ required: true }),
-      isProduction: c.bool({ required: true }),
-    },
-    database: {
-      host: c.string({ required: true }),
-      port: c.number({ required: true }),
-      credentials: {
-        username: c.string(),
-        password: c.string(),
+    website: c.object({
+      item: {
+        title: c.string({ required: true }),
+        url: c.string({
+          required: false,
+          defaultValue: "www.mywebsite.dev",
+        }),
+        description: c.string({ required: true }),
+        isProduction: c.bool({ required: true }),
       },
-    },
+    }),
+    database: c.object({
+      item: {
+        host: c.string({ required: true }),
+        port: c.number({ required: true }),
+        credentials: c.object({
+          item: {
+            username: c.string(),
+            password: c.string(),
+          },
+        }),
+      },
+    }),
     socialMedia: c.array({
       required: true,
       item: c.string({ required: true }),
     }),
     features: c.array({
       required: true,
-      item: {
-        name: c.string(),
-        enabled: c.bool(),
-      },
+      item: c.object({
+        item: {
+          name: c.string(),
+          enabled: c.bool(),
+        },
+      }),
     }),
   })
   .load({
@@ -182,29 +196,50 @@ c.number({ required: true, env: "PORT" });
 c.bool({ env: "DEBUG", defaultValue: false });
 ```
 
+### Objects
+
+Use `c.object()` to declare nested object schemas:
+
+```typescript
+c.object({
+  item: {
+    host: c.string(),
+    port: c.number(),
+  },
+});
+```
+
+Objects can be nested arbitrarily deep:
+
+```typescript
+c.schema({
+  database: c.object({
+    item: {
+      host: c.string(),
+      port: c.number(),
+      credentials: c.object({
+        item: {
+          username: c.string(),
+          password: c.string({ env: "DB_PASSWORD" }),
+        },
+      }),
+    },
+  }),
+});
+```
+
+`c.object()` accepts a `required` option (defaults to `false`). When the entire subtree is absent from all sources, child `required` options will trigger errors through normal validation.
+
 ### Arrays
 
 ```typescript
 c.array({ required: true, item: c.string() }); // string[]
 c.array({ required: true, item: c.number() }); // number[]
-c.array({ item: { name: c.string(), age: c.number() } }); // { name: string; age: number }[]
-```
-
-### Nested objects
-
-Just use plain objects — no wrapper needed:
-
-```typescript
-c.schema({
-  database: {
-    host: c.string(),
-    port: c.number(),
-    credentials: {
-      username: c.string(),
-      password: c.string({ env: "DB_PASSWORD" }),
-    },
-  },
-});
+c.array({
+  item: c.object({
+    item: { name: c.string(), age: c.number() },
+  }),
+}); // { name: string; age: number }[]
 ```
 
 ## Loading Sources
@@ -308,9 +343,11 @@ Set `env: "VAR_NAME"` on an option and `env: true` in the load options:
 
 ```typescript
 c.schema({
-  database: {
-    password: c.string({ env: "DB_PASSWORD" }),
-  },
+  database: c.object({
+    item: {
+      password: c.string({ env: "DB_PASSWORD" }),
+    },
+  }),
 }).load({ env: true, args: false, files: "./config.yaml" });
 ```
 

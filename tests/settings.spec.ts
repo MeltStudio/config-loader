@@ -34,18 +34,22 @@ describe("Settings", () => {
         .schema({
           string: option.string({ required: true }),
           number: option.number({ required: true }),
-          object: {
-            value: option.number({ required: true }),
-            name: option.string({ required: true }),
-          },
-          stringArray: option.array({ required: true, item: option.string() }),
-          numberArray: option.array({ required: true, item: option.number() }),
-          objectArray: option.array({
-            required: true,
+          object: option.object({
             item: {
               value: option.number({ required: true }),
               name: option.string({ required: true }),
             },
+          }),
+          stringArray: option.array({ required: true, item: option.string() }),
+          numberArray: option.array({ required: true, item: option.number() }),
+          objectArray: option.array({
+            required: true,
+            item: option.object({
+              item: {
+                value: option.number({ required: true }),
+                name: option.string({ required: true }),
+              },
+            }),
           }),
         })
         .load({
@@ -94,13 +98,17 @@ describe("Settings", () => {
       it("should return the object as it appears in the yaml file", () => {
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({ required: true, cli: true }),
-                minRam: option.number({ required: true, cli: true }),
-                openSource: option.bool({ required: true, cli: true }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -119,13 +127,17 @@ describe("Settings", () => {
         addCliArg("database.engine.name", "MySQL");
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({ required: true, cli: true }),
-                minRam: option.number({ required: true, cli: true }),
-                openSource: option.bool({ required: true, cli: true }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -142,13 +154,17 @@ describe("Settings", () => {
         addCliArg("database.engine.minRam", "32");
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({ required: true, cli: true }),
-                minRam: option.number({ required: true, cli: true }),
-                openSource: option.bool({ required: true, cli: true }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -165,13 +181,17 @@ describe("Settings", () => {
         addCliArg("database.engine.openSource", "false");
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({ required: true, cli: true }),
-                minRam: option.number({ required: true, cli: true }),
-                openSource: option.bool({ required: true, cli: true }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -190,13 +210,17 @@ describe("Settings", () => {
         addCliArg("unknown.veryUnknown.name", "MySQL");
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({}),
-                minRam: option.number({}),
-                openSource: option.bool({}),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({}),
+                    minRam: option.number({}),
+                    openSource: option.bool({}),
+                  },
+                }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -217,13 +241,17 @@ describe("Settings", () => {
         addCliArg("database.engine.openSource", "false");
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({ required: true, cli: true }),
-                minRam: option.number({ required: true, cli: true }),
-                openSource: option.bool({ required: true, cli: true }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -244,9 +272,11 @@ describe("Settings", () => {
       it("should return the string value if it exists and is valid", () => {
         const data = option
           .schema({
-            hardware: {
-              type: option.string({ required: true, env: "SITE_ID" }),
-            },
+            hardware: option.object({
+              item: {
+                type: option.string({ required: true, env: "SITE_ID" }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -262,9 +292,11 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              hardware: {
-                type: option.string({ required: true, env: "SITE_ID" }),
-              },
+              hardware: option.object({
+                item: {
+                  type: option.string({ required: true, env: "SITE_ID" }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -285,10 +317,12 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              hardware: {
-                size: option.string({ required: true }),
-                brand: option.string({ required: true }),
-              },
+              hardware: option.object({
+                item: {
+                  size: option.string({ required: true }),
+                  brand: option.string({ required: true }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -314,12 +348,14 @@ describe("Settings", () => {
       it("should return the array if it exists and is valid", () => {
         const data = option
           .schema({
-            database: {
-              engines: option.array({
-                required: true,
-                item: option.string({ required: true }),
-              }),
-            },
+            database: option.object({
+              item: {
+                engines: option.array({
+                  required: true,
+                  item: option.string({ required: true }),
+                }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -336,12 +372,14 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engines: option.array({
-                  required: true,
-                  item: option.string({ required: true }),
-                }),
-              },
+              database: option.object({
+                item: {
+                  engines: option.array({
+                    required: true,
+                    item: option.string({ required: true }),
+                  }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -362,10 +400,12 @@ describe("Settings", () => {
       it("should return the number if it exists and is valid", () => {
         const data = option
           .schema({
-            database: {
-              ram: option.number({ required: true }),
-              cpus: option.number({ required: true }),
-            },
+            database: option.object({
+              item: {
+                ram: option.number({ required: true }),
+                cpus: option.number({ required: true }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -381,9 +421,11 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                ram: option.number({ required: true }),
-              },
+              database: option.object({
+                item: {
+                  ram: option.number({ required: true }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -403,12 +445,14 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                ram1: option.number({ required: true }),
-                ram2: option.number({ required: true }),
-                ram3: option.number({ required: true }),
-                ram4: option.number({ required: true }),
-              },
+              database: option.object({
+                item: {
+                  ram1: option.number({ required: true }),
+                  ram2: option.number({ required: true }),
+                  ram3: option.number({ required: true }),
+                  ram4: option.number({ required: true }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -436,12 +480,14 @@ describe("Settings", () => {
       it("should return the array if it exists and is valid", () => {
         const data = option
           .schema({
-            database: {
-              sizeOptions: option.array({
-                required: true,
-                item: option.number({ required: true }),
-              }),
-            },
+            database: option.object({
+              item: {
+                sizeOptions: option.array({
+                  required: true,
+                  item: option.number({ required: true }),
+                }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -458,12 +504,14 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                sizeOptions: option.array({
-                  required: true,
-                  item: option.number({ required: true }),
-                }),
-              },
+              database: option.object({
+                item: {
+                  sizeOptions: option.array({
+                    required: true,
+                    item: option.number({ required: true }),
+                  }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -483,12 +531,14 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                sizeOptions: option.array({
-                  required: true,
-                  item: option.number({ required: true }),
-                }),
-              },
+              database: option.object({
+                item: {
+                  sizeOptions: option.array({
+                    required: true,
+                    item: option.number({ required: true }),
+                  }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -511,12 +561,14 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                sizeOptions: option.array({
-                  required: true,
-                  item: option.number({ required: true }),
-                }),
-              },
+              database: option.object({
+                item: {
+                  sizeOptions: option.array({
+                    required: true,
+                    item: option.number({ required: true }),
+                  }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -538,18 +590,20 @@ describe("Settings", () => {
       it("should return the bool if it exists and is valid", () => {
         const data = option
           .schema({
-            database: {
-              bool1: option.bool({ required: true }),
-              bool2: option.bool({ required: true }),
-              bool3: option.bool({ required: true }),
-              bool4: option.bool({ required: true }),
-              bool5: option.bool({ required: true }),
-              bool6: option.bool({ required: true }),
-              bool7: option.bool({ required: true }),
-              bool8: option.bool({ required: true }),
-              bool9: option.bool({ required: true }),
-              bool10: option.bool({ required: true }),
-            },
+            database: option.object({
+              item: {
+                bool1: option.bool({ required: true }),
+                bool2: option.bool({ required: true }),
+                bool3: option.bool({ required: true }),
+                bool4: option.bool({ required: true }),
+                bool5: option.bool({ required: true }),
+                bool6: option.bool({ required: true }),
+                bool7: option.bool({ required: true }),
+                bool8: option.bool({ required: true }),
+                bool9: option.bool({ required: true }),
+                bool10: option.bool({ required: true }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -576,9 +630,11 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                bool1: option.bool({ required: true }),
-              },
+              database: option.object({
+                item: {
+                  bool1: option.bool({ required: true }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -598,11 +654,13 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                bool1: option.bool({ required: true }),
-                bool2: option.bool({ required: true }),
-                bool3: option.bool({ required: true }),
-              },
+              database: option.object({
+                item: {
+                  bool1: option.bool({ required: true }),
+                  bool2: option.bool({ required: true }),
+                  bool3: option.bool({ required: true }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -628,12 +686,14 @@ describe("Settings", () => {
       it("should return the array if it exists and is valid", () => {
         const data = option
           .schema({
-            database: {
-              bools: option.array({
-                required: true,
-                item: option.bool({ required: true }),
-              }),
-            },
+            database: option.object({
+              item: {
+                bools: option.array({
+                  required: true,
+                  item: option.bool({ required: true }),
+                }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -669,12 +729,14 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                bools: option.array({
-                  required: true,
-                  item: option.bool({ required: true }),
-                }),
-              },
+              database: option.object({
+                item: {
+                  bools: option.array({
+                    required: true,
+                    item: option.bool({ required: true }),
+                  }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -694,12 +756,14 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                bools: option.array({
-                  required: true,
-                  item: option.bool({ required: true }),
-                }),
-              },
+              database: option.object({
+                item: {
+                  bools: option.array({
+                    required: true,
+                    item: option.bool({ required: true }),
+                  }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -725,16 +789,20 @@ describe("Settings", () => {
       it("should return the array if it exists and is valid", () => {
         const data = option
           .schema({
-            database: {
-              engines: option.array({
-                required: true,
-                item: {
-                  name: option.string({ required: true }),
-                  minRam: option.number({ required: true }),
-                  openSource: option.bool({ required: true }),
-                },
-              }),
-            },
+            database: option.object({
+              item: {
+                engines: option.array({
+                  required: true,
+                  item: option.object({
+                    item: {
+                      name: option.string({ required: true }),
+                      minRam: option.number({ required: true }),
+                      openSource: option.bool({ required: true }),
+                    },
+                  }),
+                }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -757,16 +825,20 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engines: option.array({
-                  required: true,
-                  item: {
-                    name: option.string({ required: true }),
-                    minRam: option.number({ required: true }),
-                    openSource: option.bool({ required: true }),
-                  },
-                }),
-              },
+              database: option.object({
+                item: {
+                  engines: option.array({
+                    required: true,
+                    item: option.object({
+                      item: {
+                        name: option.string({ required: true }),
+                        minRam: option.number({ required: true }),
+                        openSource: option.bool({ required: true }),
+                      },
+                    }),
+                  }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -786,16 +858,20 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engines: option.array({
-                  required: true,
-                  item: {
-                    name: option.string({ required: true }),
-                    minRam: option.number({ required: true }),
-                    openSource: option.bool({ required: true }),
-                  },
-                }),
-              },
+              database: option.object({
+                item: {
+                  engines: option.array({
+                    required: true,
+                    item: option.object({
+                      item: {
+                        name: option.string({ required: true }),
+                        minRam: option.number({ required: true }),
+                        openSource: option.bool({ required: true }),
+                      },
+                    }),
+                  }),
+                },
+              }),
             })
             .load({
               env: false,
@@ -815,13 +891,17 @@ describe("Settings", () => {
       it("should return the object if it exists and is valid", () => {
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({ required: true }),
-                minRam: option.number({ required: true }),
-                openSource: option.bool({ required: true }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({ required: true }),
+                    minRam: option.number({ required: true }),
+                    openSource: option.bool({ required: true }),
+                  },
+                }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -839,13 +919,17 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engine: {
-                  name: option.string({ required: true }),
-                  minRam: option.number({ required: true }),
-                  openSource: option.bool({ required: true }),
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      name: option.string({ required: true }),
+                      minRam: option.number({ required: true }),
+                      openSource: option.bool({ required: true }),
+                    },
+                  }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -864,25 +948,35 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engine: {
-                  name: option.string({ required: true }),
-                  minRam: option.number({ required: true }),
-                  openSource: option.bool({ required: true }),
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      name: option.string({ required: true }),
+                      minRam: option.number({ required: true }),
+                      openSource: option.bool({ required: true }),
+                    },
+                  }),
+                  cpu: option.object({
+                    item: {
+                      brand: option.string({ required: true }),
+                      cores: option.number({ required: true }),
+                      power: option.bool({ required: true }),
+                    },
+                  }),
+                  openSource: option.object({
+                    item: {
+                      url: option.string({ required: true }),
+                    },
+                  }),
+                  date: option.object({
+                    item: {
+                      start: option.string({ required: true }),
+                      end: option.string({ required: true }),
+                    },
+                  }),
                 },
-                cpu: {
-                  brand: option.string({ required: true }),
-                  cores: option.number({ required: true }),
-                  power: option.bool({ required: true }),
-                },
-                openSource: {
-                  url: option.string({ required: true }),
-                },
-                date: {
-                  start: option.string({ required: true }),
-                  end: option.string({ required: true }),
-                },
-              },
+              }),
             })
             .load({
               env: false,
@@ -915,22 +1009,26 @@ describe("Settings", () => {
                 cli: false,
                 defaultValue: "MySQL",
               }),
-              database: {
-                engine: {
-                  name: option.string({
-                    cli: false,
-                    defaultValue: "MySQL",
-                  }),
-                  minRam: option.number({
-                    cli: false,
-                    defaultValue: 64,
-                  }),
-                  openSource: option.bool({
-                    cli: false,
-                    defaultValue: false,
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      name: option.string({
+                        cli: false,
+                        defaultValue: "MySQL",
+                      }),
+                      minRam: option.number({
+                        cli: false,
+                        defaultValue: 64,
+                      }),
+                      openSource: option.bool({
+                        cli: false,
+                        defaultValue: false,
+                      }),
+                    },
                   }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -957,22 +1055,26 @@ describe("Settings", () => {
                 cli: false,
                 defaultValue: () => "MySQL",
               }),
-              database: {
-                engine: {
-                  name: option.string({
-                    cli: false,
-                    defaultValue: () => "MySQL",
-                  }),
-                  minRam: option.number({
-                    cli: false,
-                    defaultValue: () => 64,
-                  }),
-                  openSource: option.bool({
-                    cli: false,
-                    defaultValue: () => false,
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      name: option.string({
+                        cli: false,
+                        defaultValue: () => "MySQL",
+                      }),
+                      minRam: option.number({
+                        cli: false,
+                        defaultValue: () => 64,
+                      }),
+                      openSource: option.bool({
+                        cli: false,
+                        defaultValue: () => false,
+                      }),
+                    },
                   }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -998,15 +1100,19 @@ describe("Settings", () => {
         it("should return the default array", () => {
           const data = option
             .schema({
-              database: {
-                engine: {
-                  versions: option.array({
-                    required: true,
-                    item: option.string({ required: true }),
-                    defaultValue: ["1.0.0", "1.1.0", "1.2.0"],
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      versions: option.array({
+                        required: true,
+                        item: option.string({ required: true }),
+                        defaultValue: ["1.0.0", "1.1.0", "1.2.0"],
+                      }),
+                    },
                   }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -1026,15 +1132,19 @@ describe("Settings", () => {
         it("should return the default array", () => {
           const data = option
             .schema({
-              database: {
-                engine: {
-                  versions: option.array({
-                    required: true,
-                    item: option.string({ required: true }),
-                    defaultValue: () => ["1.0.0", "1.1.0", "1.2.0"],
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      versions: option.array({
+                        required: true,
+                        item: option.string({ required: true }),
+                        defaultValue: () => ["1.0.0", "1.1.0", "1.2.0"],
+                      }),
+                    },
                   }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -1056,22 +1166,26 @@ describe("Settings", () => {
       it("should override the default value", () => {
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({
-                  cli: false,
-                  defaultValue: "MySQL",
-                }),
-                minRam: option.number({
-                  cli: false,
-                  defaultValue: 64,
-                }),
-                openSource: option.bool({
-                  cli: false,
-                  defaultValue: false,
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({
+                      cli: false,
+                      defaultValue: "MySQL",
+                    }),
+                    minRam: option.number({
+                      cli: false,
+                      defaultValue: 64,
+                    }),
+                    openSource: option.bool({
+                      cli: false,
+                      defaultValue: false,
+                    }),
+                  },
                 }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -1094,15 +1208,19 @@ describe("Settings", () => {
       it("should override the default value", () => {
         const data = option
           .schema({
-            database: {
-              engine: {
-                versions: option.array({
-                  required: true,
-                  item: option.string({ required: true }),
-                  defaultValue: ["1.0.0", "1.1.0", "1.2.0"],
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    versions: option.array({
+                      required: true,
+                      item: option.string({ required: true }),
+                      defaultValue: ["1.0.0", "1.1.0", "1.2.0"],
+                    }),
+                  },
                 }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -1125,14 +1243,18 @@ describe("Settings", () => {
       it("should return the default value", () => {
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({}),
-                minRam: option.number({}),
-                openSource: option.bool({}),
-                versions: option.array({ item: option.string() }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({}),
+                    minRam: option.number({}),
+                    openSource: option.bool({}),
+                    versions: option.array({ item: option.string() }),
+                  },
+                }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -1166,15 +1288,19 @@ describe("Settings", () => {
       it("should override the default value", () => {
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({}),
-                minRam: option.number({}),
-                openSource: option.bool({}),
-                cpus: option.number({}),
-                versions: option.array({ item: option.string() }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({}),
+                    minRam: option.number({}),
+                    openSource: option.bool({}),
+                    cpus: option.number({}),
+                    versions: option.array({ item: option.string() }),
+                  },
+                }),
               },
-            },
+            }),
           })
           .load({
             env: false,
@@ -1212,19 +1338,25 @@ describe("Settings", () => {
       it("should set all values", () => {
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({ required: true, cli: true }),
-                minRam: option.number({ required: true, cli: true }),
-                openSource: option.bool({ required: true, cli: true }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                }),
               },
-            },
+            }),
             features: option.array({
               required: true,
-              item: {
-                name: option.string({ required: true }),
-                enabled: option.bool({ required: true }),
-              },
+              item: option.object({
+                item: {
+                  name: option.string({ required: true }),
+                  enabled: option.bool({ required: true }),
+                },
+              }),
             }),
             version: option.string({ required: true }),
             upgraded: option.bool({ required: true }),
@@ -1258,12 +1390,16 @@ describe("Settings", () => {
       it("should prioritize first loaded file", () => {
         const data = option
           .schema({
-            file1Data: {
-              unique: option.bool({ required: true }),
-            },
-            file2Data: {
-              unique: option.bool({ required: true }),
-            },
+            file1Data: option.object({
+              item: {
+                unique: option.bool({ required: true }),
+              },
+            }),
+            file2Data: option.object({
+              item: {
+                unique: option.bool({ required: true }),
+              },
+            }),
             version: option.string({ required: true }),
             upgraded: option.bool({ required: true }),
             cpus: option.number({ required: true }),
@@ -1292,13 +1428,15 @@ describe("Settings", () => {
       it("should prioritize first loaded file", () => {
         const data = option
           .schema({
-            database: {
-              name: option.string({ required: true }),
-              minRam: option.number({ required: true }),
-              openSource: option.bool({ required: true }),
-              maxRam: option.number({ required: true }),
-              version: option.string({ required: true }),
-            },
+            database: option.object({
+              item: {
+                name: option.string({ required: true }),
+                minRam: option.number({ required: true }),
+                openSource: option.bool({ required: true }),
+                maxRam: option.number({ required: true }),
+                version: option.string({ required: true }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -1345,15 +1483,19 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engine: {
-                  name: option.string({ required: true }),
-                  minRam: option.number({ required: true }),
-                  openSource: option.bool({ required: true }),
-                  // control test, this value should appear on the files
-                  launchDate: option.string({ required: true }),
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      name: option.string({ required: true }),
+                      minRam: option.number({ required: true }),
+                      openSource: option.bool({ required: true }),
+                      // control test, this value should appear on the files
+                      launchDate: option.string({ required: true }),
+                    },
+                  }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -1383,13 +1525,17 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engine: {
-                  name: option.string({ required: true, cli: true }),
-                  minRam: option.number({ required: true, cli: true }),
-                  openSource: option.bool({ required: true, cli: true }),
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      name: option.string({ required: true, cli: true }),
+                      minRam: option.number({ required: true, cli: true }),
+                      openSource: option.bool({ required: true, cli: true }),
+                    },
+                  }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -1410,13 +1556,17 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engine: {
-                  name: option.string({ required: true, cli: true }),
-                  minRam: option.number({ required: true, cli: true }),
-                  openSource: option.bool({ required: true, cli: true }),
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      name: option.string({ required: true, cli: true }),
+                      minRam: option.number({ required: true, cli: true }),
+                      openSource: option.bool({ required: true, cli: true }),
+                    },
+                  }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -1438,19 +1588,25 @@ describe("Settings", () => {
       it("should set all values", () => {
         const data = option
           .schema({
-            database: {
-              engine: {
-                name: option.string({ required: true, cli: true }),
-                minRam: option.number({ required: true, cli: true }),
-                openSource: option.bool({ required: true, cli: true }),
+            database: option.object({
+              item: {
+                engine: option.object({
+                  item: {
+                    name: option.string({ required: true, cli: true }),
+                    minRam: option.number({ required: true, cli: true }),
+                    openSource: option.bool({ required: true, cli: true }),
+                  },
+                }),
               },
-            },
+            }),
             features: option.array({
               required: true,
-              item: {
-                name: option.string({ required: true }),
-                enabled: option.bool({ required: true }),
-              },
+              item: option.object({
+                item: {
+                  name: option.string({ required: true }),
+                  enabled: option.bool({ required: true }),
+                },
+              }),
             }),
             version: option.string({ required: true }),
             upgraded: option.bool({ required: true }),
@@ -1480,12 +1636,16 @@ describe("Settings", () => {
       it("should prioritize first loaded file", () => {
         const data = option
           .schema({
-            file1Data: {
-              unique: option.bool({ required: true }),
-            },
-            file2Data: {
-              unique: option.bool({ required: true }),
-            },
+            file1Data: option.object({
+              item: {
+                unique: option.bool({ required: true }),
+              },
+            }),
+            file2Data: option.object({
+              item: {
+                unique: option.bool({ required: true }),
+              },
+            }),
             version: option.string({ required: true }),
             upgraded: option.bool({ required: true }),
             cpus: option.number({ required: true }),
@@ -1511,13 +1671,15 @@ describe("Settings", () => {
       it("should prioritize first loaded file", () => {
         const data = option
           .schema({
-            database: {
-              name: option.string({ required: true }),
-              minRam: option.number({ required: true }),
-              openSource: option.bool({ required: true }),
-              maxRam: option.number({ required: true }),
-              version: option.string({ required: true }),
-            },
+            database: option.object({
+              item: {
+                name: option.string({ required: true }),
+                minRam: option.number({ required: true }),
+                openSource: option.bool({ required: true }),
+                maxRam: option.number({ required: true }),
+                version: option.string({ required: true }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -1558,15 +1720,19 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engine: {
-                  name: option.string({ required: true }),
-                  minRam: option.number({ required: true }),
-                  openSource: option.bool({ required: true }),
-                  // control test, this value should appear on the files
-                  launchDate: option.string({ required: true }),
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      name: option.string({ required: true }),
+                      minRam: option.number({ required: true }),
+                      openSource: option.bool({ required: true }),
+                      // control test, this value should appear on the files
+                      launchDate: option.string({ required: true }),
+                    },
+                  }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -1592,13 +1758,17 @@ describe("Settings", () => {
         expect(() =>
           option
             .schema({
-              database: {
-                engine: {
-                  name: option.string({ required: true, cli: true }),
-                  minRam: option.number({ required: true, cli: true }),
-                  openSource: option.bool({ required: true, cli: true }),
+              database: option.object({
+                item: {
+                  engine: option.object({
+                    item: {
+                      name: option.string({ required: true, cli: true }),
+                      minRam: option.number({ required: true, cli: true }),
+                      openSource: option.bool({ required: true, cli: true }),
+                    },
+                  }),
                 },
-              },
+              }),
             })
             .load({
               env: false,
@@ -1619,10 +1789,12 @@ describe("Settings", () => {
           .schema({
             string: option.string({ required: true }),
             number: option.number({ required: true }),
-            object: {
-              value: option.number({ required: true }),
-              name: option.string({ required: true }),
-            },
+            object: option.object({
+              item: {
+                value: option.number({ required: true }),
+                name: option.string({ required: true }),
+              },
+            }),
             stringArray: option.array({
               required: true,
               item: option.string(),
@@ -1633,10 +1805,12 @@ describe("Settings", () => {
             }),
             objectArray: option.array({
               required: true,
-              item: {
-                value: option.number({ required: true }),
-                name: option.string({ required: true }),
-              },
+              item: option.object({
+                item: {
+                  value: option.number({ required: true }),
+                  name: option.string({ required: true }),
+                },
+              }),
             }),
           })
           .load({
@@ -1655,10 +1829,12 @@ describe("Settings", () => {
           .schema({
             string: option.string({ required: true }),
             number: option.number({ required: true }),
-            object: {
-              value: option.number({ required: true }),
-              name: option.string({ required: true }),
-            },
+            object: option.object({
+              item: {
+                value: option.number({ required: true }),
+                name: option.string({ required: true }),
+              },
+            }),
             stringArray: option.array({
               required: true,
               item: option.string(),
@@ -1669,10 +1845,12 @@ describe("Settings", () => {
             }),
             objectArray: option.array({
               required: true,
-              item: {
-                value: option.number({ required: true }),
-                name: option.string({ required: true }),
-              },
+              item: option.object({
+                item: {
+                  value: option.number({ required: true }),
+                  name: option.string({ required: true }),
+                },
+              }),
             }),
           })
           .load({
@@ -1691,10 +1869,12 @@ describe("Settings", () => {
           .schema({
             string: option.string({ required: true }),
             number: option.number({ required: true }),
-            object: {
-              value: option.number({ required: true }),
-              name: option.string({ required: true }),
-            },
+            object: option.object({
+              item: {
+                value: option.number({ required: true }),
+                name: option.string({ required: true }),
+              },
+            }),
             stringArray: option.array({
               required: true,
               item: option.string(),
@@ -1705,10 +1885,12 @@ describe("Settings", () => {
             }),
             objectArray: option.array({
               required: true,
-              item: {
-                value: option.number({ required: true }),
-                name: option.string({ required: true }),
-              },
+              item: option.object({
+                item: {
+                  value: option.number({ required: true }),
+                  name: option.string({ required: true }),
+                },
+              }),
             }),
           })
           .load({
@@ -1755,11 +1937,13 @@ describe("Settings", () => {
       it("should return nested object values", () => {
         const data = option
           .schema({
-            test: {
-              boolean: option.bool({ required: true }),
-              number: option.number({ required: true }),
-              string: option.string({ required: true }),
-            },
+            test: option.object({
+              item: {
+                boolean: option.bool({ required: true }),
+                number: option.number({ required: true }),
+                string: option.string({ required: true }),
+              },
+            }),
           })
           .load({
             env: false,
@@ -1805,10 +1989,12 @@ describe("Settings", () => {
         .schema({
           string: option.string({ required: true }),
           number: option.number({ required: true }),
-          object: {
-            value: option.number({ required: true }),
-            name: option.string({ required: true }),
-          },
+          object: option.object({
+            item: {
+              value: option.number({ required: true }),
+              name: option.string({ required: true }),
+            },
+          }),
         })
         .loadExtended({
           env: false,

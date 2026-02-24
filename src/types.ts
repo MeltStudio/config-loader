@@ -1,5 +1,11 @@
 import type ConfigNode from "./nodes/configNode";
-import type { ArrayOption, Node, OptionBase, OptionTypes } from "./option";
+import type {
+  ArrayOption,
+  Node,
+  ObjectOption,
+  OptionBase,
+  OptionTypes,
+} from "./option";
 import type PrimitiveOption from "./option/primitive";
 
 export type ProcessEnv = { [key: string]: string | undefined };
@@ -19,7 +25,7 @@ export type SettingsSources<T> = {
   exitOnError?: boolean;
 };
 
-export type OptionKind = "boolean" | "string" | "number" | "array";
+export type OptionKind = "boolean" | "string" | "number" | "array" | "object";
 
 export type PrimitiveKind = Extract<
   OptionKind,
@@ -35,8 +41,10 @@ export type TypeOfPrimitiveKind<T extends PrimitiveKind> = T extends "boolean"
   : never;
 
 export type SchemaValue<T extends OptionBase | Node> = T extends OptionBase
-  ? T extends ArrayOption<Node | OptionTypes>
+  ? T extends ArrayOption<OptionTypes>
     ? SchemaValue<T["item"]>[]
+    : T extends ObjectOption<infer R>
+    ? { [K in keyof R]: SchemaValue<R[K]> }
     : T extends PrimitiveOption<infer R>
     ? TypeOfPrimitiveKind<R>
     : never

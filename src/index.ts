@@ -1,7 +1,7 @@
 import { SettingsBuilder } from "@/builder";
 
 import type { Node, OptionTypes } from "./option";
-import { ArrayOption, PrimitiveOption } from "./option";
+import { ArrayOption, ObjectOption, PrimitiveOption } from "./option";
 import type { SchemaValue } from "./types";
 
 export type { ConfigErrorEntry } from "./errors";
@@ -14,10 +14,14 @@ interface OptionPropsArgs<T> {
   defaultValue?: T | (() => T);
   help?: string;
 }
-interface ArrayOptionPropsArgs<T extends Node | OptionTypes> {
+interface ArrayOptionPropsArgs<T extends OptionTypes> {
   required?: boolean;
   item: T;
   defaultValue?: SchemaValue<T>[] | (() => SchemaValue<T>[]);
+}
+interface ObjectOptionPropsArgs<T extends Node> {
+  required?: boolean;
+  item: T;
 }
 
 const DEFAULTS = {
@@ -48,11 +52,19 @@ const bool = (opts?: OptionPropsArgs<boolean>): PrimitiveOption<"boolean"> => {
     ...opts,
   });
 };
-const array = <T extends Node | OptionTypes>(
+const array = <T extends OptionTypes>(
   opts: ArrayOptionPropsArgs<T>
 ): ArrayOption<T> => {
   return new ArrayOption<T>({
     ...DEFAULTS,
+    ...opts,
+  });
+};
+const object = <T extends Node>(
+  opts: ObjectOptionPropsArgs<T>
+): ObjectOption<T> => {
+  return new ObjectOption<T>({
+    required: false,
     ...opts,
   });
 };
@@ -66,6 +78,7 @@ const option = {
   number,
   bool,
   array,
+  object,
   schema,
 };
 
