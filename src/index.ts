@@ -19,17 +19,12 @@ interface ArrayOptionPropsArgs<T extends Node | OptionTypes> {
   item: T;
   defaultValue?: SchemaValue<T>[] | (() => SchemaValue<T>[]);
 }
-// interface ObjectOptionPropsArgs {
-//   required?: boolean;
-//   item: Node;
-// }
 
 const DEFAULTS = {
   required: false,
   env: null,
   cli: false,
   help: "",
-  // properties: {},
 };
 
 const string = (opts?: OptionPropsArgs<string>): PrimitiveOption<"string"> => {
@@ -61,12 +56,6 @@ const array = <T extends Node | OptionTypes>(
     ...opts,
   });
 };
-// const object = (opts: ObjectOptionPropsArgs): ObjectOption => {
-//   return new ObjectOption({
-//     ...DEFAULTS,
-//     ...opts,
-//   });
-// };
 
 const schema = <T extends Node>(theSchema: T): SettingsBuilder<T> => {
   return new SettingsBuilder(theSchema);
@@ -76,7 +65,6 @@ const option = {
   string,
   number,
   bool,
-  // object,
   array,
   schema,
 };
