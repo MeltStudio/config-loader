@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Command } from "commander";
 import * as fs from "fs";
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as fs from "fs";
 import yaml from "js-yaml";
 
@@ -230,6 +231,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     return null;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   protected checkNumberType(
     val: Value,
     pathStr: string,
@@ -393,6 +395,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     return new InvalidValue();
   }
 
+  // eslint-disable-next-line class-methods-use-this
   buildArrayOption(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _val: string[] | ConfigFileData[]
