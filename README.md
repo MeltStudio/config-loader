@@ -225,6 +225,40 @@ Both YAML (`.yaml`, `.yml`) and JSON (`.json`) files are supported. The format i
 
 **Priority order:** CLI arguments > Environment variables > Files > Defaults
 
+## Extended Loading (Source Metadata)
+
+Use `loadExtended()` instead of `load()` to get each value wrapped in a `ConfigNode` that includes source metadata — where the value came from, which file, environment variable, or CLI argument provided it.
+
+```typescript
+import c from "@meltstudio/config-loader";
+
+const extended = c
+  .schema({
+    port: c.number({ required: true, env: "PORT" }),
+    host: c.string({ defaultValue: "localhost" }),
+  })
+  .loadExtended({
+    env: true,
+    args: false,
+    files: "./config.yaml",
+  });
+
+// Each leaf is a ConfigNode with:
+// {
+//   value: 3000,
+//   path: "port",
+//   sourceType: "env" | "file" | "args" | "default",
+//   file: "./config.yaml" | null,
+//   variableName: "PORT" | null,
+//   argName: null
+// }
+console.log(extended.port.value); // 3000
+console.log(extended.port.sourceType); // "env"
+console.log(extended.port.variableName); // "PORT"
+```
+
+This is useful for debugging configuration resolution, building admin UIs that show where each setting originated, or auditing which sources are active.
+
 ## Error Handling
 
 When validation fails, config-loader throws a `ConfigLoadError` with structured error details:
