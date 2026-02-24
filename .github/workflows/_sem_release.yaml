@@ -2,10 +2,6 @@ name: Run semantic release
 
 on:
   workflow_call:
-    secrets:
-      npm-token:
-        description: "NPM token for publishing"
-        required: true
 
 env:
   HUSKY: 0
@@ -33,12 +29,10 @@ jobs:
       - name: Build to dist folder
         run: yarn build
       - name: Release
-        uses: cycjimmy/semantic-release-action@v4
+        uses: cycjimmy/semantic-release-action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.npm-token }}
         with:
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
-            @semantic-release/github
