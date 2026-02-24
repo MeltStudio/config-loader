@@ -4,11 +4,7 @@ module.exports = {
   coveragePathIgnorePatterns: [".*snap$", "/node_modules/", "/dist/"],
   testEnvironment: "node",
   testMatch: ["**/tests/*.spec.ts", "**/tests/**/*.spec.ts"],
-  collectCoverageFrom: [
-    "!src/types/**/*.ts",
-    "!src/option/object.ts",
-    "src/**/*",
-  ],
+  collectCoverageFrom: ["!src/types/**/*.ts", "src/**/*"],
   coverageThreshold: {
     global: {
       branches: 85,
