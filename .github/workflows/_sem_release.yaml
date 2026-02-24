@@ -35,5 +35,6 @@ jobs:
         with:
           semantic_version: 25
           extra_plugins: |
+            @semantic-release/npm@^13
             @semantic-release/changelog
             @semantic-release/git
