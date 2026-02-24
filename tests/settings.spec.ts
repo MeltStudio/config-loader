@@ -1763,4 +1763,119 @@ describe("Settings", () => {
       });
     });
   });
+
+  describe("JSON file support", () => {
+    describe("if loading from a JSON file", () => {
+      it("should return the data", () => {
+        const data = option
+          .schema({
+            string: option.string({ required: true }),
+            number: option.number({ required: true }),
+            object: {
+              value: option.number({ required: true }),
+              name: option.string({ required: true }),
+            },
+            stringArray: option.array({
+              required: true,
+              item: option.string(),
+            }),
+            numberArray: option.array({
+              required: true,
+              item: option.number(),
+            }),
+            objectArray: option.array({
+              required: true,
+              item: {
+                value: option.number({ required: true }),
+                name: option.string({ required: true }),
+              },
+            }),
+          })
+          .load({
+            env: true,
+            args: false,
+            files: "tests/__mocks__/fileMock.json",
+          });
+        expect(data).toStrictEqual({
+          number: 1,
+          numberArray: [1],
+          object: {
+            name: "testing",
+            value: 1,
+          },
+          objectArray: [
+            {
+              name: "testing",
+              value: 1,
+            },
+          ],
+          string: "testString",
+          stringArray: ["test"],
+        });
+      });
+    });
+
+    describe("if environment variable is set with a JSON file", () => {
+      it("should return the correct env values", () => {
+        process.env = { SITE_ID: "test" };
+        const data = option
+          .schema({
+            SITE_ID: option.string({ required: true, env: "SITE_ID" }),
+          })
+          .load({
+            env: true,
+            args: false,
+            files: "tests/__mocks__/emptyFile.json",
+          });
+        expect(data).toStrictEqual({ SITE_ID: "test" });
+      });
+    });
+
+    describe("if loading nested values from a JSON file", () => {
+      it("should return nested object values", () => {
+        const data = option
+          .schema({
+            test: {
+              boolean: option.bool({ required: true }),
+              number: option.number({ required: true }),
+              string: option.string({ required: true }),
+            },
+          })
+          .load({
+            env: false,
+            args: false,
+            files: "tests/__mocks__/fileMock.json",
+          });
+        expect(data).toStrictEqual({
+          test: {
+            boolean: true,
+            number: 1883,
+            string: "test",
+          },
+        });
+      });
+    });
+
+    describe("if loading from multiple files including JSON", () => {
+      it("should merge data from YAML and JSON files", () => {
+        const data = option
+          .schema({
+            string: option.string({ required: true }),
+            number: option.number({ required: true }),
+          })
+          .load({
+            env: false,
+            args: false,
+            files: [
+              "tests/__mocks__/fileMock.yaml",
+              "tests/__mocks__/fileMock.json",
+            ],
+          });
+        expect(data).toStrictEqual({
+          string: "testString",
+          number: 1,
+        });
+      });
+    });
+  });
 });
