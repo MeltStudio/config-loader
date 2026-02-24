@@ -49,3 +49,38 @@ c.array({ item: c.string(), defaultValue: [1, 2] });
 
 // @ts-expect-error — string[] is not assignable to number[] defaultValue
 c.array({ item: c.number(), defaultValue: ["a", "b"] });
+
+// --- ObjectOption type inference ---
+
+// Valid: object with nested primitives infers correctly
+c.object({ item: { name: c.string(), count: c.number() } });
+
+// Valid: object used as array item
+c.array({
+  item: c.object({ item: { name: c.string(), enabled: c.bool() } }),
+});
+
+// Valid: nested objects
+c.object({
+  item: {
+    child: c.object({ item: { value: c.number() } }),
+  },
+});
+
+// Valid: SchemaValue inference through schema
+const result = c
+  .schema({
+    config: c.object({
+      item: {
+        host: c.string({ required: true }),
+        port: c.number({ required: true }),
+      },
+    }),
+  })
+  .load({ env: false, args: false, files: false });
+
+// These lines verify that SchemaValue infers the correct nested types
+const host: string = result.config.host;
+const port: number = result.config.port;
+void host;
+void port;

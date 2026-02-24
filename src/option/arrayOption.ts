@@ -1,13 +1,13 @@
 import type { ArrayValue } from "@/types";
 
-import type { Node, OptionTypes } from ".";
+import type { OptionTypes } from ".";
 
 class ArrayValueContainer {
   public readonly val: ArrayValue;
 
-  public readonly item: Node | OptionTypes;
+  public readonly item: OptionTypes;
 
-  constructor(item: Node | OptionTypes, val: ArrayValue) {
+  constructor(item: OptionTypes, val: ArrayValue) {
     this.val = val;
     this.item = item;
   }

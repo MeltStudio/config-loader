@@ -3,17 +3,18 @@ import { InvalidValue } from "@/types";
 
 import type { OptionTypes } from ".";
 import ArrayValueContainer from "./arrayOption";
-import type { Node, Value } from "./base";
+import type { Value } from "./base";
 import OptionBase from "./base";
 import OptionErrors from "./errors";
+import ObjectOption from "./object";
 
-interface ArrayOptionClassParams<T extends Node | OptionTypes> {
+interface ArrayOptionClassParams<T extends OptionTypes> {
   required: boolean;
   defaultValue?: SchemaValue<T>[] | (() => SchemaValue<T>[]);
   item: T;
 }
 export default class ArrayOption<
-  T extends Node | OptionTypes
+  T extends OptionTypes
 > extends OptionBase<"array"> {
   item: T;
 
@@ -48,7 +49,10 @@ export default class ArrayOption<
   ): Value {
     if (val instanceof ArrayValueContainer) {
       val.val.forEach((v, i) => {
-        if (this.item instanceof OptionBase) {
+        if (
+          this.item instanceof OptionBase &&
+          !(this.item instanceof ObjectOption)
+        ) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           this.item.checkType(v, [...path, i], sourceOfVal);
         }
