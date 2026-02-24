@@ -1,5 +1,9 @@
 import { ConfigFileError } from "@/errors";
-import { loadConfigFile } from "@/fileLoader";
+import { clearFileCache, loadConfigFile } from "@/fileLoader";
+
+afterEach(() => {
+  clearFileCache();
+});
 
 describe("loadConfigFile", () => {
   it("should load a YAML file", () => {
@@ -55,5 +59,29 @@ describe("loadConfigFile", () => {
     expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.json")).toThrow(
       /Failed to parse config file/
     );
+  });
+});
+
+describe("file cache", () => {
+  it("should return the same reference for repeated loads of the same file", () => {
+    const first = loadConfigFile("tests/__mocks__/fileMock.yaml");
+    const second = loadConfigFile("tests/__mocks__/fileMock.yaml");
+    expect(second).toBe(first);
+  });
+
+  it("should cache JSON and YAML files independently", () => {
+    const yaml = loadConfigFile("tests/__mocks__/fileMock.yaml");
+    const json = loadConfigFile("tests/__mocks__/fileMock.json");
+    expect(yaml).not.toBe(json);
+    expect(yaml.sourceMap).not.toBeNull();
+    expect(json.sourceMap).toBeNull();
+  });
+
+  it("should re-read from disk after clearFileCache()", () => {
+    const first = loadConfigFile("tests/__mocks__/fileMock.yaml");
+    clearFileCache();
+    const second = loadConfigFile("tests/__mocks__/fileMock.yaml");
+    expect(second).not.toBe(first);
+    expect(second.data).toStrictEqual(first.data);
   });
 });
