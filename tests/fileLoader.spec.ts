@@ -45,19 +45,19 @@ describe("loadConfigFile", () => {
 
   it("should throw ConfigFileError for invalid YAML", () => {
     expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.yaml")).toThrow(
-      ConfigFileError
+      ConfigFileError,
     );
     expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.yaml")).toThrow(
-      /Failed to parse config file/
+      /Failed to parse config file/,
     );
   });
 
   it("should throw ConfigFileError for invalid JSON", () => {
     expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.json")).toThrow(
-      ConfigFileError
+      ConfigFileError,
     );
     expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.json")).toThrow(
-      /Failed to parse config file/
+      /Failed to parse config file/,
     );
   });
 });

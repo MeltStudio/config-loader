@@ -35,24 +35,24 @@ export type PrimitiveKind = Extract<
 export type TypeOfPrimitiveKind<T extends PrimitiveKind> = T extends "boolean"
   ? boolean
   : T extends "string"
-  ? string
-  : T extends "number"
-  ? number
-  : never;
+    ? string
+    : T extends "number"
+      ? number
+      : never;
 
 export type SchemaValue<T extends OptionBase | Node> = T extends OptionBase
   ? T extends ArrayOption<OptionTypes>
     ? SchemaValue<T["item"]>[]
     : T extends ObjectOption<infer R>
-    ? { [K in keyof R]: SchemaValue<R[K]> }
-    : T extends PrimitiveOption<infer R>
-    ? TypeOfPrimitiveKind<R>
-    : never
+      ? { [K in keyof R]: SchemaValue<R[K]> }
+      : T extends PrimitiveOption<infer R>
+        ? TypeOfPrimitiveKind<R>
+        : never
   : T extends Node
-  ? {
-      [K in keyof T]: SchemaValue<T[K]>;
-    }
-  : never;
+    ? {
+        [K in keyof T]: SchemaValue<T[K]>;
+      }
+    : never;
 
 export type Path = Array<string | number>;
 

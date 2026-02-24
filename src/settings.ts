@@ -123,7 +123,7 @@ class Settings<T extends Node> {
         envData: this.envData,
         argsData: this.argsData,
         defaultValue: this.defaultData,
-      })
+      }),
     );
 
     // if then of the execution has warnings
@@ -143,7 +143,7 @@ class Settings<T extends Node> {
       }
       throw new ConfigLoadError(
         [...OptionErrors.errors],
-        [...OptionErrors.warnings]
+        [...OptionErrors.warnings],
       );
     }
   }
@@ -151,7 +151,7 @@ class Settings<T extends Node> {
   private traverseOptions(
     node: Node | OptionBase,
     path: Path,
-    callback: (nodearg: OptionBase, patharg: Path) => void
+    callback: (nodearg: OptionBase, patharg: Path) => void,
   ): void {
     if (node instanceof ObjectOption) {
       const item = node.item as Node;
@@ -179,7 +179,7 @@ class Settings<T extends Node> {
       objectFromArray?: { value: ConfigFileData; file: string };
     },
     node: OptionBase,
-    path: Path
+    path: Path,
   ): void {
     const {
       sourceFile = [],
@@ -194,7 +194,7 @@ class Settings<T extends Node> {
       argsData,
       path,
       defaultValue,
-      objectFromArray
+      objectFromArray,
     );
     if (value === null) {
       // Value not found
@@ -206,7 +206,7 @@ class Settings<T extends Node> {
   private getValidatedArray(
     item: OptionTypes,
     values: ArrayValue,
-    file: string
+    file: string,
   ): ArrayValue | ConfigNodeArray {
     if (item instanceof PrimitiveOption) {
       if (item.params.kind === "string") {
@@ -229,7 +229,7 @@ class Settings<T extends Node> {
     }
 
     const arrayValues = (values as ConfigFileData[]).map((v: ConfigFileData) =>
-      this.processArrayWithSchema(item, v, file)
+      this.processArrayWithSchema(item, v, file),
     );
     return new ConfigNodeArray(arrayValues as unknown as ConfigNode[]);
   }
@@ -237,7 +237,7 @@ class Settings<T extends Node> {
   private processArrayWithSchema(
     item: OptionTypes,
     v: ConfigFileData,
-    file: string
+    file: string,
   ): NodeTree {
     const result: NodeTree = {};
     this.traverseOptions(
@@ -248,7 +248,7 @@ class Settings<T extends Node> {
           value: v,
           file,
         },
-      })
+      }),
     );
     return result;
   }
@@ -256,7 +256,7 @@ class Settings<T extends Node> {
   private setOption(
     options: PartiallyBuiltSettings,
     path: Path,
-    node: ConfigNode
+    node: ConfigNode,
   ): void {
     if (path.length > 1) {
       const [child, ...rest] = path;
@@ -266,7 +266,7 @@ class Settings<T extends Node> {
       this.setOption(
         options[child as string] as PartiallyBuiltSettings,
         rest,
-        node
+        node,
       );
     } else if (path.length === 1) {
       const [child] = path;
@@ -277,7 +277,7 @@ class Settings<T extends Node> {
             this.getValidatedArray(
               node.value.item,
               node.value.val,
-              node.file || node.variableName || node.argName || ""
+              node.file || node.variableName || node.argName || "",
             );
         } else {
           options[child as string] = node;
@@ -287,7 +287,7 @@ class Settings<T extends Node> {
       throw new Error(
         `Invalid path '${node.path}' getting from '${
           node.argName || node.file || node.variableName || ""
-        }' in ' ${node.sourceType}`
+        }' in ' ${node.sourceType}`,
       );
     }
   }
@@ -300,7 +300,7 @@ class Settings<T extends Node> {
   }
 
   private getValuesFromTree(
-    node: NodeTree | ConfigNode
+    node: NodeTree | ConfigNode,
   ): Value | ArrayValue | null {
     if (node instanceof ConfigNode) {
       if (node.value instanceof ConfigNodeArray) {
@@ -314,13 +314,13 @@ class Settings<T extends Node> {
         acc[key] = this.getValuesFromTree(value);
         return acc;
       },
-      {}
+      {},
     );
   }
 
   public get(): SchemaValue<T> {
     return this.getValuesFromTree(
-      this.optionsTree
+      this.optionsTree,
     ) as unknown as SchemaValue<T>;
   }
 

@@ -29,7 +29,7 @@ class ConfigNode {
     variableName: string | null,
     argName: string | null,
     line: number | null = null,
-    column: number | null = null
+    column: number | null = null,
   ) {
     this.value = value;
     this.path = path;

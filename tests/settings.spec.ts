@@ -303,12 +303,12 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedStringNotFound.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'hardware.type' not provided.",
-          })
+          }),
         );
       });
 
@@ -329,20 +329,20 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
-              /Cannot convert value '\{"max":400,"min":200\}' for 'hardware\.size' to string in tests\/__mocks__\/settings\/no-cli-no-env\/nestedStringWrongType\.yaml(:\d+:\d+)?\./
+              /Cannot convert value '\{"max":400,"min":200\}' for 'hardware\.size' to string in tests\/__mocks__\/settings\/no-cli-no-env\/nestedStringWrongType\.yaml(:\d+:\d+)?\./,
             ),
-          })
+          }),
         );
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'hardware.brand' not provided.",
-          })
+          }),
         );
       });
     });
@@ -389,12 +389,12 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedStringArrayNotFound.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.engines' not provided.",
-          })
+          }),
         );
       });
     });
@@ -435,12 +435,12 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberNotFound.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.ram' not provided.",
-          })
+          }),
         );
       });
 
@@ -462,7 +462,7 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberWrongType.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toHaveLength(4);
         // TODO: fix error messages
@@ -521,12 +521,12 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayNotFound.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.sizeOptions' not provided.",
-          })
+          }),
         );
       });
 
@@ -548,15 +548,17 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongItemType.yaml",
-            })
+            }),
         ).toThrow();
         [
           /Cannot convert value 'MySQL' for 'database\.sizeOptions\.0' to number in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongItemType\.yaml(:\d+:\d+)?\./,
           /Cannot convert value 'Firebase' for 'database\.sizeOptions\.1' to number in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongItemType\.yaml(:\d+:\d+)?\./,
         ].forEach((pattern) => {
           expect(OptionErrors.errors).toContainEqual(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            expect.objectContaining({ message: expect.stringMatching(pattern) })
+            expect.objectContaining({
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              message: expect.stringMatching(pattern),
+            }),
           );
         });
       });
@@ -579,15 +581,15 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedNumberArrayWrongType.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
-              /Invalid state\. Invalid kind in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongType\.yaml(:\d+:\d+)?/
+              /Invalid state\. Invalid kind in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongType\.yaml(:\d+:\d+)?/,
             ),
-          })
+          }),
         );
       });
     });
@@ -647,12 +649,12 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolNotFound.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.bool1' not provided.",
-          })
+          }),
         );
       });
 
@@ -673,7 +675,7 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolWrongType.yaml",
-            })
+            }),
         ).toThrow();
         const errorPatterns = [
           /Cannot convert value '2' for 'database\.bool1' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolWrongType\.yaml(:\d+:\d+)?\./,
@@ -682,8 +684,10 @@ describe("Settings", () => {
         ];
         errorPatterns.forEach((pattern) => {
           expect(OptionErrors.errors).toContainEqual(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            expect.objectContaining({ message: expect.stringMatching(pattern) })
+            expect.objectContaining({
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              message: expect.stringMatching(pattern),
+            }),
           );
         });
       });
@@ -750,12 +754,12 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayNotFound.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.bools' not provided.",
-          })
+          }),
         );
       });
 
@@ -777,7 +781,7 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedBoolArrayWrongType.yaml",
-            })
+            }),
         ).toThrow();
         const errorPatterns = [
           /Cannot convert value '2' for 'database\.bools\.0' to boolean in tests\/__mocks__\/settings\/no-cli-no-env\/nestedBoolArrayWrongType\.yaml(:\d+:\d+)?\./,
@@ -786,8 +790,10 @@ describe("Settings", () => {
         ];
         errorPatterns.forEach((pattern) => {
           expect(OptionErrors.errors).toContainEqual(
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            expect.objectContaining({ message: expect.stringMatching(pattern) })
+            expect.objectContaining({
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              message: expect.stringMatching(pattern),
+            }),
           );
         });
       });
@@ -853,12 +859,12 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedObjectArrayNotFound.yaml",
-            })
+            }),
         ).toThrow();
         expect(OptionErrors.errors).toContainEqual(
           expect.objectContaining({
             message: "Required option 'database.engines' not provided.",
-          })
+          }),
         );
       });
 
@@ -886,7 +892,7 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedObjectArrayWrongType.yaml",
-            })
+            }),
         ).toThrow();
         // TODO: Fix the messages thrown by this test, it should say that the problem is database.engines, not its children
         // expect(OptionErrors.errors).toContain(
@@ -944,7 +950,7 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedObjectNotFound.yaml",
-            })
+            }),
         ).toThrow();
         // TODO: Fix the messages thrown by this test, it should say that database.engine is required, not its children
         // expect(OptionErrors.errors).toContain(
@@ -991,7 +997,7 @@ describe("Settings", () => {
               args: false,
               files:
                 "tests/__mocks__/settings/no-cli-no-env/nestedObjectWrongType.yaml",
-            })
+            }),
         ).toThrow();
         [
           "Cant get path from string value 'PostgreSQL'",
@@ -1000,7 +1006,7 @@ describe("Settings", () => {
           "Cant get path from array value '[1986,1990,1995]'",
         ].forEach((error) => {
           expect(OptionErrors.errors).toContainEqual(
-            expect.objectContaining({ message: error })
+            expect.objectContaining({ message: error }),
           );
         });
       });
@@ -1513,7 +1519,7 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/multiple-files/argument-not-found/file-2.yaml",
                 "tests/__mocks__/settings/multiple-files/argument-not-found/file-3.yaml",
               ],
-            })
+            }),
         ).toThrow();
         const errors = [
           "Required option 'database.engine.name' not provided.",
@@ -1522,7 +1528,7 @@ describe("Settings", () => {
         ];
         errors.forEach((error) => {
           expect(OptionErrors.errors).toContainEqual(
-            expect.objectContaining({ message: error })
+            expect.objectContaining({ message: error }),
           );
         });
       });
@@ -1552,9 +1558,9 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/multiple-files/file-not-found/file-1.yaml",
                 "tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml",
               ],
-            })
+            }),
         ).toThrow(
-          "Invalid config file 'tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml'"
+          "Invalid config file 'tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml'",
         );
       });
     });
@@ -1585,7 +1591,7 @@ describe("Settings", () => {
                 "tests/__mocks__/settings/multiple-files/no-collision/file-3.yaml",
               ],
               dir: "tests/__mocks__/settings/multiple-files/no-collision",
-            })
+            }),
         ).toThrow("Dir and files are specified, choose one");
       });
     });
@@ -1746,7 +1752,7 @@ describe("Settings", () => {
               env: false,
               args: false,
               dir: "tests/__mocks__/settings/multiple-files/argument-not-found",
-            })
+            }),
         ).toThrow();
         const errors = [
           "Required option 'database.engine.name' not provided.",
@@ -1755,7 +1761,7 @@ describe("Settings", () => {
         ];
         errors.forEach((error) => {
           expect(OptionErrors.errors).toContainEqual(
-            expect.objectContaining({ message: error })
+            expect.objectContaining({ message: error }),
           );
         });
       });
@@ -1782,9 +1788,9 @@ describe("Settings", () => {
               env: false,
               args: false,
               dir: "tests/__mocks__/settings/missing-dir",
-            })
+            }),
         ).toThrow(
-          "'tests/__mocks__/settings/missing-dir' not exists or is not a dir"
+          "'tests/__mocks__/settings/missing-dir' not exists or is not a dir",
         );
       });
     });
@@ -1825,7 +1831,7 @@ describe("Settings", () => {
             env: true,
             args: false,
             files: "filemock.yaml",
-          })
+          }),
       ).toThrow("Invalid config file 'filemock.yaml'");
     });
   });
@@ -1865,7 +1871,7 @@ describe("Settings", () => {
             env: true,
             args: false,
             files: "tests/__mocks__/wrongFile.yaml",
-          })
+          }),
       ).toThrow("Configuration loading failed");
     });
   });
@@ -2173,10 +2179,10 @@ describe("Settings", () => {
             args: false,
             files:
               "tests/__mocks__/settings/no-cli-no-env/nestedStringWrongType.yaml",
-          })
+          }),
       ).toThrow();
       const errorWithLine = OptionErrors.errors.find(
-        (e) => e.path === "hardware.size"
+        (e) => e.path === "hardware.size",
       );
       expect(errorWithLine).toBeDefined();
       expect(errorWithLine!.message).toMatch(/\.yaml:\d+:\d+\./);

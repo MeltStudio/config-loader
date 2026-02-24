@@ -14,7 +14,7 @@ interface ArrayOptionClassParams<T extends OptionTypes> {
   item: T;
 }
 export default class ArrayOption<
-  T extends OptionTypes
+  T extends OptionTypes,
 > extends OptionBase<"array"> {
   item: T;
 
@@ -30,7 +30,7 @@ export default class ArrayOption<
   }
 
   public override buildArrayOption(
-    val: string[] | ConfigFileData[]
+    val: string[] | ConfigFileData[],
   ): ArrayValueContainer | InvalidValue {
     if (this.item === null) {
       OptionErrors.errors.push({
@@ -45,7 +45,7 @@ export default class ArrayOption<
   public override checkType(
     val: Value,
     path: Path,
-    sourceOfVal: string
+    sourceOfVal: string,
   ): Value {
     if (val instanceof ArrayValueContainer) {
       val.val.forEach((v, i) => {

@@ -53,7 +53,7 @@ interface OptionClassParams<T extends OptionKind> {
 
 function lookupLocation(
   sourceMap: SourceMap | null | undefined,
-  path: Path
+  path: Path,
 ): { line: number; column: number } | null {
   if (!sourceMap) return null;
   const loc = sourceMap.lookup(path.map(String));
@@ -63,7 +63,7 @@ function lookupLocation(
 
 function formatFileLocation(
   file: string,
-  loc: { line: number; column: number } | null
+  loc: { line: number; column: number } | null,
 ): string {
   if (!loc) return file;
   return `${file}:${loc.line}:${loc.column}`;
@@ -86,7 +86,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       value: ConfigFileData;
       file: string;
       sourceMap?: SourceMap | null;
-    }
+    },
   ): ConfigNode | null {
     const ident = path.join(".");
 
@@ -98,7 +98,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           "args",
           null,
           null,
-          ident
+          ident,
         );
       }
     }
@@ -112,7 +112,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
             "env",
             null,
             this.params.env,
-            null
+            null,
           );
         }
       }
@@ -130,7 +130,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           null,
           null,
           loc?.line ?? null,
-          loc?.column ?? null
+          loc?.column ?? null,
         );
       }
       // the following line checks if the value is different to null or undefined
@@ -143,7 +143,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           null,
           null,
           loc?.line ?? null,
-          loc?.column ?? null
+          loc?.column ?? null,
         );
       }
     }
@@ -163,7 +163,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
             null,
             null,
             loc?.line ?? null,
-            loc?.column ?? null
+            loc?.column ?? null,
           );
         }
 
@@ -177,7 +177,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
             null,
             null,
             loc?.line ?? null,
-            loc?.column ?? null
+            loc?.column ?? null,
           );
         }
       }
@@ -191,7 +191,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           this.checkType(
             val,
             path,
-            formatFileLocation(objectFromArray.file, loc)
+            formatFileLocation(objectFromArray.file, loc),
           ),
           ident,
           "file",
@@ -199,7 +199,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           null,
           null,
           loc?.line ?? null,
-          loc?.column ?? null
+          loc?.column ?? null,
         );
       }
       // the following line checks if the value is different to null or undefined
@@ -208,7 +208,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           this.checkType(
             val,
             path,
-            formatFileLocation(objectFromArray.file, loc)
+            formatFileLocation(objectFromArray.file, loc),
           ),
           ident,
           "file",
@@ -216,7 +216,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           null,
           null,
           loc?.line ?? null,
-          loc?.column ?? null
+          loc?.column ?? null,
         );
       }
     }
@@ -230,7 +230,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           "default",
           null,
           null,
-          null
+          null,
         );
       }
       if (!valueIsInvalid(val)) {
@@ -240,7 +240,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           "default",
           null,
           null,
-          null
+          null,
         );
       }
     }
@@ -264,7 +264,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           "default",
           null,
           null,
-          null
+          null,
         );
       }
     }
@@ -285,7 +285,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
   protected checkNumberType(
     val: Value,
     pathStr: string,
-    sourceOfVal: string
+    sourceOfVal: string,
   ): Value {
     if (typeof val === "string") {
       const parseVal = parseInt(val, 10);
@@ -299,7 +299,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         return new InvalidValue();
       }
       OptionErrors.warnings.push(
-        `The option ${pathStr} is stated as a number but is provided as a string`
+        `The option ${pathStr} is stated as a number but is provided as a string`,
       );
       return parseVal;
     }
@@ -330,13 +330,13 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (this.params.kind === "string") {
       if (typeof val === "number") {
         OptionErrors.warnings.push(
-          `The option ${ident} is stated as a string but is provided as a number`
+          `The option ${ident} is stated as a string but is provided as a number`,
         );
         return val.toString();
       }
       OptionErrors.errors.push({
         message: `Cannot convert value '${valueToString(
-          val
+          val,
         )}' for '${ident}' to string in ${sourceOfVal}.`,
         path: ident,
         source: sourceOfVal,
@@ -355,7 +355,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       }
       OptionErrors.errors.push({
         message: `Cannot convert value '${valueToString(
-          val
+          val,
         )}' for '${ident}' to boolean in ${sourceOfVal}.`,
         path: ident,
         source: sourceOfVal,
@@ -372,7 +372,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       kind: "invalid_state",
     });
     throw new Error(
-      "Invalid kind. Must be 'string', 'number', 'boolean' or 'array'"
+      "Invalid kind. Must be 'string', 'number', 'boolean' or 'array'",
     );
   }
 
@@ -445,7 +445,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
   // eslint-disable-next-line class-methods-use-this
   buildArrayOption(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _val: string[] | ConfigFileData[]
+    _val: string[] | ConfigFileData[],
   ): ArrayValueContainer | InvalidValue {
     return new InvalidValue();
   }

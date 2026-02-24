@@ -7,7 +7,7 @@ interface ObjectOptionClassParams<T extends Node> {
 }
 
 export default class ObjectOption<
-  T extends Node = Node
+  T extends Node = Node,
 > extends OptionBase<"object"> {
   item: T;
 

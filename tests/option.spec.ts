@@ -48,7 +48,7 @@ describe("option", () => {
         help: "",
       });
       expect(
-        option.getValue(FILE, ENV, { "site.id": "10" }, ["site", "id"])
+        option.getValue(FILE, ENV, { "site.id": "10" }, ["site", "id"]),
       ).toEqual({
         argName: "site.id",
         file: null,
@@ -121,12 +121,12 @@ describe("option", () => {
         {},
         {},
         ["site", "test"],
-        "./tests/__mocks__/fileMock.yaml"
+        "./tests/__mocks__/fileMock.yaml",
       );
       expect(OptionErrors.errors).toContainEqual(
         expect.objectContaining({
           message: "Required option 'site.test' not provided.",
-        })
+        }),
       );
     });
   });
@@ -146,7 +146,7 @@ describe("option", () => {
             cli: false,
             help: "",
           }),
-          ["test", "test2"]
+          ["test", "test2"],
         ),
         path: "test.array",
         sourceType: "file",
@@ -155,10 +155,10 @@ describe("option", () => {
         argName: null,
       });
       expect(typeof value?.line === "number" || value?.line === null).toBe(
-        true
+        true,
       );
       expect(typeof value?.column === "number" || value?.column === null).toBe(
-        true
+        true,
       );
     });
   });
@@ -182,10 +182,10 @@ describe("option", () => {
         variableName: null,
       });
       expect(typeof value?.line === "number" || value?.line === null).toBe(
-        true
+        true,
       );
       expect(typeof value?.column === "number" || value?.column === null).toBe(
-        true
+        true,
       );
     });
   });
@@ -209,10 +209,10 @@ describe("option", () => {
         variableName: null,
       });
       expect(typeof value?.line === "number" || value?.line === null).toBe(
-        true
+        true,
       );
       expect(typeof value?.column === "number" || value?.column === null).toBe(
-        true
+        true,
       );
     });
     describe("if the option value is different of a number", () => {
@@ -229,9 +229,9 @@ describe("option", () => {
           expect.objectContaining({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
-              /Cannot convert value 'true' for 'test\.boolean' to string in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./
+              /Cannot convert value 'true' for 'test\.boolean' to string in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./,
             ),
-          })
+          }),
         );
       });
     });
@@ -260,10 +260,10 @@ describe("option", () => {
           variableName: null,
         });
         expect(typeof value?.line === "number" || value?.line === null).toBe(
-          true
+          true,
         );
         expect(
-          typeof value?.column === "number" || value?.column === null
+          typeof value?.column === "number" || value?.column === null,
         ).toBe(true);
       });
     });
@@ -281,9 +281,9 @@ describe("option", () => {
           expect.objectContaining({
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
-              /Cannot convert value 'test' for 'test\.string' to boolean in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./
+              /Cannot convert value 'test' for 'test\.string' to boolean in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./,
             ),
-          })
+          }),
         );
       });
     });
@@ -307,10 +307,10 @@ describe("option", () => {
           variableName: null,
         });
         expect(typeof value?.line === "number" || value?.line === null).toBe(
-          true
+          true,
         );
         expect(
-          typeof value?.column === "number" || value?.column === null
+          typeof value?.column === "number" || value?.column === null,
         ).toBe(true);
       });
       describe("if the value is a number as string", () => {
@@ -335,10 +335,10 @@ describe("option", () => {
             variableName: null,
           });
           expect(typeof value?.line === "number" || value?.line === null).toBe(
-            true
+            true,
           );
           expect(
-            typeof value?.column === "number" || value?.column === null
+            typeof value?.column === "number" || value?.column === null,
           ).toBe(true);
         });
       });
@@ -356,9 +356,9 @@ describe("option", () => {
             expect.objectContaining({
               // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               message: expect.stringMatching(
-                /Cannot convert value 'test' for 'test\.string' to number in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./
+                /Cannot convert value 'test' for 'test\.string' to number in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./,
               ),
-            })
+            }),
           );
         });
       });
@@ -375,7 +375,7 @@ describe("option", () => {
           expect(OptionErrors.errors).toContainEqual(
             expect.objectContaining({
               message: "Required option 'test.undefined' not provided.",
-            })
+            }),
           );
         });
       });
@@ -394,16 +394,16 @@ describe("option", () => {
       });
       expect(() => option.getValue(FILE, ENV, {}, ["test", "any"])).toThrow(
         new Error(
-          "Invalid kind. Must be 'string', 'number', 'boolean' or 'array'"
-        )
+          "Invalid kind. Must be 'string', 'number', 'boolean' or 'array'",
+        ),
       );
       expect(OptionErrors.errors).toContainEqual(
         expect.objectContaining({
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           message: expect.stringMatching(
-            /Invalid state\. Invalid kind in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?/
+            /Invalid state\. Invalid kind in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?/,
           ),
-        })
+        }),
       );
     });
   });

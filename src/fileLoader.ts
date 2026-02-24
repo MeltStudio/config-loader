@@ -46,7 +46,7 @@ export function loadConfigFile(filePath: string): LoadResult {
     const message =
       err instanceof Error ? err.message : "Unknown parsing error";
     throw new ConfigFileError(
-      `Failed to parse config file '${filePath}': ${message}`
+      `Failed to parse config file '${filePath}': ${message}`,
     );
   }
 }

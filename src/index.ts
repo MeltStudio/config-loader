@@ -53,7 +53,7 @@ const bool = (opts?: OptionPropsArgs<boolean>): PrimitiveOption<"boolean"> => {
   });
 };
 const array = <T extends OptionTypes>(
-  opts: ArrayOptionPropsArgs<T>
+  opts: ArrayOptionPropsArgs<T>,
 ): ArrayOption<T> => {
   return new ArrayOption<T>({
     ...DEFAULTS,
@@ -61,7 +61,7 @@ const array = <T extends OptionTypes>(
   });
 };
 const object = <T extends Node>(
-  opts: ObjectOptionPropsArgs<T>
+  opts: ObjectOptionPropsArgs<T>,
 ): ObjectOption<T> => {
   return new ObjectOption<T>({
     required: false,
