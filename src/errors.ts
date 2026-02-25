@@ -16,7 +16,8 @@ export interface ConfigErrorEntry {
     | "invalid_state"
     | "file_validation"
     | "null_value"
-    | "strict";
+    | "strict"
+    | "validation";
   /** Line number in the config file where the error occurred, if applicable. */
   line?: number;
   /** Column number in the config file where the error occurred, if applicable. */

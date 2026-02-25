@@ -61,6 +61,7 @@ No separate interface to maintain. No `as` casts. The types flow from the schema
 - **`.env` file support** — load environment variables from `.env` files with automatic line tracking
 - **Nested objects and arrays** — deeply nested configs with full type safety
 - **Structured errors** — typed `ConfigLoadError` with per-field error details and warnings
+- **Schema validation** — optional per-field validation via [Standard Schema](https://github.com/standard-schema/standard-schema) (Zod, Valibot, ArkType, or custom)
 - **Strict mode** — promote warnings to errors for production safety
 - **Default values** — static or computed (via functions)
 - **Multiple files / directory loading** — load from a list of files or an entire directory
@@ -250,6 +251,74 @@ c.array({
     item: { name: c.string(), age: c.number() },
   }),
 }); // { name: string; age: number }[]
+```
+
+## Validation
+
+Add per-field validation using the `validate` option. config-loader accepts any [Standard Schema v1](https://github.com/standard-schema/standard-schema) implementation — including **Zod**, **Valibot**, and **ArkType** — or a custom validator.
+
+Validation runs **after** type coercion, so validators see the final typed value (e.g., the number `3000`, not the string `"3000"` from an env var).
+
+### With Zod
+
+```typescript
+import c from "@meltstudio/config-loader";
+import { z } from "zod";
+
+const config = c
+  .schema({
+    port: c.number({
+      required: true,
+      env: "PORT",
+      validate: z.number().min(1).max(65535),
+    }),
+    host: c.string({
+      required: true,
+      validate: z.string().url(),
+    }),
+    env: c.string({
+      defaultValue: "development",
+      validate: z.enum(["development", "staging", "production"]),
+    }),
+  })
+  .load({ env: true, args: false, files: "./config.yaml" });
+```
+
+### With a custom validator
+
+Any object with a `~standard.validate()` method works:
+
+```typescript
+const portValidator = {
+  "~standard": {
+    version: 1,
+    vendor: "my-app",
+    validate(value: unknown) {
+      if (typeof value === "number" && value >= 1 && value <= 65535) {
+        return { value };
+      }
+      return { issues: [{ message: "must be a valid port (1-65535)" }] };
+    },
+  },
+};
+
+c.number({ required: true, env: "PORT", validate: portValidator });
+```
+
+Validation errors are collected alongside other config errors and thrown as `ConfigLoadError` with `kind: "validation"`:
+
+```typescript
+try {
+  const config = c.schema({ ... }).load({ ... });
+} catch (err) {
+  if (err instanceof ConfigLoadError) {
+    for (const entry of err.errors) {
+      if (entry.kind === "validation") {
+        console.error(`Validation: ${entry.path} — ${entry.message}`);
+      }
+    }
+  }
+}
 ```
 
 ## Loading Sources

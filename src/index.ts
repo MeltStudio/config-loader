@@ -2,11 +2,11 @@ import { SettingsBuilder } from "@/builder";
 
 import type { Node, OptionTypes } from "./option";
 import { ArrayOption, ObjectOption, PrimitiveOption } from "./option";
-import type { SchemaValue } from "./types";
+import type { SchemaValue, StandardSchemaV1 } from "./types";
 
 export type { ConfigErrorEntry } from "./errors";
 export { ConfigFileError, ConfigLoadError } from "./errors";
-export type { ExtendedResult } from "./types";
+export type { ExtendedResult, StandardSchemaV1 } from "./types";
 
 /** Options for configuring a primitive (`string`, `number`, `bool`) schema field. */
 interface OptionPropsArgs<T> {
@@ -20,6 +20,8 @@ interface OptionPropsArgs<T> {
   defaultValue?: T | (() => T);
   /** Help text shown in CLI `--help` output. */
   help?: string;
+  /** Standard Schema validator run after type coercion. Accepts Zod, Valibot, ArkType, or any Standard Schema v1 implementation. */
+  validate?: StandardSchemaV1;
 }
 /** Options for configuring an `array` schema field. */
 interface ArrayOptionPropsArgs<T extends OptionTypes> {
@@ -29,6 +31,8 @@ interface ArrayOptionPropsArgs<T extends OptionTypes> {
   item: T;
   /** Static default value or factory function returning one. */
   defaultValue?: SchemaValue<T>[] | (() => SchemaValue<T>[]);
+  /** Standard Schema validator run on the resolved array. Accepts Zod, Valibot, ArkType, or any Standard Schema v1 implementation. */
+  validate?: StandardSchemaV1;
 }
 /** Options for configuring a nested `object` schema field. */
 interface ObjectOptionPropsArgs<T extends Node> {
@@ -36,6 +40,8 @@ interface ObjectOptionPropsArgs<T extends Node> {
   required?: boolean;
   /** Schema definition for the nested object's shape. */
   item: T;
+  /** Standard Schema validator run on the resolved object. Accepts Zod, Valibot, ArkType, or any Standard Schema v1 implementation. */
+  validate?: StandardSchemaV1;
 }
 
 const DEFAULTS = {

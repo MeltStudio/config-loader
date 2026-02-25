@@ -604,5 +604,21 @@ describe("option", () => {
       expect(errors.errors).toHaveLength(1);
       expect(errors.errors[0].kind).toBe("invalid_path");
     });
+
+    it("should push an invalid_path error for unsupported value types", () => {
+      const opt = new TestableOption({
+        kind: "string",
+        required: false,
+        env: null,
+        cli: false,
+        help: "",
+      });
+      // Force a bigint value to hit the fallthrough branch
+      const obj = { key: BigInt(42) } as any;
+      const result = opt.exposedFindInObject(obj, ["key"], errors);
+      expect(result).toBeInstanceOf(InvalidValue);
+      expect(errors.errors).toHaveLength(1);
+      expect(errors.errors[0].kind).toBe("invalid_path");
+    });
   });
 });
