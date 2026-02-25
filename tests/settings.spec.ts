@@ -2757,6 +2757,112 @@ describe("Settings", () => {
     });
   });
 
+  describe("strict mode", () => {
+    it("should throw ConfigLoadError when strict is true and there are warnings", () => {
+      expect(() =>
+        option
+          .schema({
+            test: option.object({
+              item: {
+                boolean: option.string(),
+              },
+            }),
+          })
+          .load({
+            env: false,
+            args: false,
+            files: "tests/__mocks__/fileMock.yaml",
+            strict: true,
+          }),
+      ).toThrow(ConfigLoadError);
+    });
+
+    it("should promote warnings to errors with kind 'strict'", () => {
+      const errors = getLoadErrors(() =>
+        option
+          .schema({
+            test: option.object({
+              item: {
+                boolean: option.string(),
+              },
+            }),
+          })
+          .load({
+            env: false,
+            args: false,
+            files: "tests/__mocks__/fileMock.yaml",
+            strict: true,
+          }),
+      );
+      expect(errors).toContainEqual(
+        expect.objectContaining({
+          kind: "strict",
+          message: expect.stringContaining(
+            "stated as a string but is provided as a boolean",
+          ),
+        }),
+      );
+    });
+
+    it("should not throw when strict is true and there are no warnings", () => {
+      expect(() =>
+        option
+          .schema({
+            string: option.string({ required: true }),
+            number: option.number({ required: true }),
+          })
+          .load({
+            env: false,
+            args: false,
+            files: "tests/__mocks__/fileMock.yaml",
+            strict: true,
+          }),
+      ).not.toThrow();
+    });
+
+    it("should not affect behavior when strict is false", () => {
+      const result = option
+        .schema({
+          test: option.object({
+            item: {
+              boolean: option.string(),
+            },
+          }),
+        })
+        .loadExtended({
+          env: false,
+          args: false,
+          files: "tests/__mocks__/fileMock.yaml",
+          strict: false,
+        });
+      expect(result.warnings.length).toBeGreaterThan(0);
+      const boolNode = (result.data.test as NodeTree)
+        .boolean as unknown as ConfigNode;
+      expect(boolNode.value).toBe("true");
+    });
+
+    it("should clear warnings when promoting them to errors", () => {
+      try {
+        option
+          .schema({
+            host: option.string({ env: "DB_HOST", defaultValue: "localhost" }),
+          })
+          .load({
+            env: false,
+            args: false,
+            strict: true,
+          });
+      } catch (e) {
+        if (e instanceof ConfigLoadError) {
+          expect(e.warnings).toHaveLength(0);
+          expect(e.errors.length).toBeGreaterThan(0);
+          return;
+        }
+      }
+      throw new Error("Expected ConfigLoadError to be thrown");
+    });
+  });
+
   describe("empty directory", () => {
     let tempDir: string;
 

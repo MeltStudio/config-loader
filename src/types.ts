@@ -28,6 +28,7 @@ export type SettingsSources<T> = {
   dir?: string | false;
   envFile?: string | string[] | false;
   defaults?: RecursivePartial<T>;
+  strict?: boolean;
 };
 
 export type OptionKind = "boolean" | "string" | "number" | "array" | "object";

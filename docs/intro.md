@@ -340,6 +340,21 @@ try {
 
 Warnings (non-fatal issues like type coercions) are never printed to the console. Use `loadExtended()` to access them, or they are included in `ConfigLoadError.warnings` when errors occur.
 
+### Strict Mode
+
+Enable `strict: true` to promote all warnings to errors, causing `ConfigLoadError` to be thrown for any ambiguous or lossy configuration:
+
+```typescript
+.load({
+  env: true,
+  args: false,
+  files: "./config.yaml",
+  strict: true,
+})
+```
+
+This is useful in production environments where you want to catch type coercions, null values, and other ambiguous config early rather than silently accepting them.
+
 ## CLI Arguments
 
 Set `cli: true` on an option to allow overriding via command line:

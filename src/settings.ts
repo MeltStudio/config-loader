@@ -107,6 +107,13 @@ class Settings<T extends Node> {
       }),
     );
 
+    if (this.sources.strict && this.errors.warnings.length > 0) {
+      for (const warning of this.errors.warnings) {
+        this.errors.errors.push({ message: warning, kind: "strict" });
+      }
+      this.errors.warnings = [];
+    }
+
     if (this.errors.errors.length > 0) {
       throw new ConfigLoadError(
         [...this.errors.errors],
