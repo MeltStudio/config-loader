@@ -6,6 +6,7 @@ import type { SchemaValue } from "./types";
 
 export type { ConfigErrorEntry } from "./errors";
 export { ConfigFileError, ConfigLoadError } from "./errors";
+export type { ExtendedResult } from "./types";
 
 interface OptionPropsArgs<T> {
   required?: boolean;

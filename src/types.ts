@@ -12,6 +12,11 @@ export type ProcessEnv = { [key: string]: string | undefined };
 
 export type NodeTree = { [key: string]: NodeTree | ConfigNode };
 
+export type ExtendedResult = {
+  data: NodeTree;
+  warnings: string[];
+};
+
 export type RecursivePartial<T> = {
   [K in keyof T]?: RecursivePartial<T[K]>;
 };
@@ -23,7 +28,6 @@ export type SettingsSources<T> = {
   dir?: string | false;
   envFile?: string | string[] | false;
   defaults?: RecursivePartial<T>;
-  exitOnError?: boolean;
 };
 
 export type OptionKind = "boolean" | "string" | "number" | "array" | "object";

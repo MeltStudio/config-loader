@@ -66,7 +66,7 @@ export default tseslint.config(
       // Rules from airbnb-base
       "max-classes-per-file": "error",
       "class-methods-use-this": "error",
-      "max-lines": "error",
+      "max-lines": ["error", { max: 350 }],
       "no-param-reassign": "error",
       "no-underscore-dangle": "error",
 

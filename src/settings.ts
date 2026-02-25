@@ -64,8 +64,7 @@ class Settings<T extends Node> {
   }
 
   private checkEnvMappingsWithoutEnvLoading(): void {
-    if (this.sources.env) return;
-    if (this.sources.envFile) return;
+    if (this.sources.env || this.sources.envFile) return;
     const envMappedOptions: string[] = [];
     this.traverseOptions(this.schema, [], (node, path) => {
       if (node.params.env) {
@@ -108,20 +107,7 @@ class Settings<T extends Node> {
       }),
     );
 
-    // if then of the execution has warnings
-    if (this.errors.warnings.length > 0) {
-      for (let index = 0; index < this.errors.warnings.length; index += 1) {
-        console.warn(`[Warning]: ${this.errors.warnings[index]}`);
-      }
-    }
-    // if then of the execution has errors
     if (this.errors.errors.length > 0) {
-      if (this.sources.exitOnError) {
-        for (let index = 0; index < this.errors.errors.length; index += 1) {
-          console.error(`[Error]: ${this.errors.errors[index].message}`);
-        }
-        process.exit(1);
-      }
       throw new ConfigLoadError(
         [...this.errors.errors],
         [...this.errors.warnings],
@@ -295,8 +281,7 @@ class Settings<T extends Node> {
       return node.value;
     }
     return Object.entries(node).reduce<{ [key: string]: Value | null }>(
-      (acc, item) => {
-        const [key, value] = item;
+      (acc, [key, value]) => {
         acc[key] = this.getValuesFromTree(value);
         return acc;
       },
@@ -312,6 +297,10 @@ class Settings<T extends Node> {
 
   public getExtended(): NodeTree {
     return this.optionsTree;
+  }
+
+  public getWarnings(): string[] {
+    return [...this.errors.warnings];
   }
 }
 

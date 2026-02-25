@@ -11,6 +11,7 @@ import {
   ConfigFileError as ReExportedConfigFileError,
   ConfigLoadError as ReExportedConfigLoadError,
 } from "@/src";
+import type { NodeTree } from "@/types";
 
 import { addCliArg } from "./utils/cli";
 
@@ -2050,23 +2051,23 @@ describe("Settings", () => {
         });
 
       // Top-level keys should be ConfigNode instances
-      expect(result.string).toBeInstanceOf(ConfigNode);
-      expect(result.number).toBeInstanceOf(ConfigNode);
+      expect(result.data.string).toBeInstanceOf(ConfigNode);
+      expect(result.data.number).toBeInstanceOf(ConfigNode);
 
       // Verify source metadata on a ConfigNode
-      const stringNode = result.string as unknown as ConfigNode;
+      const stringNode = result.data.string as unknown as ConfigNode;
       expect(stringNode.value).toBe("testString");
       expect(stringNode.sourceType).toBe("file");
       expect(stringNode.file).toBe("tests/__mocks__/fileMock.yaml");
       expect(stringNode.variableName).toBeNull();
       expect(stringNode.argName).toBeNull();
 
-      const numberNode = result.number as unknown as ConfigNode;
+      const numberNode = result.data.number as unknown as ConfigNode;
       expect(numberNode.value).toBe(1);
       expect(numberNode.sourceType).toBe("file");
 
       // Nested object should contain ConfigNode instances
-      const objectNode = result.object as unknown as {
+      const objectNode = result.data.object as unknown as {
         value: ConfigNode;
         name: ConfigNode;
       };
@@ -2089,7 +2090,7 @@ describe("Settings", () => {
           files: "tests/__mocks__/emptyFile.yaml",
         });
 
-      const node = result.myVar as unknown as ConfigNode;
+      const node = result.data.myVar as unknown as ConfigNode;
       expect(node).toBeInstanceOf(ConfigNode);
       expect(node.value).toBe("from-env");
       expect(node.sourceType).toBe("env");
@@ -2116,7 +2117,8 @@ describe("Settings", () => {
           files: "tests/__mocks__/fileMock.yaml",
         });
 
-      const nameNode = (result.object as unknown as { name: ConfigNode }).name;
+      const nameNode = (result.data.object as unknown as { name: ConfigNode })
+        .name;
       expect(nameNode).toBeInstanceOf(ConfigNode);
       expect(nameNode.sourceType).toBe("file");
       expect(typeof nameNode.line).toBe("number");
@@ -2135,7 +2137,7 @@ describe("Settings", () => {
           files: "tests/__mocks__/emptyFile.yaml",
         });
 
-      const node = result.myVar as unknown as ConfigNode;
+      const node = result.data.myVar as unknown as ConfigNode;
       expect(node).toBeInstanceOf(ConfigNode);
       expect(node.sourceType).toBe("env");
       expect(node.line).toBeNull();
@@ -2153,7 +2155,7 @@ describe("Settings", () => {
           files: "tests/__mocks__/emptyFile.yaml",
         });
 
-      const node = result.myVar as unknown as ConfigNode;
+      const node = result.data.myVar as unknown as ConfigNode;
       expect(node).toBeInstanceOf(ConfigNode);
       expect(node.sourceType).toBe("default");
       expect(node.line).toBeNull();
@@ -2172,7 +2174,7 @@ describe("Settings", () => {
           files: "tests/__mocks__/emptyFile.yaml",
         });
 
-      const node = result.myVar as unknown as ConfigNode;
+      const node = result.data.myVar as unknown as ConfigNode;
       expect(node).toBeInstanceOf(ConfigNode);
       expect(node.sourceType).toBe("args");
       expect(node.line).toBeNull();
@@ -2190,7 +2192,7 @@ describe("Settings", () => {
           files: "tests/__mocks__/fileMock.json",
         });
 
-      const node = result.string as unknown as ConfigNode;
+      const node = result.data.string as unknown as ConfigNode;
       expect(node).toBeInstanceOf(ConfigNode);
       expect(node.sourceType).toBe("file");
       expect(node.line).toBeGreaterThan(0);
@@ -2212,7 +2214,7 @@ describe("Settings", () => {
           files: "tests/__mocks__/fileMock.json",
         });
 
-      const objectNode = result.object as unknown as { name: ConfigNode };
+      const objectNode = result.data.object as unknown as { name: ConfigNode };
       expect(objectNode.name).toBeInstanceOf(ConfigNode);
       expect(objectNode.name.line).toBeGreaterThan(0);
       expect(objectNode.name.column).toBeGreaterThan(0);
@@ -2330,7 +2332,7 @@ describe("Settings", () => {
           args: false,
           envFile: "tests/__mocks__/settings/env-file/.env",
         });
-      const hostNode = extended.host as ConfigNode;
+      const hostNode = extended.data.host as ConfigNode;
       expect(hostNode.sourceType).toBe("envFile");
       expect(hostNode.file).toBe("tests/__mocks__/settings/env-file/.env");
       expect(hostNode.variableName).toBe("DB_HOST");
@@ -2349,7 +2351,7 @@ describe("Settings", () => {
           args: false,
           envFile: "tests/__mocks__/settings/env-file/.env",
         });
-      const hostNode = extended.host as ConfigNode;
+      const hostNode = extended.data.host as ConfigNode;
       expect(hostNode.sourceType).toBe("env");
       expect(hostNode.file).toBeNull();
       expect(hostNode.value).toBe("override-host");
@@ -2451,7 +2453,7 @@ describe("Settings", () => {
           env: true,
           args: false,
         });
-      const hostNode = extended.host as ConfigNode;
+      const hostNode = extended.data.host as ConfigNode;
       expect(hostNode.sourceType).toBe("env");
       expect(hostNode.value).toBe("");
     });
@@ -2459,8 +2461,7 @@ describe("Settings", () => {
 
   describe("type coercion consistency", () => {
     it("should coerce boolean to string with a warning", () => {
-      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-      const data = option
+      const result = option
         .schema({
           test: option.object({
             item: {
@@ -2468,18 +2469,21 @@ describe("Settings", () => {
             },
           }),
         })
-        .load({
+        .loadExtended({
           env: false,
           args: false,
           files: "tests/__mocks__/fileMock.yaml",
         });
-      expect(data.test.boolean).toBe("true");
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "stated as a string but is provided as a boolean",
-        ),
+      const data = result.data;
+      const boolNode = (data.test as NodeTree).boolean as unknown as ConfigNode;
+      expect(boolNode.value).toBe("true");
+      expect(result.warnings).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining(
+            "stated as a string but is provided as a boolean",
+          ),
+        ]),
       );
-      warnSpy.mockRestore();
     });
 
     it("should accept case-insensitive boolean strings from env vars", () => {
@@ -2586,39 +2590,6 @@ describe("Settings", () => {
     });
   });
 
-  describe("exitOnError", () => {
-    it("should call process.exit(1) and console.error instead of throwing when exitOnError is true", () => {
-      const exitSpy = jest.spyOn(process, "exit").mockImplementation(() => {
-        throw new Error("process.exit");
-      });
-      const errorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      expect(() =>
-        option
-          .schema({
-            host: option.string({ required: true }),
-          })
-          .load({
-            dir: "tests/__mocks__/settings/defaults",
-            env: false,
-            args: false,
-            exitOnError: true,
-          }),
-      ).toThrow("process.exit");
-
-      expect(exitSpy).toHaveBeenCalledWith(1);
-      expect(errorSpy).toHaveBeenCalled();
-      expect(
-        (errorSpy.mock.calls[0]![0] as string).startsWith("[Error]:"),
-      ).toBe(true);
-
-      exitSpy.mockRestore();
-      errorSpy.mockRestore();
-    });
-  });
-
   describe("null values in config files", () => {
     it("should produce a clear null_value error for a null leaf field", () => {
       const errors = getLoadErrors(() =>
@@ -2685,127 +2656,104 @@ describe("Settings", () => {
     });
 
     it("should not throw for optional fields with null values but emit a warning", () => {
-      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-      const data = option
+      const result = option
         .schema({
           name: option.string({ required: true }),
           nullField: option.string(),
         })
-        .load({
+        .loadExtended({
           env: false,
           args: false,
           files: "tests/__mocks__/nullValues.yaml",
         });
-      expect(data.name).toBe("test");
-      expect(data.nullField).toBeUndefined();
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("is null"));
-      warnSpy.mockRestore();
+      const nameNode = result.data.name as unknown as ConfigNode;
+      expect(nameNode.value).toBe("test");
+      expect(result.data.nullField).toBeUndefined();
+      expect(result.warnings).toEqual(
+        expect.arrayContaining([expect.stringContaining("is null")]),
+      );
     });
   });
 
   describe("env mapping without env loading", () => {
     it("should warn when options have env mappings but env loading is disabled", () => {
-      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-      option
+      const result = option
         .schema({
           host: option.string({ env: "DB_HOST", defaultValue: "localhost" }),
           port: option.number({ env: "DB_PORT", defaultValue: 3000 }),
         })
-        .load({
+        .loadExtended({
           env: false,
           args: false,
         });
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining("env mappings but env loading is disabled"),
+      expect(result.warnings).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining("env mappings but env loading is disabled"),
+        ]),
       );
-      warnSpy.mockRestore();
     });
 
     it("should list the affected option paths in the warning", () => {
-      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-      option
+      const result = option
         .schema({
           host: option.string({ env: "DB_HOST", defaultValue: "localhost" }),
           port: option.number({ env: "DB_PORT", defaultValue: 3000 }),
         })
-        .load({
+        .loadExtended({
           env: false,
           args: false,
         });
-      const warning = warnSpy.mock.calls.find(
-        (call) =>
-          typeof call[0] === "string" &&
-          (call[0] as string).includes("env mappings"),
-      );
+      const warning = result.warnings.find((w) => w.includes("env mappings"));
       expect(warning).toBeDefined();
-      expect(warning![0]).toContain("host");
-      expect(warning![0]).toContain("port");
-      warnSpy.mockRestore();
+      expect(warning).toContain("host");
+      expect(warning).toContain("port");
     });
 
     it("should not warn when env loading is enabled", () => {
-      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-      option
+      const result = option
         .schema({
           host: option.string({ env: "DB_HOST", defaultValue: "localhost" }),
         })
-        .load({
+        .loadExtended({
           env: true,
           args: false,
         });
-      const envMappingWarnings = warnSpy.mock.calls.filter(
-        (call) =>
-          typeof call[0] === "string" &&
-          (call[0] as string).includes(
-            "env mappings but env loading is disabled",
-          ),
+      const envMappingWarnings = result.warnings.filter((w) =>
+        w.includes("env mappings but env loading is disabled"),
       );
       expect(envMappingWarnings).toHaveLength(0);
-      warnSpy.mockRestore();
     });
 
     it("should not warn when no options have env mappings", () => {
-      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-      option
+      const result = option
         .schema({
           host: option.string({ defaultValue: "localhost" }),
         })
-        .load({
+        .loadExtended({
           env: false,
           args: false,
         });
-      const envMappingWarnings = warnSpy.mock.calls.filter(
-        (call) =>
-          typeof call[0] === "string" &&
-          (call[0] as string).includes(
-            "env mappings but env loading is disabled",
-          ),
+      const envMappingWarnings = result.warnings.filter((w) =>
+        w.includes("env mappings but env loading is disabled"),
       );
       expect(envMappingWarnings).toHaveLength(0);
-      warnSpy.mockRestore();
     });
 
     it("should not warn when envFile is set (env mappings used via .env files)", () => {
-      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
-      option
+      const result = option
         .schema({
           host: option.string({ env: "DB_HOST" }),
           port: option.number({ env: "DB_PORT" }),
         })
-        .load({
+        .loadExtended({
           env: false,
           args: false,
           envFile: "tests/__mocks__/settings/env-file/.env",
         });
-      const envMappingWarnings = warnSpy.mock.calls.filter(
-        (call) =>
-          typeof call[0] === "string" &&
-          (call[0] as string).includes(
-            "env mappings but env loading is disabled",
-          ),
+      const envMappingWarnings = result.warnings.filter((w) =>
+        w.includes("env mappings but env loading is disabled"),
       );
       expect(envMappingWarnings).toHaveLength(0);
-      warnSpy.mockRestore();
     });
   });
 

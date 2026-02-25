@@ -8,7 +8,8 @@ export interface ConfigErrorEntry {
     | "type_conversion"
     | "invalid_path"
     | "invalid_state"
-    | "file_validation";
+    | "file_validation"
+    | "null_value";
   line?: number;
   column?: number;
 }

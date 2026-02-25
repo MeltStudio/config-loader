@@ -278,7 +278,7 @@ Use `loadExtended()` instead of `load()` to get each value wrapped in a `ConfigN
 ```typescript
 import c from "@meltstudio/config-loader";
 
-const extended = c
+const { data, warnings } = c
   .schema({
     port: c.number({ required: true, env: "PORT" }),
     host: c.string({ defaultValue: "localhost" }),
@@ -289,7 +289,12 @@ const extended = c
     files: "./config.yaml",
   });
 
-// Each leaf is a ConfigNode with:
+// `warnings` is a string[] of non-fatal issues (e.g. type coercions, unused env mappings)
+if (warnings.length > 0) {
+  warnings.forEach((w) => console.warn(w));
+}
+
+// Each leaf in `data` is a ConfigNode with:
 // {
 //   value: 3000,
 //   path: "port",
@@ -300,9 +305,9 @@ const extended = c
 //   line: 5 | null,      // source line (1-based) for YAML, JSON, and .env files; null for env/args/default
 //   column: 3 | null      // source column (1-based) for YAML, JSON, and .env files; null for env/args/default
 // }
-console.log(extended.port.value); // 3000
-console.log(extended.port.sourceType); // "env"
-console.log(extended.port.variableName); // "PORT"
+console.log(data.port.value); // 3000
+console.log(data.port.sourceType); // "env"
+console.log(data.port.variableName); // "PORT"
 ```
 
 This is useful for debugging configuration resolution, building admin UIs that show where each setting originated, or auditing which sources are active.
@@ -330,11 +335,7 @@ try {
 }
 ```
 
-For CLI tools that prefer the old exit-on-error behavior:
-
-```typescript
-.load({ env: true, args: true, files: "./config.yaml", exitOnError: true })
-```
+Warnings (non-fatal issues like type coercions) are never printed to the console. Use `loadExtended()` to access them, or they are included in `ConfigLoadError.warnings` when errors occur.
 
 ## CLI Arguments
 

@@ -1,6 +1,6 @@
 import type { Node } from "@/option";
 import Settings from "@/settings";
-import type { NodeTree, SchemaValue, SettingsSources } from "@/types";
+import type { ExtendedResult, SchemaValue, SettingsSources } from "@/types";
 
 export class SettingsBuilder<T extends Node> {
   private readonly schema: T;
@@ -14,8 +14,13 @@ export class SettingsBuilder<T extends Node> {
     return settings.get();
   }
 
-  public loadExtended(sources: SettingsSources<SchemaValue<T>>): NodeTree {
+  public loadExtended(
+    sources: SettingsSources<SchemaValue<T>>,
+  ): ExtendedResult {
     const settings = new Settings(this.schema, sources);
-    return settings.getExtended();
+    return {
+      data: settings.getExtended(),
+      warnings: settings.getWarnings(),
+    };
   }
 }
