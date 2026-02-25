@@ -371,7 +371,6 @@ describe("option", () => {
         );
         expect(errors.errors).toContainEqual(
           expect.objectContaining({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
               /Cannot convert value 'test' for 'test\.string' to boolean in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./,
             ),
@@ -470,7 +469,6 @@ describe("option", () => {
           );
           expect(errors.errors).toContainEqual(
             expect.objectContaining({
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               message: expect.stringMatching(
                 /Cannot convert value 'test' for 'test\.string' to number in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./,
               ),
@@ -535,7 +533,6 @@ describe("option", () => {
       );
       expect(errors.errors).toContainEqual(
         expect.objectContaining({
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           message: expect.stringMatching(
             /Invalid state\. Invalid kind in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?/,
           ),
