@@ -1,6 +1,6 @@
 {
   "name": "@meltstudio/config-loader",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "Type-safe configuration loader with full TypeScript inference. Load from YAML, JSON, .env, environment variables, and CLI args.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

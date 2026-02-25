@@ -1,3 +1,10 @@
+# [3.5.0](https://github.com/MeltStudio/config-loader/compare/v3.4.0...v3.5.0) (2026-02-25)
+
+
+### Features
+
+* add sensitive field marking and maskSecrets utility ([1b5128e](https://github.com/MeltStudio/config-loader/commit/1b5128e20f51ea04236ebf55ccddb383a9ce588b)), closes [#86](https://github.com/MeltStudio/config-loader/issues/86)
+
 # [3.4.0](https://github.com/MeltStudio/config-loader/compare/v3.3.0...v3.4.0) (2026-02-25)
 
 
