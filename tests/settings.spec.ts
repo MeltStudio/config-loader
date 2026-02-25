@@ -1,8 +1,16 @@
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+
 import type { ConfigErrorEntry } from "@/errors";
-import { ConfigLoadError } from "@/errors";
+import { ConfigFileError, ConfigLoadError } from "@/errors";
 import ConfigNode from "@/nodes/configNode";
 import OptionErrors from "@/option/errors";
 import option from "@/src";
+import {
+  ConfigFileError as ReExportedConfigFileError,
+  ConfigLoadError as ReExportedConfigLoadError,
+} from "@/src";
 
 import { addCliArg } from "./utils/cli";
 
@@ -37,6 +45,19 @@ afterEach(() => {
 afterAll(() => {
   process.env = savedProcessEnv;
   process.argv = savedProcessArgs;
+});
+
+describe("public API re-exports", () => {
+  it("should re-export ConfigFileError from the main entry point", () => {
+    expect(ReExportedConfigFileError).toBe(ConfigFileError);
+    expect(new ReExportedConfigFileError("test")).toBeInstanceOf(
+      ConfigFileError,
+    );
+  });
+
+  it("should re-export ConfigLoadError from the main entry point", () => {
+    expect(ReExportedConfigLoadError).toBe(ConfigLoadError);
+  });
 });
 
 describe("Settings", () => {
@@ -2386,6 +2407,166 @@ describe("Settings", () => {
         });
       expect(data.host).toBe("cli-host");
       expect(data.port).toBe(5432);
+    });
+  });
+
+  describe("optional field with no value from any source", () => {
+    it("should return undefined for optional fields not present anywhere", () => {
+      const data = option
+        .schema({
+          name: option.string({ required: true }),
+          missing: option.string(),
+        })
+        .load({
+          env: false,
+          args: false,
+          files: "tests/__mocks__/nullValues.yaml",
+        });
+      expect(data.name).toBe("test");
+      expect(data.missing).toBeUndefined();
+    });
+  });
+
+  describe("env variable set to empty string", () => {
+    it("should fall through to file value when env var is empty string", () => {
+      process.env.MY_HOST = "";
+      const data = option
+        .schema({
+          host: option.string({ env: "MY_HOST", defaultValue: "fallback" }),
+        })
+        .load({
+          env: true,
+          args: false,
+        });
+      // Empty string is falsy, so env source is skipped and default is used
+      expect(data.host).toBe("fallback");
+    });
+  });
+
+  describe("boolean field receiving an object value from config", () => {
+    it("should throw an error when a boolean field receives an object", () => {
+      const errors = getLoadErrors(() =>
+        option
+          .schema({
+            object: option.bool({ required: true }),
+          })
+          .load({
+            env: false,
+            args: false,
+            files: "tests/__mocks__/fileMock.yaml",
+          }),
+      );
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].message).toMatch(/Cannot convert/);
+    });
+  });
+
+  describe("exitOnError", () => {
+    it("should call process.exit(1) and console.error instead of throwing when exitOnError is true", () => {
+      const exitSpy = jest.spyOn(process, "exit").mockImplementation(() => {
+        throw new Error("process.exit");
+      });
+      const errorSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      expect(() =>
+        option
+          .schema({
+            host: option.string({ required: true }),
+          })
+          .load({
+            dir: "tests/__mocks__/settings/defaults",
+            env: false,
+            args: false,
+            exitOnError: true,
+          }),
+      ).toThrow("process.exit");
+
+      expect(exitSpy).toHaveBeenCalledWith(1);
+      expect(errorSpy).toHaveBeenCalled();
+      expect(
+        (errorSpy.mock.calls[0]![0] as string).startsWith("[Error]:"),
+      ).toBe(true);
+
+      exitSpy.mockRestore();
+      errorSpy.mockRestore();
+    });
+  });
+
+  describe("null values in config files", () => {
+    it("should throw when a required field has a null value in the YAML file", () => {
+      const errors = getLoadErrors(() =>
+        option
+          .schema({
+            nullField: option.string({ required: true }),
+          })
+          .load({
+            env: false,
+            args: false,
+            files: "tests/__mocks__/nullValues.yaml",
+          }),
+      );
+      expect(errors.length).toBeGreaterThan(0);
+    });
+
+    it("should throw when a required nested field has a null value", () => {
+      const errors = getLoadErrors(() =>
+        option
+          .schema({
+            nested: option.object({
+              item: {
+                nullChild: option.string({ required: true }),
+              },
+            }),
+          })
+          .load({
+            env: false,
+            args: false,
+            files: "tests/__mocks__/nullValues.yaml",
+          }),
+      );
+      expect(errors.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("empty directory", () => {
+    let tempDir: string;
+
+    beforeEach(() => {
+      tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cl-test-"));
+    });
+
+    afterEach(() => {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    });
+
+    it("should throw ConfigFileError when dir is empty", () => {
+      expect(() =>
+        option
+          .schema({
+            host: option.string(),
+          })
+          .load({
+            dir: tempDir,
+            env: false,
+            args: false,
+          }),
+      ).toThrow(ConfigFileError);
+    });
+
+    it("should include 'is empty' in the error message for an empty directory", () => {
+      expect(() =>
+        option
+          .schema({
+            host: option.string(),
+          })
+          .load({
+            dir: tempDir,
+            env: false,
+            args: false,
+          }),
+      ).toThrow(/is empty/);
     });
   });
 });

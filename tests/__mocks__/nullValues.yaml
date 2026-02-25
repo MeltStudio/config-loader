@@ -1,0 +1,5 @@
+name: test
+nullField: null
+nested:
+  nullChild: null
+  valid: hello

@@ -4,7 +4,11 @@ import {
   OptionErrors,
   PrimitiveOption,
 } from "@/option";
+import type { Value } from "@/option/base";
+import OptionBase from "@/option/base";
 import optionFn from "@/src";
+import type { ConfigFileData, Path } from "@/types";
+import { InvalidValue } from "@/types";
 
 const FILE = "./tests/__mocks__/fileMock.yaml";
 
@@ -536,6 +540,71 @@ describe("option", () => {
           ),
         }),
       );
+    });
+  });
+
+  describe("when checkType receives an InvalidValue", () => {
+    it("should push an invalid_state error", () => {
+      const option = new PrimitiveOption({
+        kind: "string",
+        required: false,
+        env: null,
+        cli: false,
+        help: "",
+      });
+      option.checkType(
+        new InvalidValue(),
+        ["test", "path"],
+        "testFile.yaml",
+        errors,
+      );
+      expect(errors.errors).toHaveLength(1);
+      expect(errors.errors[0].kind).toBe("invalid_state");
+    });
+  });
+
+  describe("when ArrayOption.buildArrayOption receives a null item", () => {
+    it("should push an invalid_state error", () => {
+      const arrayOpt = new ArrayOption({
+        // @ts-expect-error - To test null item validation
+        kind: "array",
+        required: false,
+        env: null,
+        cli: false,
+        help: "",
+        item: null as any,
+      });
+      const result = arrayOpt.buildArrayOption(["a", "b"], errors);
+      expect(result).toBeInstanceOf(InvalidValue);
+      expect(errors.errors).toHaveLength(1);
+      expect(errors.errors[0].kind).toBe("invalid_state");
+    });
+  });
+
+  describe("findInObject with empty path", () => {
+    // Subclass to expose the protected findInObject method
+    class TestableOption extends OptionBase {
+      public exposedFindInObject(
+        obj: ConfigFileData,
+        path: Path,
+        optionErrors?: OptionErrors,
+      ): Value {
+        return this.findInObject(obj, path, optionErrors) as Value;
+      }
+    }
+
+    it("should push an invalid_path error when path is empty", () => {
+      const opt = new TestableOption({
+        kind: "string",
+        required: false,
+        env: null,
+        cli: false,
+        help: "",
+      });
+      const result = opt.exposedFindInObject({ key: "value" }, [], errors);
+      expect(result).toBeInstanceOf(InvalidValue);
+      expect(errors.errors).toHaveLength(1);
+      expect(errors.errors[0].kind).toBe("invalid_path");
     });
   });
 });

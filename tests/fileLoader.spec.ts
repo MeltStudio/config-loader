@@ -59,6 +59,33 @@ describe("loadConfigFile", () => {
     expect(loc!.line).toBeGreaterThan(0);
   });
 
+  it("should support string path in JSON sourceMap lookup", () => {
+    const { sourceMap } = loadConfigFile("tests/__mocks__/fileMock.json");
+    // lookup with string instead of array — hits the non-Array.isArray branch
+    const loc = sourceMap!.lookup("object.name");
+    expect(loc).toBeDefined();
+    expect(loc).toHaveProperty("line", expect.any(Number));
+    expect(loc).toHaveProperty("column", expect.any(Number));
+    // should match the array-based lookup
+    const locFromArray = sourceMap!.lookup(["object", "name"]);
+    expect(loc).toEqual(locFromArray);
+  });
+
+  it("should handle non-Error throw during YAML parsing", () => {
+    const yaml = require("js-yaml");
+    const originalLoad = yaml.load;
+    yaml.load = () => {
+      throw "string error";
+    };
+    try {
+      expect(() => loadConfigFile("tests/__mocks__/fileMock.yaml")).toThrow(
+        /Unknown parsing error/,
+      );
+    } finally {
+      yaml.load = originalLoad;
+    }
+  });
+
   it("should throw ConfigFileError for invalid YAML", () => {
     expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.yaml")).toThrow(
       ConfigFileError,

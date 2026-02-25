@@ -105,6 +105,17 @@ describe("loadEnvFile", () => {
     }
   });
 
+  it("should skip lines with empty key (e.g. '=value')", () => {
+    const { entries } = loadEnvFile(
+      "tests/__mocks__/settings/env-file/.env.emptykey",
+    );
+    // The line "=no_key_value" should be skipped because the key is empty
+    const keys = Array.from(entries.keys());
+    expect(keys).not.toContain("");
+    // But valid keys should still be parsed
+    expect(entries.get("VALID_KEY")!.value).toBe("valid");
+  });
+
   it("should handle values containing = signs", () => {
     const tmpPath = "tests/__mocks__/tmp_eq.env";
     fs.writeFileSync(
