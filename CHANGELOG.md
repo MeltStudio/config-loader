@@ -1,3 +1,10 @@
+# [3.7.0](https://github.com/MeltStudio/config-loader/compare/v3.6.0...v3.7.0) (2026-02-25)
+
+
+### Features
+
+* add watch mode with file watching, config diffing, and auto-reload ([fc192f9](https://github.com/MeltStudio/config-loader/commit/fc192f9c0d85f99d9d618c8f290c6e272120cdda))
+
 # [3.6.0](https://github.com/MeltStudio/config-loader/compare/v3.5.0...v3.6.0) (2026-02-25)
 
 
