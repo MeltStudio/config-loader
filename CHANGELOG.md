@@ -1,3 +1,12 @@
+# [3.2.0](https://github.com/MeltStudio/config-loader/compare/v3.1.0...v3.2.0) (2026-02-25)
+
+
+### Features
+
+* add printConfig() debug helper for loadExtended() results ([9e6caca](https://github.com/MeltStudio/config-loader/commit/9e6cacaab28641231000b7eb391bd5f22ffb0789))
+* export utility types for advanced use cases ([053a87d](https://github.com/MeltStudio/config-loader/commit/053a87dd7adaa75c02c57ab5719e0588b3dfe677))
+* improve error messages with actionable hints and better context ([d456f92](https://github.com/MeltStudio/config-loader/commit/d456f92f9fc24cddb78d4774e57cee3a52888689))
+
 # [3.1.0](https://github.com/MeltStudio/config-loader/compare/v3.0.2...v3.1.0) (2026-02-25)
 
 
