@@ -30,7 +30,7 @@
     "replace-tspaths": "./scripts/replace-tspaths/index.mjs",
     "example:run": "ts-node -r tsconfig-paths/register ./example/index.ts",
     "prepare": "husky",
-    "docs:build": "docusaurus build",
+    "docs:build": "docusaurus build && node scripts/fix-llms-urls.mjs",
     "docs:serve": "docusaurus serve",
     "docs:start": "docusaurus start"
   },
