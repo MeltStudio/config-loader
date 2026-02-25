@@ -66,6 +66,7 @@ No separate interface to maintain. No `as` casts. The types flow from the schema
 - **`.env` file support** — load environment variables from `.env` files with automatic line tracking
 - **Nested objects and arrays** — deeply nested configs with full type safety
 - **Structured errors** — typed `ConfigLoadError` with per-field error details and warnings
+- **Enum constraints** — restrict values to a fixed set with `oneOf`, with full type narrowing
 - **Schema validation** — optional per-field validation via [Standard Schema](https://github.com/standard-schema/standard-schema) (Zod, Valibot, ArkType, or custom)
 - **Strict mode** — promote warnings to errors for production safety
 - **Default values** — static or computed (via functions)
@@ -257,6 +258,45 @@ c.array({
   }),
 }); // { name: string; age: number }[]
 ```
+
+## Enum Constraints (`oneOf`)
+
+Use `oneOf` to restrict a field to a fixed set of allowed values. The check runs after type coercion and before any `validate` schema:
+
+```typescript
+const config = c
+  .schema({
+    env: c.string({
+      env: "NODE_ENV",
+      defaultValue: "development",
+      oneOf: ["development", "staging", "production"],
+    }),
+    logLevel: c.number({
+      env: "LOG_LEVEL",
+      defaultValue: 1,
+      oneOf: [0, 1, 2, 3],
+    }),
+  })
+  .load({ env: true, args: false });
+```
+
+If a value is not in the allowed set, a `ConfigLoadError` is thrown with `kind: "validation"`.
+
+### Type Narrowing
+
+When `oneOf` is provided, the inferred type is automatically narrowed to the union of the allowed values:
+
+```typescript
+const config = c
+  .schema({
+    env: c.string({ oneOf: ["dev", "staging", "prod"] }),
+  })
+  .load({ env: false, args: false });
+
+// config.env is typed as "dev" | "staging" | "prod", not string
+```
+
+When used with `cli: true`, the `--help` output automatically lists the allowed values.
 
 ## Validation
 
