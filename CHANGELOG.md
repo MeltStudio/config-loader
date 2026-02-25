@@ -1,3 +1,10 @@
+# [3.6.0](https://github.com/MeltStudio/config-loader/compare/v3.5.0...v3.6.0) (2026-02-25)
+
+
+### Features
+
+* add TOML file support ([d895bb6](https://github.com/MeltStudio/config-loader/commit/d895bb68a159a7fed548efaa0e7973aa8acf2b46))
+
 # [3.5.0](https://github.com/MeltStudio/config-loader/compare/v3.4.0...v3.5.0) (2026-02-25)
 
 
