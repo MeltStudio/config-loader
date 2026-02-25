@@ -1,0 +1,30 @@
+string = "testString"
+number = 1
+stringArray = ["test"]
+numberArray = [1]
+
+[object]
+value = 1
+name = "testing"
+
+[[objectArray]]
+value = 1
+name = "testing"
+
+[test]
+boolean = true
+booleanAsString = "true"
+number = 1883
+numberAsString = "1883"
+string = "test"
+array = ["test", "test2"]
+booleanAsNumber = 1
+booleanAsStringNumber = "1"
+
+[test.any]
+
+[test2]
+
+[[test2.nestedObjectArray]]
+name = "test"
+value = 42

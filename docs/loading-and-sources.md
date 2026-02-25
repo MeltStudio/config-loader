@@ -26,7 +26,8 @@ const config = c
   args: true,         // Read from CLI arguments (--database.port 3000)
   files: "./config.yaml",                    // Single YAML file
   files: "./config.json",                    // Single JSON file
-  files: ["./base.yaml", "./overrides.json"], // Mix YAML and JSON (first takes priority)
+  files: "./config.toml",                    // Single TOML file
+  files: ["./base.yaml", "./overrides.json"], // Mix formats (first takes priority)
   dir: "./config.d/",                        // All files in a directory (sorted)
   envFile: "./.env",                         // Single .env file
   envFile: ["./.env", "./.env.local"],       // Multiple .env files (later overrides earlier)
@@ -34,7 +35,7 @@ const config = c
 })
 ```
 
-Both YAML (`.yaml`, `.yml`) and JSON (`.json`) files are supported. The format is detected automatically from the file extension.
+YAML (`.yaml`, `.yml`), JSON (`.json`), and TOML (`.toml`) files are supported. The format is detected automatically from the file extension.
 
 ### Priority Order
 
@@ -42,7 +43,7 @@ Both YAML (`.yaml`, `.yml`) and JSON (`.json`) files are supported. The format i
 
 ## Config Files
 
-Load from one or more YAML/JSON files, or from an entire directory:
+Load from one or more YAML/JSON/TOML files, or from an entire directory:
 
 ```typescript
 // Single file
@@ -173,8 +174,8 @@ if (warnings.length > 0) {
 //   file: "./config.yaml" | "./.env" | null,
 //   variableName: "PORT" | null,
 //   argName: null,
-//   line: 5 | null,      // source line (1-based) for YAML, JSON, and .env files
-//   column: 3 | null      // source column (1-based) for YAML, JSON, and .env files
+//   line: 5 | null,      // source line (1-based) for YAML, JSON, TOML, and .env files
+//   column: 3 | null      // source column (1-based) for YAML, JSON, TOML, and .env files
 // }
 console.log(data.port.value); // 3000
 console.log(data.port.sourceType); // "env"

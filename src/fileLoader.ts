@@ -2,6 +2,7 @@ import * as fs from "fs";
 import yaml from "js-yaml";
 import SourceMap from "js-yaml-source-map";
 import * as path from "path";
+import { parse as parseToml } from "smol-toml";
 
 import { ConfigFileError } from "@/errors";
 import type { ConfigFileData } from "@/types";
@@ -101,9 +102,63 @@ class JsonSourceMap implements SourceMapLike {
   }
 }
 
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function walkTomlObject(
+  obj: Record<string, unknown>,
+  prefix: string[],
+  lines: string[],
+  locations: Map<string, SourceLocation>,
+): void {
+  for (const key of Object.keys(obj)) {
+    const fullPath = [...prefix, key].join(".");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const keyPattern = new RegExp(`^\\s*${escapeRegex(key)}\\s*=`);
+      if (keyPattern.test(line)) {
+        const idx = line.indexOf(key);
+        locations.set(fullPath, {
+          line: i + 1,
+          column: idx + 1,
+          position: 0,
+        });
+        break;
+      }
+    }
+
+    const val = obj[key];
+    if (val && typeof val === "object" && !Array.isArray(val)) {
+      walkTomlObject(
+        val as Record<string, unknown>,
+        [...prefix, key],
+        lines,
+        locations,
+      );
+    }
+  }
+}
+
+function buildTomlSourceMap(
+  content: string,
+  data: Record<string, unknown>,
+): SourceMapLike {
+  const locations = new Map<string, SourceLocation>();
+  const lines = content.split("\n");
+  walkTomlObject(data, [], lines, locations);
+  return {
+    lookup(lookupPath: string | string[]): SourceLocation | undefined {
+      const key = Array.isArray(lookupPath) ? lookupPath.join(".") : lookupPath;
+      return locations.get(key);
+    },
+  };
+}
+
 /**
  * Loads a config file and parses it based on its extension.
  * - `.json` files are parsed with JSON.parse
+ * - `.toml` files are parsed with smol-toml
  * - `.yaml` / `.yml` files (and any other extension as fallback) are parsed with js-yaml
  * Throws ConfigFileError if the file cannot be parsed.
  * Results are cached by file path — repeated calls for the same path skip disk I/O.
@@ -120,6 +175,16 @@ export function loadConfigFile(filePath: string): LoadResult {
       const result: LoadResult = {
         data: JSON.parse(content) as ConfigFileData,
         sourceMap: new JsonSourceMap(content),
+      };
+      fileCache.set(filePath, result);
+      return result;
+    }
+
+    if (ext === ".toml") {
+      const data = parseToml(content) as ConfigFileData;
+      const result: LoadResult = {
+        data,
+        sourceMap: buildTomlSourceMap(content, data as Record<string, unknown>),
       };
       fileCache.set(filePath, result);
       return result;

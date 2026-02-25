@@ -23,6 +23,12 @@ describe("loadConfigFile", () => {
     expect(data).toHaveProperty("string", "testString");
   });
 
+  it("should load a TOML file", () => {
+    const { data } = loadConfigFile("tests/__mocks__/fileMock.toml");
+    expect(data).toHaveProperty("string", "testString");
+    expect(data).toHaveProperty("number", 1);
+  });
+
   it("should return equivalent data from both JSON and YAML", () => {
     const { data: yamlData } = loadConfigFile("tests/__mocks__/fileMock.yaml");
     const { data: jsonData } = loadConfigFile("tests/__mocks__/fileMock.json");
@@ -69,6 +75,48 @@ describe("loadConfigFile", () => {
     // should match the array-based lookup
     const locFromArray = sourceMap!.lookup(["object", "name"]);
     expect(loc).toEqual(locFromArray);
+  });
+
+  it("should return equivalent data from TOML, JSON, and YAML", () => {
+    const { data: yamlData } = loadConfigFile("tests/__mocks__/fileMock.yaml");
+    const { data: tomlData } = loadConfigFile("tests/__mocks__/fileMock.toml");
+    // TOML key ordering differs from JSON/YAML, so compare deeply with toEqual
+    expect(tomlData).toEqual(yamlData);
+  });
+
+  it("should return a sourceMap for TOML files", () => {
+    const { sourceMap } = loadConfigFile("tests/__mocks__/fileMock.toml");
+    expect(sourceMap).not.toBeNull();
+    const loc = sourceMap!.lookup(["object", "name"]);
+    expect(loc).toBeDefined();
+    expect(loc).toHaveProperty("line", expect.any(Number));
+    expect(loc).toHaveProperty("column", expect.any(Number));
+  });
+
+  it("should track line numbers for top-level TOML keys", () => {
+    const { sourceMap } = loadConfigFile("tests/__mocks__/fileMock.toml");
+    expect(sourceMap).not.toBeNull();
+    const loc = sourceMap!.lookup(["string"]);
+    expect(loc).toBeDefined();
+    expect(loc!.line).toBeGreaterThan(0);
+  });
+
+  it("should support string path in TOML sourceMap lookup", () => {
+    const { sourceMap } = loadConfigFile("tests/__mocks__/fileMock.toml");
+    const loc = sourceMap!.lookup("object.name");
+    expect(loc).toBeDefined();
+    expect(loc).toHaveProperty("line", expect.any(Number));
+    const locFromArray = sourceMap!.lookup(["object", "name"]);
+    expect(loc).toEqual(locFromArray);
+  });
+
+  it("should throw ConfigFileError for invalid TOML", () => {
+    expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.toml")).toThrow(
+      ConfigFileError,
+    );
+    expect(() => loadConfigFile("tests/__mocks__/invalidSyntax.toml")).toThrow(
+      /Failed to parse config file/,
+    );
   });
 
   it("should handle non-Error throw during YAML parsing", () => {

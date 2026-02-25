@@ -4,7 +4,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 const config: Config = {
   title: "@meltstudio/config-loader",
   tagline:
-    "A type-safe configuration loader for Node.js — YAML, JSON, .env, environment variables, and CLI arguments.",
+    "A type-safe configuration loader for Node.js — YAML, JSON, TOML, .env, environment variables, and CLI arguments.",
   url: "https://meltstudio.github.io",
   baseUrl: "/config-loader/",
 
