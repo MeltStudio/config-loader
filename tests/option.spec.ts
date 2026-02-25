@@ -165,7 +165,8 @@ describe("option", () => {
       );
       expect(errors.errors).toContainEqual(
         expect.objectContaining({
-          message: "Required option 'site.test' not provided.",
+          message:
+            "Required option 'site.test' is missing. Set it via config file key: site.test.",
         }),
       );
     });
@@ -497,7 +498,8 @@ describe("option", () => {
           );
           expect(errors.errors).toContainEqual(
             expect.objectContaining({
-              message: "Required option 'test.undefined' not provided.",
+              message:
+                "Required option 'test.undefined' is missing. Set it via config file key: test.undefined.",
             }),
           );
         });

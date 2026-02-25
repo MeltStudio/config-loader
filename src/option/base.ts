@@ -197,7 +197,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (this.params.cli && args) {
       if (ident in args) {
         return new ConfigNode(
-          this.checkType(args[ident], path, "args", errors),
+          this.checkType(args[ident], path, `CLI argument --${ident}`, errors),
           ident,
           "args",
           null,
@@ -218,7 +218,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
           );
           if (envFileSource) {
             return new ConfigNode(
-              this.checkType(val, path, "envFile", errors),
+              this.checkType(
+                val,
+                path,
+                `env file ${envFileSource.filePath} (${this.params.env})`,
+                errors,
+              ),
               ident,
               "envFile",
               envFileSource.filePath,
@@ -229,7 +234,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
             );
           }
           return new ConfigNode(
-            this.checkType(val, path, "env", errors),
+            this.checkType(
+              val,
+              path,
+              `environment variable ${this.params.env}`,
+              errors,
+            ),
             ident,
             "env",
             null,
@@ -335,8 +345,14 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
 
     // If required and no value anywhere
     if (this.params.required) {
+      const hints: string[] = [];
+      if (this.params.env)
+        hints.push(`environment variable ${this.params.env}`);
+      if (this.params.cli) hints.push(`CLI argument --${ident}`);
+      hints.push(`config file key: ${ident}`);
+      const hint = hints.join(", ");
       errors?.errors.push({
-        message: `Required option '${ident}' not provided.`,
+        message: `Required option '${ident}' is missing. Set it via ${hint}.`,
         path: ident,
         kind: "required",
       });
@@ -367,8 +383,10 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       const source =
         node.file ?? node.variableName ?? node.argName ?? node.sourceType;
       for (const issue of result.issues) {
+        const sourceLabel =
+          source !== node.sourceType ? ` (source: ${source})` : "";
         errors?.errors.push({
-          message: `Validation failed for '${ident}': ${issue.message}`,
+          message: `Validation failed for '${ident}'${sourceLabel}: ${issue.message}`,
           path: ident,
           source,
           kind: "validation",
@@ -496,28 +514,28 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
 
       if (typeof val === "string") {
         errors?.errors.push({
-          message: `Cant get path from string value '${val}'`,
+          message: `Cannot traverse into '${path.join(".")}': expected an object but found a string '${val}'`,
           kind: "invalid_path",
         });
         return new InvalidValue();
       }
       if (typeof val === "number") {
         errors?.errors.push({
-          message: `Cant get path from number value '${val}'`,
+          message: `Cannot traverse into '${path.join(".")}': expected an object but found a number '${val}'`,
           kind: "invalid_path",
         });
         return new InvalidValue();
       }
       if (typeof val === "boolean") {
         errors?.errors.push({
-          message: `Cant get path from boolean value '${val.toString()}'`,
+          message: `Cannot traverse into '${path.join(".")}': expected an object but found a boolean '${val.toString()}'`,
           kind: "invalid_path",
         });
         return new InvalidValue();
       }
       if (Array.isArray(val)) {
         errors?.errors.push({
-          message: `Cant get path from array value '${valueToString(val)}'`,
+          message: `Cannot traverse into '${path.join(".")}': expected an object but found an array '${valueToString(val)}'`,
           kind: "invalid_path",
         });
         return new InvalidValue();

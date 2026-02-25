@@ -19,7 +19,7 @@ export function validateFiles(
       const result: string[] = [];
       files.forEach((file) => {
         if (!fs.existsSync(file)) {
-          throw new ConfigFileError(`Invalid config file '${file}'`);
+          throw new ConfigFileError(`Config file '${file}' does not exist`);
         } else {
           result.push(file);
         }
@@ -27,7 +27,7 @@ export function validateFiles(
       sourceFile = result;
     } else {
       if (!fs.existsSync(files)) {
-        throw new ConfigFileError(`Invalid config file '${files}'`);
+        throw new ConfigFileError(`Config file '${files}' does not exist`);
       }
       sourceFile = files;
     }
@@ -35,7 +35,9 @@ export function validateFiles(
 
   if (dir) {
     if (!(fs.existsSync(dir) && fs.lstatSync(dir).isDirectory())) {
-      throw new ConfigFileError(`'${dir}' not exists or is not a dir`);
+      throw new ConfigFileError(
+        `Config directory '${dir}' does not exist or is not a directory`,
+      );
     }
     const filesInDirectory = fs.readdirSync(dir).sort();
 

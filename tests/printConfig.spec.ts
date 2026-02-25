@@ -16,7 +16,7 @@ function makeNode(
   },
 ): ConfigNode {
   return new ConfigNode(
-    value,
+    value as string,
     path,
     sourceType,
     opts?.file ?? null,

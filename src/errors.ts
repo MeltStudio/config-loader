@@ -33,9 +33,16 @@ export class ConfigLoadError extends Error {
   public readonly warnings: string[];
 
   constructor(errors: ConfigErrorEntry[], warnings: string[]) {
-    const message = `Configuration loading failed with ${errors.length} error${
-      errors.length === 1 ? "" : "s"
-    }`;
+    const count = errors.length;
+    const summary = `Configuration loading failed with ${count} error${count === 1 ? "" : "s"}`;
+    const details = errors
+      .slice(0, 10)
+      .map((e, i) => `  ${i + 1}. ${e.message}`)
+      .join("\n");
+    const message =
+      count > 0
+        ? `${summary}:\n${details}`
+        : /* istanbul ignore next */ summary;
     super(message);
     this.name = "ConfigLoadError";
     this.errors = errors;

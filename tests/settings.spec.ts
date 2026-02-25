@@ -351,7 +351,8 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            message: "Required option 'hardware.type' not provided.",
+            message:
+              "Required option 'hardware.type' is missing. Set it via environment variable SITE_ID, config file key: hardware.type.",
           }),
         );
       });
@@ -384,7 +385,8 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            message: "Required option 'hardware.brand' not provided.",
+            message:
+              "Required option 'hardware.brand' is missing. Set it via config file key: hardware.brand.",
           }),
         );
       });
@@ -436,7 +438,8 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            message: "Required option 'database.engines' not provided.",
+            message:
+              "Required option 'database.engines' is missing. Set it via config file key: database.engines.",
           }),
         );
       });
@@ -482,7 +485,8 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            message: "Required option 'database.ram' not provided.",
+            message:
+              "Required option 'database.ram' is missing. Set it via config file key: database.ram.",
           }),
         );
       });
@@ -568,7 +572,8 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            message: "Required option 'database.sizeOptions' not provided.",
+            message:
+              "Required option 'database.sizeOptions' is missing. Set it via config file key: database.sizeOptions.",
           }),
         );
       });
@@ -694,7 +699,8 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            message: "Required option 'database.bool1' not provided.",
+            message:
+              "Required option 'database.bool1' is missing. Set it via config file key: database.bool1.",
           }),
         );
       });
@@ -798,7 +804,8 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            message: "Required option 'database.bools' not provided.",
+            message:
+              "Required option 'database.bools' is missing. Set it via config file key: database.bools.",
           }),
         );
       });
@@ -902,7 +909,8 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            message: "Required option 'database.engines' not provided.",
+            message:
+              "Required option 'database.engines' is missing. Set it via config file key: database.engines.",
           }),
         );
       });
@@ -935,7 +943,7 @@ describe("Settings", () => {
         ).toThrow();
         // TODO: Fix the messages thrown by this test, it should say that the problem is database.engines, not its children
         // expect(OptionErrors.errors).toContain(
-        //   "Required option 'database.bools' not provided."
+        //   "Required option 'database.bools' is missing. Set it via config file key: database.bools."
         // );
       });
     });
@@ -1039,13 +1047,15 @@ describe("Settings", () => {
             }),
         );
         [
-          "Cant get path from string value 'PostgreSQL'",
-          "Cant get path from number value '4'",
-          "Cant get path from boolean value 'true'",
-          "Cant get path from array value '[1986,1990,1995]'",
-        ].forEach((error) => {
+          /Cannot traverse into '.*': expected an object but found a string 'PostgreSQL'/,
+          /Cannot traverse into '.*': expected an object but found a number '4'/,
+          /Cannot traverse into '.*': expected an object but found a boolean 'true'/,
+          /Cannot traverse into '.*': expected an object but found an array '\[1986,1990,1995\]'/,
+        ].forEach((pattern) => {
           expect(loadErrors).toContainEqual(
-            expect.objectContaining({ message: error }),
+            expect.objectContaining({
+              message: expect.stringMatching(pattern),
+            }),
           );
         });
       });
@@ -1561,9 +1571,9 @@ describe("Settings", () => {
             }),
         );
         const errors = [
-          "Required option 'database.engine.name' not provided.",
-          "Required option 'database.engine.minRam' not provided.",
-          "Required option 'database.engine.openSource' not provided.",
+          "Required option 'database.engine.name' is missing. Set it via config file key: database.engine.name.",
+          "Required option 'database.engine.minRam' is missing. Set it via config file key: database.engine.minRam.",
+          "Required option 'database.engine.openSource' is missing. Set it via config file key: database.engine.openSource.",
         ];
         errors.forEach((error) => {
           expect(loadErrors).toContainEqual(
@@ -1599,7 +1609,7 @@ describe("Settings", () => {
               ],
             }),
         ).toThrow(
-          "Invalid config file 'tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml'",
+          "Config file 'tests/__mocks__/settings/multiple-files/file-not-found/missing-file.yaml' does not exist",
         );
       });
     });
@@ -1794,9 +1804,9 @@ describe("Settings", () => {
             }),
         );
         const errors = [
-          "Required option 'database.engine.name' not provided.",
-          "Required option 'database.engine.minRam' not provided.",
-          "Required option 'database.engine.openSource' not provided.",
+          "Required option 'database.engine.name' is missing. Set it via config file key: database.engine.name.",
+          "Required option 'database.engine.minRam' is missing. Set it via config file key: database.engine.minRam.",
+          "Required option 'database.engine.openSource' is missing. Set it via config file key: database.engine.openSource.",
         ];
         errors.forEach((error) => {
           expect(loadErrors).toContainEqual(
@@ -1829,7 +1839,7 @@ describe("Settings", () => {
               dir: "tests/__mocks__/settings/missing-dir",
             }),
         ).toThrow(
-          "'tests/__mocks__/settings/missing-dir' not exists or is not a dir",
+          "Config directory 'tests/__mocks__/settings/missing-dir' does not exist or is not a directory",
         );
       });
     });
@@ -1871,7 +1881,7 @@ describe("Settings", () => {
             args: false,
             files: "filemock.yaml",
           }),
-      ).toThrow("Invalid config file 'filemock.yaml'");
+      ).toThrow("Config file 'filemock.yaml' does not exist");
     });
   });
 
