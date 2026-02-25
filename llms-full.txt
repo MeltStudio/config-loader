@@ -677,4 +677,4 @@ If the parent object is entirely absent from all sources, child `required` field
 
 ## License
 
-This package is licensed under the Apache License 2.0. See the [LICENSE](https://github.com/MeltStudio/config-loader/blob/main/LICENSE) file for details.
+This package is licensed under the MIT License. See the [LICENSE](https://github.com/MeltStudio/config-loader/blob/main/LICENSE) file for details.
