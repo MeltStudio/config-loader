@@ -60,7 +60,8 @@ No separate interface to maintain. No `as` casts. The types flow from the schema
 - **Priority resolution** — CLI > process.env > `.env` files > Config files > Defaults
 - **`.env` file support** — load environment variables from `.env` files with automatic line tracking
 - **Nested objects and arrays** — deeply nested configs with full type safety
-- **Structured errors** — typed `ConfigLoadError` with per-field error details instead of `process.exit(1)`
+- **Structured errors** — typed `ConfigLoadError` with per-field error details and warnings
+- **Strict mode** — promote warnings to errors for production safety
 - **Default values** — static or computed (via functions)
 - **Multiple files / directory loading** — load from a list of files or an entire directory
 
@@ -432,6 +433,182 @@ The `.env` parser supports:
 - Empty values (`KEY=`)
 
 When using `loadExtended()`, values from `.env` files have `sourceType: "envFile"` with `file`, `line`, and `column` metadata pointing to the `.env` file location.
+
+## Common Patterns
+
+### Load from YAML with env overrides
+
+```typescript
+import c from "@meltstudio/config-loader";
+
+const config = c
+  .schema({
+    port: c.number({ required: true, env: "PORT", defaultValue: 3000 }),
+    host: c.string({ required: true, env: "HOST", defaultValue: "localhost" }),
+  })
+  .load({ env: true, args: false, files: "./config.yaml" });
+```
+
+### Strict mode for production
+
+```typescript
+const config = c
+  .schema({
+    port: c.number({ required: true, env: "PORT" }),
+    dbUrl: c.string({ required: true, env: "DATABASE_URL" }),
+  })
+  .load({
+    env: true,
+    args: false,
+    files: "./config.yaml",
+    strict: true, // any type coercion or ambiguity throws an error
+  });
+```
+
+### Catch and inspect errors
+
+```typescript
+import c, { ConfigLoadError } from "@meltstudio/config-loader";
+
+try {
+  const config = c
+    .schema({ port: c.number({ required: true }) })
+    .load({ env: false, args: false, files: "./config.yaml" });
+} catch (err) {
+  if (err instanceof ConfigLoadError) {
+    for (const entry of err.errors) {
+      console.error(`[${entry.kind}] ${entry.path}: ${entry.message}`);
+    }
+    // err.warnings contains non-fatal issues
+  }
+}
+```
+
+### Load from a directory of config files
+
+```typescript
+const config = c
+  .schema({
+    port: c.number({ required: true }),
+    host: c.string({ required: true }),
+  })
+  .load({ env: false, args: false, dir: "./config.d/" });
+// All YAML/JSON files in the directory are loaded and merged (sorted by filename)
+```
+
+### Access source metadata with loadExtended
+
+```typescript
+const { data, warnings } = c
+  .schema({
+    port: c.number({ required: true, env: "PORT" }),
+  })
+  .loadExtended({ env: true, args: false, files: "./config.yaml" });
+
+const portNode = data.port; // ConfigNode
+console.log(portNode.value); // 3000
+console.log(portNode.sourceType); // "env" | "file" | "default" | "args" | "envFile"
+console.log(portNode.file); // "./config.yaml" or null
+console.log(portNode.line); // source line number or null
+```
+
+### Combine .env files with process.env
+
+```typescript
+const config = c
+  .schema({
+    apiKey: c.string({ required: true, env: "API_KEY" }),
+    debug: c.bool({ env: "DEBUG", defaultValue: false }),
+  })
+  .load({
+    env: true, // reads process.env
+    args: false,
+    envFile: ["./.env", "./.env.local"], // .env.local overrides .env
+  });
+// Priority: process.env > .env.local > .env > defaults
+```
+
+## Common Mistakes
+
+### Forgetting `item` in `c.object()`
+
+```typescript
+// WRONG — fields are passed directly
+c.object({ host: c.string(), port: c.number() });
+
+// CORRECT — fields must be inside `item`
+c.object({ item: { host: c.string(), port: c.number() } });
+```
+
+### Setting `env` on an option but not enabling env loading
+
+```typescript
+// WRONG — env: "PORT" is set but env loading is disabled
+c.schema({ port: c.number({ env: "PORT" }) }).load({
+  env: false,
+  args: false,
+  files: "./config.yaml",
+});
+// This emits a warning: "Options [port] have env mappings but env loading is disabled"
+
+// CORRECT — set env: true in load options
+c.schema({ port: c.number({ env: "PORT" }) }).load({
+  env: true,
+  args: false,
+  files: "./config.yaml",
+});
+```
+
+### Expecting `.env` files to work without `envFile`
+
+```typescript
+// WRONG — .env files are not loaded by default
+c.schema({ key: c.string({ env: "API_KEY" }) }).load({
+  env: true,
+  args: false,
+});
+// This only reads process.env, not .env files
+
+// CORRECT — explicitly pass envFile
+c.schema({ key: c.string({ env: "API_KEY" }) }).load({
+  env: true,
+  args: false,
+  envFile: "./.env",
+});
+```
+
+### Not catching `ConfigLoadError`
+
+```typescript
+// WRONG — unhandled error crashes the process with an unhelpful stack trace
+const config = c
+  .schema({ port: c.number({ required: true }) })
+  .load({ env: false, args: false });
+
+// CORRECT — catch and handle structured errors
+try {
+  const config = c
+    .schema({ port: c.number({ required: true }) })
+    .load({ env: false, args: false });
+} catch (err) {
+  if (err instanceof ConfigLoadError) {
+    console.error(err.errors); // structured error details
+  }
+}
+```
+
+### Using `required: true` on nested fields without the parent object
+
+If the parent object is entirely absent from all sources, child `required` fields will still trigger errors. Use `required` on the parent `c.object()` only if the entire subtree must be present.
+
+## Documentation for AI Agents
+
+This project provides machine-readable documentation for AI coding agents at the docs site:
+
+- **[llms.txt](https://meltstudio.github.io/config-loader/llms.txt)** — structured index of documentation pages
+- **[llms-full.txt](https://meltstudio.github.io/config-loader/llms-full.txt)** — full documentation in a single Markdown file
+
+These files follow the [llms.txt standard](https://llmstxt.org/) and are generated automatically at build time. They are designed to be consumed by AI tools like Claude Code, Cursor, GitHub Copilot, and other LLM-based development assistants.
 
 ## License
 
