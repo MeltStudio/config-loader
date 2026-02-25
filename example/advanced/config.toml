@@ -1,0 +1,9 @@
+host = "localhost"
+port = 8080
+logLevel = 1
+
+[database]
+host = "db.local"
+port = 5432
+username = "admin"
+password = "s3cret"

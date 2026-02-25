@@ -8,7 +8,7 @@ title: Getting Started
 
 A type-safe configuration loader for Node.js. Define your schema once, load from YAML, JSON, or TOML files, `.env` files, environment variables, and CLI arguments — and get a fully typed result with zero manual type annotations.
 
-> **Upgrading from v1?** v1.x is deprecated. v2 includes breaking changes to the public API, object schema syntax, and requires Node.js >= 20. Install the latest version with `npm install @meltstudio/config-loader@latest` or `yarn add @meltstudio/config-loader@latest`.
+> **Upgrading from v1?** v1.x is deprecated and no longer maintained. Install the latest version with `npm install @meltstudio/config-loader@latest` or `yarn add @meltstudio/config-loader@latest`.
 
 ## Why config-loader?
 

@@ -13,7 +13,8 @@ yarn test                # Run Jest tests (verbose)
 yarn build               # Build with tsup (outputs to ./dist)
 yarn lint                # ESLint with --max-warnings=0 --fix
 yarn type-check          # tsc --noEmit
-yarn example:run         # Run example app with ts-node
+yarn example:basic       # Run basic example with ts-node
+yarn example:advanced    # Run advanced example with ts-node
 ```
 
 Run a single test file: `yarn test -- --testPathPattern=settings`

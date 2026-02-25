@@ -2,7 +2,7 @@
 
 A type-safe configuration loader for Node.js. Define your schema once, load from YAML, JSON, or TOML files, `.env` files, environment variables, and CLI arguments — and get a fully typed result with zero manual type annotations.
 
-> **Upgrading from v1?** v1.x is deprecated. v2 includes breaking changes to the public API, object schema syntax, and requires Node.js >= 20. Install the latest version with `npm install @meltstudio/config-loader@latest` or `yarn add @meltstudio/config-loader@latest`.
+> **Upgrading from v1?** v1.x is deprecated and no longer maintained. Install the latest version with `npm install @meltstudio/config-loader@latest` or `yarn add @meltstudio/config-loader@latest`.
 
 **[Full documentation](https://meltstudio.github.io/config-loader/)**
 
@@ -74,6 +74,18 @@ See the **[full documentation](https://meltstudio.github.io/config-loader/)** fo
 - [Schema API](https://meltstudio.github.io/config-loader/schema-api) — primitives, objects, arrays, `oneOf`, `sensitive`, validation
 - [Loading & Sources](https://meltstudio.github.io/config-loader/loading-and-sources) — `load()`, `loadExtended()`, file/env/CLI/.env sources, `printConfig()`, `maskSecrets()`, error handling, strict mode
 - [TypeScript Utilities](https://meltstudio.github.io/config-loader/typescript-utilities) — `SchemaValue`, exported types, type narrowing
+
+## Examples
+
+The [`example/`](./example) directory contains runnable examples:
+
+- **[Basic](./example/basic)** — Schema definition, YAML file loading, nested objects and arrays, CLI arguments
+- **[Advanced](./example/advanced)** — TOML config, `.env` files, `oneOf` constraints, `sensitive` fields, validation, `printConfig()`, `maskSecrets()`, error handling
+
+```bash
+yarn example:basic
+yarn example:advanced
+```
 
 ## Documentation for AI Agents
 
