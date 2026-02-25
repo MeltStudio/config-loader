@@ -1,0 +1,9 @@
+# @meltstudio/config-loader
+
+> A type-safe configuration loader for Node.js — YAML, JSON, .env, environment variables, and CLI arguments.
+
+This file contains links to documentation sections following the llmstxt.org standard.
+
+## Table of Contents
+
+- [@meltstudio/config-loader](https://meltstudio.github.io/docs/intro): A type-safe configuration loader for Node.js. Define your schema once, load from YAML or JSON files, `.env` files, environment variables, and CLI a...
