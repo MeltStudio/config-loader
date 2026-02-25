@@ -367,6 +367,12 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         );
         return val.toString();
       }
+      if (typeof val === "boolean") {
+        errors?.warnings.push(
+          `The option ${ident} is stated as a string but is provided as a boolean`,
+        );
+        return val.toString();
+      }
       errors?.errors.push({
         message: `Cannot convert value '${valueToString(
           val,
@@ -379,10 +385,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     }
     if (this.params.kind === "boolean") {
       if (typeof val !== "boolean" && typeof val !== "object") {
-        if ([1, "1", "true"].includes(val)) {
+        const normalized = typeof val === "string" ? val.toLowerCase() : val;
+        if ([1, "1", "true", "yes"].includes(normalized)) {
           return true;
         }
-        if ([0, "0", "false"].includes(val)) {
+        if ([0, "0", "false", "no"].includes(normalized)) {
           return false;
         }
       }

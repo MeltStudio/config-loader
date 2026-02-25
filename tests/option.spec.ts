@@ -282,8 +282,8 @@ describe("option", () => {
         true,
       );
     });
-    describe("if the option value is different of a number", () => {
-      it("should save an error", () => {
+    describe("if the option value is a boolean", () => {
+      it("should coerce to string with a warning", () => {
         const option = new PrimitiveOption({
           kind: "string",
           required: true,
@@ -291,7 +291,7 @@ describe("option", () => {
           cli: false,
           help: "",
         });
-        option.getValue(
+        const result = option.getValue(
           FILE,
           ENV,
           {},
@@ -301,13 +301,14 @@ describe("option", () => {
           undefined,
           errors,
         );
-        expect(errors.errors).toContainEqual(
-          expect.objectContaining({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            message: expect.stringMatching(
-              /Cannot convert value 'true' for 'test\.boolean' to string in \.\/tests\/__mocks__\/fileMock\.yaml(:\d+:\d+)?\./,
-            ),
-          }),
+        expect(result).toMatchObject({
+          value: "true",
+          sourceType: "file",
+        });
+        expect(errors.warnings).toContainEqual(
+          expect.stringContaining(
+            "stated as a string but is provided as a boolean",
+          ),
         );
       });
     });

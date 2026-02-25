@@ -2457,6 +2457,117 @@ describe("Settings", () => {
     });
   });
 
+  describe("type coercion consistency", () => {
+    it("should coerce boolean to string with a warning", () => {
+      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+      const data = option
+        .schema({
+          test: option.object({
+            item: {
+              boolean: option.string(),
+            },
+          }),
+        })
+        .load({
+          env: false,
+          args: false,
+          files: "tests/__mocks__/fileMock.yaml",
+        });
+      expect(data.test.boolean).toBe("true");
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "stated as a string but is provided as a boolean",
+        ),
+      );
+      warnSpy.mockRestore();
+    });
+
+    it("should accept case-insensitive boolean strings from env vars", () => {
+      process.env.MY_BOOL = "TRUE";
+      const data = option
+        .schema({
+          flag: option.bool({ env: "MY_BOOL" }),
+        })
+        .load({
+          env: true,
+          args: false,
+        });
+      expect(data.flag).toBe(true);
+    });
+
+    it("should accept 'yes' as boolean true from env vars", () => {
+      process.env.MY_BOOL = "yes";
+      const data = option
+        .schema({
+          flag: option.bool({ env: "MY_BOOL" }),
+        })
+        .load({
+          env: true,
+          args: false,
+        });
+      expect(data.flag).toBe(true);
+    });
+
+    it("should accept 'no' as boolean false from env vars", () => {
+      process.env.MY_BOOL = "no";
+      const data = option
+        .schema({
+          flag: option.bool({ env: "MY_BOOL" }),
+        })
+        .load({
+          env: true,
+          args: false,
+        });
+      expect(data.flag).toBe(false);
+    });
+
+    it("should accept 'Yes' as boolean true (case-insensitive)", () => {
+      process.env.MY_BOOL = "Yes";
+      const data = option
+        .schema({
+          flag: option.bool({ env: "MY_BOOL" }),
+        })
+        .load({
+          env: true,
+          args: false,
+        });
+      expect(data.flag).toBe(true);
+    });
+
+    it("should accept 'FALSE' as boolean false (case-insensitive)", () => {
+      process.env.MY_BOOL = "FALSE";
+      const data = option
+        .schema({
+          flag: option.bool({ env: "MY_BOOL" }),
+        })
+        .load({
+          env: true,
+          args: false,
+        });
+      expect(data.flag).toBe(false);
+    });
+
+    it("should still reject invalid boolean strings", () => {
+      process.env.MY_BOOL = "maybe";
+      const errors = getLoadErrors(() =>
+        option
+          .schema({
+            flag: option.bool({ env: "MY_BOOL", required: true }),
+          })
+          .load({
+            env: true,
+            args: false,
+          }),
+      );
+      expect(errors).toContainEqual(
+        expect.objectContaining({
+          kind: "type_conversion",
+          message: expect.stringContaining("Cannot convert"),
+        }),
+      );
+    });
+  });
+
   describe("boolean field receiving an object value from config", () => {
     it("should throw an error when a boolean field receives an object", () => {
       const errors = getLoadErrors(() =>
@@ -2588,6 +2699,112 @@ describe("Settings", () => {
       expect(data.name).toBe("test");
       expect(data.nullField).toBeUndefined();
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("is null"));
+      warnSpy.mockRestore();
+    });
+  });
+
+  describe("env mapping without env loading", () => {
+    it("should warn when options have env mappings but env loading is disabled", () => {
+      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+      option
+        .schema({
+          host: option.string({ env: "DB_HOST", defaultValue: "localhost" }),
+          port: option.number({ env: "DB_PORT", defaultValue: 3000 }),
+        })
+        .load({
+          env: false,
+          args: false,
+        });
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("env mappings but env loading is disabled"),
+      );
+      warnSpy.mockRestore();
+    });
+
+    it("should list the affected option paths in the warning", () => {
+      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+      option
+        .schema({
+          host: option.string({ env: "DB_HOST", defaultValue: "localhost" }),
+          port: option.number({ env: "DB_PORT", defaultValue: 3000 }),
+        })
+        .load({
+          env: false,
+          args: false,
+        });
+      const warning = warnSpy.mock.calls.find(
+        (call) =>
+          typeof call[0] === "string" &&
+          (call[0] as string).includes("env mappings"),
+      );
+      expect(warning).toBeDefined();
+      expect(warning![0]).toContain("host");
+      expect(warning![0]).toContain("port");
+      warnSpy.mockRestore();
+    });
+
+    it("should not warn when env loading is enabled", () => {
+      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+      option
+        .schema({
+          host: option.string({ env: "DB_HOST", defaultValue: "localhost" }),
+        })
+        .load({
+          env: true,
+          args: false,
+        });
+      const envMappingWarnings = warnSpy.mock.calls.filter(
+        (call) =>
+          typeof call[0] === "string" &&
+          (call[0] as string).includes(
+            "env mappings but env loading is disabled",
+          ),
+      );
+      expect(envMappingWarnings).toHaveLength(0);
+      warnSpy.mockRestore();
+    });
+
+    it("should not warn when no options have env mappings", () => {
+      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+      option
+        .schema({
+          host: option.string({ defaultValue: "localhost" }),
+        })
+        .load({
+          env: false,
+          args: false,
+        });
+      const envMappingWarnings = warnSpy.mock.calls.filter(
+        (call) =>
+          typeof call[0] === "string" &&
+          (call[0] as string).includes(
+            "env mappings but env loading is disabled",
+          ),
+      );
+      expect(envMappingWarnings).toHaveLength(0);
+      warnSpy.mockRestore();
+    });
+
+    it("should not warn when envFile is set (env mappings used via .env files)", () => {
+      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+      option
+        .schema({
+          host: option.string({ env: "DB_HOST" }),
+          port: option.number({ env: "DB_PORT" }),
+        })
+        .load({
+          env: false,
+          args: false,
+          envFile: "tests/__mocks__/settings/env-file/.env",
+        });
+      const envMappingWarnings = warnSpy.mock.calls.filter(
+        (call) =>
+          typeof call[0] === "string" &&
+          (call[0] as string).includes(
+            "env mappings but env loading is disabled",
+          ),
+      );
+      expect(envMappingWarnings).toHaveLength(0);
       warnSpy.mockRestore();
     });
   });
