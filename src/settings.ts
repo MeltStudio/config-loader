@@ -63,8 +63,26 @@ class Settings<T extends Node> {
     this.envData = mergedEnvData;
   }
 
+  private checkEnvMappingsWithoutEnvLoading(): void {
+    if (this.sources.env) return;
+    if (this.sources.envFile) return;
+    const envMappedOptions: string[] = [];
+    this.traverseOptions(this.schema, [], (node, path) => {
+      if (node.params.env) {
+        envMappedOptions.push(path.join("."));
+      }
+    });
+    if (envMappedOptions.length > 0) {
+      this.errors.warnings.push(
+        `Options [${envMappedOptions.join(", ")}] have env mappings but env loading is disabled. ` +
+          `Set 'env: true' in load options to read from environment variables.`,
+      );
+    }
+  }
+
   private load(): void {
     this.validateAndLoadFiles();
+    this.checkEnvMappingsWithoutEnvLoading();
     if (this.sources.env) {
       this.envData = { ...process.env };
     }
