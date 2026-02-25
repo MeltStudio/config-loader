@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/MeltStudio/config-loader/compare/v3.3.0...v3.4.0) (2026-02-25)
+
+
+### Features
+
+* add oneOf enum constraint with type narrowing ([d240a76](https://github.com/MeltStudio/config-loader/commit/d240a762cb468942ac0d1e4ec2d443131cd3dfed)), closes [#85](https://github.com/MeltStudio/config-loader/issues/85)
+
 # [3.3.0](https://github.com/MeltStudio/config-loader/compare/v3.2.0...v3.3.0) (2026-02-25)
 
 
