@@ -681,4 +681,4 @@ These files follow the [llms.txt standard](https://llmstxt.org/) and are generat
 
 ## License
 
-This package is licensed under the Apache License 2.0. See the [LICENSE](./LICENSE) file for details.
+This package is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.

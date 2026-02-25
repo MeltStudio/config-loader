@@ -42,6 +42,13 @@ npx jest --testNamePattern "should validate string options"
 4. Update `README.md` and `docs/intro.md` if user-facing
 5. Run `yarn build` and verify the types in `dist/index.d.ts`
 6. All checks must pass: `yarn test && yarn lint && yarn type-check`
+7. Open a pull request against `main`
+
+Use [conventional commits](https://www.conventionalcommits.org/) for your commit messages — semantic-release uses them to determine version bumps:
+
+- `feat: add new feature` → minor version bump
+- `fix: resolve bug` → patch version bump
+- `feat!: breaking change` or footer `BREAKING CHANGE:` → major version bump
 
 ## Project Structure
 
@@ -104,6 +111,10 @@ Releases are fully automated via [semantic-release](https://github.com/semantic-
 - ESLint with `--max-warnings=0` (zero tolerance)
 - Prettier via pre-commit hook (Husky + lint-staged)
 - Naming: camelCase for variables, PascalCase for types/classes, UPPER_CASE for enum members
+
+## License
+
+By submitting a pull request, you agree that your contributions are licensed under the [MIT License](./LICENSE).
 
 ## Questions?
 

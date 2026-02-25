@@ -56,7 +56,7 @@ const config: Config = {
     },
     footer: {
       style: "dark",
-      copyright: `Copyright ${new Date().getFullYear()} MeltStudio. Apache-2.0 License.`,
+      copyright: `Copyright ${new Date().getFullYear()} MeltStudio. MIT License.`,
     },
   } satisfies Preset.ThemeConfig,
 };

@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "repository": "https://github.com/MeltStudio/config-loader",
   "author": "MeltStudio <dev@meltstudio.co>",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "engines": {
     "node": ">=20"
   },
