@@ -21,6 +21,8 @@ class ConfigNode {
 
   column: number | null;
 
+  sensitive: boolean;
+
   constructor(
     value: Value | ArrayValue,
     path: string,
@@ -30,6 +32,7 @@ class ConfigNode {
     argName: string | null,
     line: number | null = null,
     column: number | null = null,
+    sensitive: boolean = false,
   ) {
     this.value = value;
     this.path = path;
@@ -39,6 +42,7 @@ class ConfigNode {
     this.argName = argName;
     this.line = line;
     this.column = column;
+    this.sensitive = sensitive;
   }
 }
 

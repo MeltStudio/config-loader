@@ -75,7 +75,7 @@ function flattenTree(tree: NodeTree, prefix: string = ""): Row[] {
       } else {
         rows.push({
           path,
-          value: formatValue(entry.value),
+          value: entry.sensitive ? "***" : formatValue(entry.value),
           source: entry.sourceType,
           detail: formatDetail(entry),
         });

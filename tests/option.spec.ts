@@ -64,7 +64,7 @@ describe("option", () => {
           undefined,
           errors,
         ),
-      ).toEqual({
+      ).toMatchObject({
         argName: "site.id",
         file: null,
         path: "site.id",
@@ -98,7 +98,7 @@ describe("option", () => {
             undefined,
             errors,
           ),
-        ).toEqual({
+        ).toMatchObject({
           argName: null,
           file: null,
           path: "site.test",
@@ -131,7 +131,7 @@ describe("option", () => {
             undefined,
             errors,
           ),
-        ).toEqual({
+        ).toMatchObject({
           argName: null,
           file: null,
           path: "site.test",

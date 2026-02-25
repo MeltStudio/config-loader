@@ -6,6 +6,7 @@ import type { SchemaValue, StandardSchemaV1 } from "./types";
 
 export type { ConfigErrorEntry } from "./errors";
 export { ConfigFileError, ConfigLoadError } from "./errors";
+export { maskSecrets } from "./maskSecrets";
 export { default as ConfigNode } from "./nodes/configNode";
 export { default as ConfigNodeArray } from "./nodes/configNodeArray";
 export { printConfig } from "./printConfig";
@@ -30,6 +31,8 @@ interface OptionPropsArgs<T> {
   defaultValue?: T | (() => T);
   /** Help text shown in CLI `--help` output. */
   help?: string;
+  /** Mark this field as sensitive. Sensitive values are masked by `printConfig()` and `maskSecrets()`. */
+  sensitive?: boolean;
   /** Restrict the value to a fixed set of allowed values. Checked after type coercion, before `validate`. */
   oneOf?: readonly T[];
   /** Standard Schema validator run after type coercion. Accepts Zod, Valibot, ArkType, or any Standard Schema v1 implementation. */

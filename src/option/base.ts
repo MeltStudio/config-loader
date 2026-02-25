@@ -45,6 +45,7 @@ interface OptionClassParams<T extends OptionKind> {
   env: string | null;
   cli: boolean;
   help: string;
+  sensitive?: boolean;
   defaultValue?: TypedDefaultValue<T>;
   oneOf?: ReadonlyArray<string | number | boolean>;
   validate?: StandardSchemaV1;
@@ -167,6 +168,10 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       envFileResults,
       errors,
     );
+
+    if (resolved && this.params.sensitive) {
+      resolved.sensitive = true;
+    }
 
     if (resolved && this.params.oneOf) {
       const passed = this.runOneOfCheck(resolved, path, errors);

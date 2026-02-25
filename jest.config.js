@@ -27,6 +27,7 @@ module.exports = {
     "^@/fileLoader$": "<rootDir>/src/fileLoader",
     "^@/envFileLoader$": "<rootDir>/src/envFileLoader",
     "^@/printConfig$": "<rootDir>/src/printConfig",
+    "^@/maskSecrets$": "<rootDir>/src/maskSecrets",
   },
   reporters: [
     "default",

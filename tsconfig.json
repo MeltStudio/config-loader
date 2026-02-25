@@ -21,7 +21,8 @@
       "@/utils": ["src/utils"],
       "@/fileLoader": ["src/fileLoader"],
       "@/envFileLoader": ["src/envFileLoader"],
-      "@/printConfig": ["src/printConfig"]
+      "@/printConfig": ["src/printConfig"],
+      "@/maskSecrets": ["src/maskSecrets"]
     }
   },
   "include": ["src", "tests", "example"]
