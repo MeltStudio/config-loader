@@ -60,4 +60,4 @@ type Config = SchemaValue<typeof schema>;
 
 ## License
 
-This package is licensed under the MIT License. See the [LICENSE](https://github.com/MeltStudio/config-loader/blob/main/LICENSE) file for details.
+Built by [Melt Studio](https://meltstudio.co). Licensed under the [MIT License](https://github.com/MeltStudio/config-loader/blob/main/LICENSE).
