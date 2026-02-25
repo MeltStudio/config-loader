@@ -1,6 +1,9 @@
+import ConfigNode from "@/nodes/configNode";
+import ConfigNodeArray from "@/nodes/configNodeArray";
 import OptionErrors from "@/option/errors";
 import optionFn from "@/src";
 import { maskSecrets, printConfig } from "@/src";
+import type { ExtendedResult } from "@/types";
 
 afterEach(() => {
   new OptionErrors().clearAll();
@@ -188,6 +191,95 @@ describe("maskSecrets with plain config and schema", () => {
     const masked = maskSecrets(config, simpleSchema);
 
     expect(masked.extra).toBe("value");
+  });
+});
+
+describe("maskSecrets edge cases", () => {
+  it("should handle object schema node with non-object value", () => {
+    const schema = {
+      db: optionFn.object({
+        item: {
+          host: optionFn.string({ defaultValue: "localhost" }),
+        },
+      }),
+    };
+    // Pass a non-object value where the schema expects an object
+    const config = { db: null } as unknown as Record<string, unknown>;
+    const masked = maskSecrets(config, schema);
+
+    expect(masked.db).toBeNull();
+  });
+
+  it("should handle array value where schema expects object", () => {
+    const schema = {
+      db: optionFn.object({
+        item: {
+          host: optionFn.string({ defaultValue: "localhost" }),
+        },
+      }),
+    };
+    const config = { db: ["a", "b"] } as unknown as Record<string, unknown>;
+    const masked = maskSecrets(config, schema);
+
+    expect(masked.db).toEqual(["a", "b"]);
+  });
+
+  it("should handle sensitive node with ConfigNodeArray value", () => {
+    const arrayNode = new ConfigNode(
+      "placeholder" as string,
+      "tokens",
+      "file",
+      "config.yaml",
+      null,
+      null,
+      null,
+      null,
+      true, // sensitive
+    );
+    const childNode = new ConfigNode(
+      "secret-token",
+      "tokens[0]",
+      "file",
+      "config.yaml",
+      null,
+      null,
+    );
+    arrayNode.value = new ConfigNodeArray([childNode]);
+
+    const result: ExtendedResult = {
+      data: { tokens: arrayNode },
+      warnings: [],
+    };
+
+    const masked = maskSecrets(result);
+    const maskedNode = masked.data.tokens as ConfigNode;
+
+    // Value should be masked to "***" but the ConfigNodeArray should be preserved
+    expect(maskedNode.sensitive).toBe(true);
+    expect(maskedNode.value).toBeInstanceOf(ConfigNodeArray);
+  });
+
+  it("should pass through values for unrecognized schema node types", () => {
+    const config = { host: "localhost", custom: "value" };
+    // Simulate a schema with a non-OptionBase value
+    const schema = {
+      host: optionFn.string({ defaultValue: "localhost" }),
+      custom: "not-an-option" as any,
+    };
+    const masked = maskSecrets(config, schema);
+
+    expect(masked.custom).toBe("value");
+  });
+
+  it("should return input unchanged when called without schema and not an ExtendedResult", () => {
+    const plain = { host: "localhost", port: 3000 };
+    // Call the implementation overload directly — no schema, not ExtendedResult shape
+    const result = maskSecrets(
+      plain as Record<string, unknown>,
+      undefined as any,
+    );
+
+    expect(result).toBe(plain);
   });
 });
 

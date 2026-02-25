@@ -314,6 +314,31 @@ describe("Standard Schema validation", () => {
     });
   });
 
+  describe("async validators", () => {
+    it("should throw when validator returns a Promise", () => {
+      const asyncValidator: StandardSchemaV1<number> = {
+        "~standard": {
+          version: 1,
+          vendor: "test",
+          validate() {
+            return Promise.resolve({ value: 42 });
+          },
+        },
+      };
+
+      expect(() =>
+        optionFn
+          .schema({
+            port: optionFn.number({
+              defaultValue: 3000,
+              validate: asyncValidator,
+            }),
+          })
+          .load({ env: false, args: false }),
+      ).toThrow("Async validators are not supported");
+    });
+  });
+
   describe("skips validation on missing optional values", () => {
     it("should not validate when optional value is not provided", () => {
       const neverValidValidator: StandardSchemaV1<string> = {

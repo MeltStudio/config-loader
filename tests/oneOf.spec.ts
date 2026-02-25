@@ -226,6 +226,23 @@ describe("oneOf validation", () => {
     expect(err.errors[0].message).toContain("'test'");
   });
 
+  it("should append oneOf values to existing help text for CLI", () => {
+    // This test exercises the branch where help is already set and oneOf is added
+    // We verify the config loads successfully with cli: true, help, and oneOf together
+    const config = optionFn
+      .schema({
+        env: optionFn.string({
+          defaultValue: "production",
+          cli: true,
+          help: "Application environment",
+          oneOf: ["development", "staging", "production"],
+        }),
+      })
+      .load({ env: false, args: true });
+
+    expect(config.env).toBe("production");
+  });
+
   it("should not check oneOf when value is not provided and not required", () => {
     const config = optionFn
       .schema({

@@ -16,7 +16,7 @@ function truncate(str: string, max: number): string {
 
 function formatValue(val: unknown): string {
   if (val === null || val === undefined) return "";
-  if (typeof val === "object") return JSON.stringify(val) ?? "";
+  if (typeof val === "object") return JSON.stringify(val);
   if (typeof val === "string") return val;
   return `${val as number | boolean}`;
 }

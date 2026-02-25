@@ -232,6 +232,67 @@ describe("printConfig", () => {
     consoleSpy.mockRestore();
   });
 
+  it("should handle null and undefined values", () => {
+    const result: ExtendedResult = {
+      data: {
+        nullVal: makeNode(null, "nullVal", "default"),
+        undefVal: makeNode(undefined, "undefVal", "default"),
+      },
+      warnings: [],
+    };
+
+    const output = printConfig(result, { silent: true });
+    expect(output).toContain("nullVal");
+    expect(output).toContain("undefVal");
+  });
+
+  it("should handle object values", () => {
+    const result: ExtendedResult = {
+      data: {
+        meta: makeNode({ nested: "value" }, "meta", "default"),
+      },
+      warnings: [],
+    };
+
+    const output = printConfig(result, { silent: true });
+    expect(output).toContain('{"nested":"value"}');
+  });
+
+  it("should handle file source without file path", () => {
+    const node = new ConfigNode(
+      "test" as string,
+      "key",
+      "file",
+      null,
+      null,
+      null,
+    );
+    const result: ExtendedResult = {
+      data: { key: node },
+      warnings: [],
+    };
+
+    const output = printConfig(result, { silent: true });
+    expect(output).toContain("key");
+    expect(output).toContain("test");
+  });
+
+  it("should handle file source with line but no column", () => {
+    const result: ExtendedResult = {
+      data: {
+        host: makeNode("localhost", "host", "file", {
+          file: "config.yaml",
+          line: 5,
+        }),
+      },
+      warnings: [],
+    };
+
+    const output = printConfig(result, { silent: true });
+    expect(output).toContain("config.yaml:5");
+    expect(output).not.toContain("config.yaml:5:");
+  });
+
   it("should draw proper table borders", () => {
     const result: ExtendedResult = {
       data: {
