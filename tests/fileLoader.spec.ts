@@ -1,8 +1,11 @@
 import { ConfigFileError } from "@/errors";
 import { clearFileCache, loadConfigFile } from "@/fileLoader";
+import OptionErrors from "@/option/errors";
+import c from "@/src";
 
 afterEach(() => {
   clearFileCache();
+  new OptionErrors().clearAll();
 });
 
 describe("loadConfigFile", () => {
@@ -176,5 +179,58 @@ describe("file cache", () => {
     const second = loadConfigFile("tests/__mocks__/fileMock.yaml");
     expect(second).not.toBe(first);
     expect(second.data).toStrictEqual(first.data);
+  });
+});
+
+describe("TOML integration with schema pipeline", () => {
+  it("should load a TOML file through c.schema().load()", () => {
+    const config = c
+      .schema({
+        port: c.number({ required: true }),
+        host: c.string({ required: true }),
+        database: c.object({
+          item: {
+            host: c.string({ required: true }),
+            port: c.number({ required: true }),
+            credentials: c.object({
+              item: {
+                username: c.string(),
+                password: c.string(),
+              },
+            }),
+          },
+        }),
+      })
+      .load({
+        env: false,
+        args: false,
+        files: "tests/__mocks__/configMock.toml",
+      });
+
+    expect(config.port).toBe(8080);
+    expect(config.host).toBe("toml-host");
+    expect(config.database.host).toBe("db.toml.local");
+    expect(config.database.port).toBe(5432);
+    expect(config.database.credentials.username).toBe("toml-admin");
+    expect(config.database.credentials.password).toBe("toml-secret");
+  });
+
+  it("should load a TOML file through c.schema().loadExtended()", () => {
+    const { data } = c
+      .schema({
+        port: c.number({ required: true }),
+        host: c.string({ required: true }),
+      })
+      .loadExtended({
+        env: false,
+        args: false,
+        files: "tests/__mocks__/configMock.toml",
+      });
+
+    expect(data.port.value).toBe(8080);
+    expect(data.port.sourceType).toBe("file");
+    expect(data.port.file).toBe("tests/__mocks__/configMock.toml");
+    expect(data.port.line).toBeGreaterThan(0);
+    expect(data.host.value).toBe("toml-host");
   });
 });

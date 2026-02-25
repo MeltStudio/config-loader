@@ -88,9 +88,15 @@ yarn add @meltstudio/config-loader
 
 ## Quick Start
 
-**config.yaml:**
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-```yaml
+Create a config file in your preferred format:
+
+<Tabs>
+<TabItem value="yaml" label="YAML" default>
+
+```yaml title="config.yaml"
 version: 1.0.0
 website:
   title: My Website
@@ -112,6 +118,68 @@ features:
   - name: Admin
     enabled: false
 ```
+
+</TabItem>
+<TabItem value="toml" label="TOML">
+
+```toml title="config.toml"
+version = "1.0.0"
+socialMedia = ["https://twitter.com/example", "https://instagram.com/example"]
+
+[website]
+title = "My Website"
+description = "A simple and elegant website"
+isProduction = false
+
+[database]
+host = "localhost"
+port = 5432
+
+[database.credentials]
+username = "admin"
+password = "secret"
+
+[[features]]
+name = "Store"
+enabled = true
+
+[[features]]
+name = "Admin"
+enabled = false
+```
+
+</TabItem>
+<TabItem value="json" label="JSON">
+
+```json title="config.json"
+{
+  "version": "1.0.0",
+  "website": {
+    "title": "My Website",
+    "description": "A simple and elegant website",
+    "isProduction": false
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "credentials": {
+      "username": "admin",
+      "password": "secret"
+    }
+  },
+  "socialMedia": [
+    "https://twitter.com/example",
+    "https://instagram.com/example"
+  ],
+  "features": [
+    { "name": "Store", "enabled": true },
+    { "name": "Admin", "enabled": false }
+  ]
+}
+```
+
+</TabItem>
+</Tabs>
 
 **index.ts:**
 

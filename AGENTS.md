@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents when working with this repositor
 
 ## What This Is
 
-`@meltstudio/config-loader` — a TypeScript library providing a fluent, type-safe API for loading configuration from YAML/JSON files, `.env` files, environment variables, and CLI arguments into a single typed object. Priority order: CLI > process.env > `.env` files > Config files > Defaults.
+`@meltstudio/config-loader` — a TypeScript library providing a fluent, type-safe API for loading configuration from YAML/JSON/TOML files, `.env` files, environment variables, and CLI arguments into a single typed object. Priority order: CLI > process.env > `.env` files > Config files > Defaults.
 
 ## Commands
 
@@ -28,7 +28,7 @@ Run a single test: `yarn test -- --testNamePattern "test name"`
 1. User defines a schema using option factories → `c.schema({ port: c.number({ env: "PORT" }) })`
 2. `SettingsBuilder` (`src/builder/settings.ts`) provides the fluent API and delegates to `Settings`
 3. `Settings` (`src/settings.ts`) loads config files, resolves values by priority, validates required fields
-4. `fileLoader.ts` reads and parses YAML/JSON files with caching (each file read once per load)
+4. `fileLoader.ts` reads and parses YAML/JSON/TOML files with caching (each file read once per load). Format is auto-detected from file extension (`.yaml`/`.yml`, `.json`, `.toml`)
 5. `envFileLoader.ts` parses `.env` files with line/column tracking
 6. Options (`src/option/`) — `OptionBase` (abstract), `PrimitiveOption`, `ArrayOption`, `ObjectOption` — handle per-field value resolution and type coercion
 7. `ConfigNode`/`ConfigNodeArray` (`src/nodes/`) represent loaded values with source metadata (including `sensitive` flag)
@@ -61,4 +61,4 @@ Tests live in `tests/` with mock data in `tests/__mocks__/`. Type-only tests liv
 
 ## Documentation
 
-README.md and `docs/intro.md` (Docusaurus) are the primary documentation. Both should be updated when adding new features. The docs site is deployed to GitHub Pages.
+README.md and docs pages in `docs/` (Docusaurus, 4 pages: Getting Started, Schema API, Loading & Sources, TypeScript Utilities) are the primary documentation. Both should be updated when adding new features. The docs site is deployed to GitHub Pages.

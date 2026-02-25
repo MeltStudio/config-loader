@@ -1,0 +1,10 @@
+port = 8080
+host = "toml-host"
+
+[database]
+host = "db.toml.local"
+port = 5432
+
+[database.credentials]
+username = "toml-admin"
+password = "toml-secret"
