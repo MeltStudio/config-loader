@@ -243,6 +243,49 @@ describe("oneOf validation", () => {
     expect(config.env).toBe("production");
   });
 
+  it("should use sourceType as fallback source in error when no file/env/arg", () => {
+    const err = getLoadError(() =>
+      optionFn
+        .schema({
+          level: optionFn.number({
+            defaultValue: 99,
+            oneOf: [0, 1, 2, 3],
+          }),
+        })
+        .load({ env: false, args: false }),
+    );
+
+    expect(err.errors).toHaveLength(1);
+    expect(err.errors[0].source).toBe("default");
+  });
+
+  it("should skip oneOf check when value is invalid from type coercion", () => {
+    const originalEnv = process.env;
+    process.env = { ...originalEnv, TEST_NUM: "not-a-number" };
+    try {
+      const err = getLoadError(() =>
+        optionFn
+          .schema({
+            num: optionFn.number({
+              env: "TEST_NUM",
+              oneOf: [1, 2, 3],
+            }),
+          })
+          .load({ env: true, args: false }),
+      );
+
+      // Should get a type_conversion error, NOT a oneOf validation error
+      expect(err.errors.some((e) => e.kind === "type_conversion")).toBe(true);
+      expect(
+        err.errors.some(
+          (e) => e.kind === "validation" && e.message.includes("is not one of"),
+        ),
+      ).toBe(false);
+    } finally {
+      process.env = originalEnv;
+    }
+  });
+
   it("should not check oneOf when value is not provided and not required", () => {
     const config = optionFn
       .schema({

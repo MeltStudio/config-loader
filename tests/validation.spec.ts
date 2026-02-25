@@ -339,6 +339,44 @@ describe("Standard Schema validation", () => {
     });
   });
 
+  describe("skips validation when value is invalid (type coercion failed)", () => {
+    it("should not run validate when type coercion produces InvalidValue", () => {
+      const validateCalls: unknown[] = [];
+      const trackingValidator: StandardSchemaV1<number> = {
+        "~standard": {
+          version: 1,
+          vendor: "test",
+          validate(value: unknown) {
+            validateCalls.push(value);
+            return { value: value as number };
+          },
+        },
+      };
+
+      const originalEnv = process.env;
+      process.env = { ...originalEnv, TEST_VAL: "not-a-number" };
+      try {
+        const err = getLoadError(() =>
+          optionFn
+            .schema({
+              val: optionFn.number({
+                env: "TEST_VAL",
+                validate: trackingValidator,
+              }),
+            })
+            .load({ env: true, args: false }),
+        );
+
+        // Type coercion error should be reported
+        expect(err.errors.some((e) => e.kind === "type_conversion")).toBe(true);
+        // Validator should NOT have been called
+        expect(validateCalls).toHaveLength(0);
+      } finally {
+        process.env = originalEnv;
+      }
+    });
+  });
+
   describe("skips validation on missing optional values", () => {
     it("should not validate when optional value is not provided", () => {
       const neverValidValidator: StandardSchemaV1<string> = {

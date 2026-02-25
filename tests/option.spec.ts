@@ -623,4 +623,82 @@ describe("option", () => {
       expect(errors.errors[0].kind).toBe("invalid_path");
     });
   });
+
+  describe("required option error hints", () => {
+    it("should include only CLI hint when env is not set", () => {
+      const option = new PrimitiveOption({
+        kind: "string",
+        required: true,
+        env: null,
+        cli: true,
+        help: "",
+      });
+      option.getValue(
+        [],
+        {},
+        {},
+        ["mode"],
+        undefined,
+        undefined,
+        undefined,
+        errors,
+      );
+      expect(errors.errors).toHaveLength(1);
+      expect(errors.errors[0].message).toContain("CLI argument --mode");
+      expect(errors.errors[0].message).not.toContain("environment variable");
+    });
+
+    it("should include both env and CLI hints when both are set", () => {
+      const option = new PrimitiveOption({
+        kind: "string",
+        required: true,
+        env: "APP_MODE",
+        cli: true,
+        help: "",
+      });
+      option.getValue(
+        [],
+        {},
+        {},
+        ["mode"],
+        undefined,
+        undefined,
+        undefined,
+        errors,
+      );
+      expect(errors.errors).toHaveLength(1);
+      expect(errors.errors[0].message).toContain(
+        "environment variable APP_MODE",
+      );
+      expect(errors.errors[0].message).toContain("CLI argument --mode");
+      expect(errors.errors[0].message).toContain("config file key: mode");
+    });
+  });
+
+  describe("env value is undefined", () => {
+    it("should skip env when value is undefined", () => {
+      const option = new PrimitiveOption({
+        kind: "string",
+        required: false,
+        env: "MAYBE_SET",
+        cli: false,
+        defaultValue: "fallback",
+        help: "",
+      });
+      const result = option.getValue(
+        [],
+        { MAYBE_SET: undefined },
+        {},
+        ["val"],
+        undefined,
+        undefined,
+        undefined,
+        errors,
+      );
+      expect(result).toMatchObject({
+        value: "fallback",
+        sourceType: "default",
+      });
+    });
+  });
 });
