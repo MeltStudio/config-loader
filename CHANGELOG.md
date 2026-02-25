@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/MeltStudio/config-loader/compare/v3.2.0...v3.3.0) (2026-02-25)
+
+
+### Features
+
+* detect missing item wrapper in c.object() and throw helpful error ([e80a41d](https://github.com/MeltStudio/config-loader/commit/e80a41ddfce54b8e39b611775a2d17ea77ccec2a))
+
 # [3.2.0](https://github.com/MeltStudio/config-loader/compare/v3.1.0...v3.2.0) (2026-02-25)
 
 
