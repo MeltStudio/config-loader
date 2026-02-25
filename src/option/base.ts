@@ -357,6 +357,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (valueIsInvalid(value)) return;
 
     const result = validator["~standard"].validate(value);
+    if (result instanceof Promise) {
+      throw new Error(
+        "Async validators are not supported. The validate function must return a synchronous result.",
+      );
+    }
     if ("issues" in result && result.issues) {
       const ident = path.join(".");
       const source =

@@ -91,13 +91,17 @@ export class InvalidValue {}
  */
 export interface StandardSchemaIssue {
   message: string;
-  path?: ReadonlyArray<PropertyKey>;
+  path?: ReadonlyArray<PropertyKey | object>;
 }
+
+type StandardSchemaResult<Output> =
+  | { value: Output }
+  | { issues: ReadonlyArray<StandardSchemaIssue> };
 
 /**
  * Minimal Standard Schema v1 interface for value validation.
  * Any object with a `~standard.validate()` method is accepted — this covers
- * Zod 3.24+, Valibot 1.0+, ArkType 2.1+, and custom validators.
+ * Zod 3.24+/4+, Valibot 1.0+, ArkType 2.1+, and custom validators.
  */
 export interface StandardSchemaV1<Output = unknown> {
   "~standard": {
@@ -105,6 +109,6 @@ export interface StandardSchemaV1<Output = unknown> {
     vendor: string;
     validate(
       value: unknown,
-    ): { value: Output } | { issues: ReadonlyArray<StandardSchemaIssue> };
+    ): StandardSchemaResult<Output> | Promise<StandardSchemaResult<Output>>;
   };
 }
