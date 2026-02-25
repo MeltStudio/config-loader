@@ -15,6 +15,23 @@ export default class ObjectOption<
   item: T;
 
   constructor(params: ObjectOptionClassParams<T>) {
+    // Detect common mistake: passing schema fields directly instead of wrapping in { item: { ... } }
+    if (!params.item) {
+      const hasOptionValues = Object.values(params).some(
+        (v) => v instanceof OptionBase,
+      );
+      if (hasOptionValues) {
+        throw new Error(
+          "Invalid c.object() call: schema fields were passed directly instead of wrapped in { item: { ... } }. " +
+            "Use c.object({ item: { host: c.string() } }) instead of c.object({ host: c.string() }).",
+        );
+      }
+      throw new Error(
+        "Invalid c.object() call: missing required 'item' property. " +
+          "Use c.object({ item: { host: c.string(), port: c.number() } }).",
+      );
+    }
+
     super({
       kind: "object",
       env: null,

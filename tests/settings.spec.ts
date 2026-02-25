@@ -2912,4 +2912,23 @@ describe("Settings", () => {
       ).toThrow(/is empty/);
     });
   });
+
+  describe("c.object() DX", () => {
+    it("should throw a helpful error when schema fields are passed without item wrapper", () => {
+      expect(() =>
+        option.object({
+          host: option.string(),
+          port: option.number(),
+        } as never),
+      ).toThrow(
+        /schema fields were passed directly instead of wrapped in \{ item: \{ \.\.\. \} \}/,
+      );
+    });
+
+    it("should throw a helpful error when item is missing entirely", () => {
+      expect(() => option.object({} as never)).toThrow(
+        /missing required 'item' property/,
+      );
+    });
+  });
 });
