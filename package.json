@@ -53,6 +53,7 @@
     "@types/jest": "^30.0.0",
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^22.0.0",
+    "docusaurus-plugin-llms": "^0.3.0",
     "eslint": "^10.0.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-jest": "^29.0.0",
