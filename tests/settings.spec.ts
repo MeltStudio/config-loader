@@ -1695,6 +1695,35 @@ describe("Settings", () => {
       });
     });
 
+    describe("if directory contains mixed formats (YAML, TOML, JSON)", () => {
+      it("should load and merge all file types", () => {
+        const data = option
+          .schema({
+            host: option.string({ required: true }),
+            port: option.number({ required: true }),
+            database: option.object({
+              item: {
+                host: option.string({ required: true }),
+                port: option.number({ required: true }),
+              },
+            }),
+            debug: option.bool({ required: true }),
+          })
+          .load({
+            env: false,
+            args: false,
+            dir: "tests/__mocks__/settings/multiple-files/mixed-formats",
+          });
+
+        expect(data).toStrictEqual({
+          host: "localhost",
+          port: 3000,
+          database: { host: "db.local", port: 5432 },
+          debug: true,
+        });
+      });
+    });
+
     describe("if data has collisions on primitive values", () => {
       it("should prioritize first loaded file", () => {
         const data = option
