@@ -174,7 +174,7 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (this.params.env && env) {
       if (this.params.env in env) {
         const val = env[this.params.env];
-        if (val) {
+        if (val !== undefined) {
           // Determine if this came from a .env file or process.env
           const envFileSource = findEnvFileSource(
             this.params.env,

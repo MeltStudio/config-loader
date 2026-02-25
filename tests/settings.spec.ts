@@ -2428,7 +2428,7 @@ describe("Settings", () => {
   });
 
   describe("env variable set to empty string", () => {
-    it("should fall through to file value when env var is empty string", () => {
+    it("should treat empty string as a valid env value", () => {
       process.env.MY_HOST = "";
       const data = option
         .schema({
@@ -2438,8 +2438,22 @@ describe("Settings", () => {
           env: true,
           args: false,
         });
-      // Empty string is falsy, so env source is skipped and default is used
-      expect(data.host).toBe("fallback");
+      expect(data.host).toBe("");
+    });
+
+    it("should report env source metadata for empty string values", () => {
+      process.env.MY_HOST = "";
+      const extended = option
+        .schema({
+          host: option.string({ env: "MY_HOST", defaultValue: "fallback" }),
+        })
+        .loadExtended({
+          env: true,
+          args: false,
+        });
+      const hostNode = extended.host as ConfigNode;
+      expect(hostNode.sourceType).toBe("env");
+      expect(hostNode.value).toBe("");
     });
   });
 
