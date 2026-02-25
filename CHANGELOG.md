@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/MeltStudio/config-loader/compare/v3.0.0...v3.0.1) (2026-02-25)
+
+
+### Bug Fixes
+
+* correct baseUrl in generated llms.txt files ([902737c](https://github.com/MeltStudio/config-loader/commit/902737caafd49b322e7426726ed3b52d7b75379f))
+
 # [3.0.0](https://github.com/MeltStudio/config-loader/compare/v2.0.1...v3.0.0) (2026-02-25)
 
 
