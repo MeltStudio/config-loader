@@ -32,7 +32,6 @@ const config: Config = {
       {
         docs: {
           routeBasePath: "/",
-          sidebarItemsGenerator: async () => [],
         },
         blog: false,
         pages: false,
