@@ -26,6 +26,7 @@ module.exports = {
     "^@/utils$": "<rootDir>/src/utils",
     "^@/fileLoader$": "<rootDir>/src/fileLoader",
     "^@/envFileLoader$": "<rootDir>/src/envFileLoader",
+    "^@/printConfig$": "<rootDir>/src/printConfig",
   },
   reporters: [
     "default",

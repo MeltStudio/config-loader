@@ -8,6 +8,7 @@ export type { ConfigErrorEntry } from "./errors";
 export { ConfigFileError, ConfigLoadError } from "./errors";
 export { default as ConfigNode } from "./nodes/configNode";
 export { default as ConfigNodeArray } from "./nodes/configNodeArray";
+export { printConfig } from "./printConfig";
 export type {
   ExtendedResult,
   NodeTree,

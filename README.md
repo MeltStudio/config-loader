@@ -382,6 +382,41 @@ console.log(data.port.variableName); // "PORT"
 
 This is useful for debugging configuration resolution, building admin UIs that show where each setting originated, or auditing which sources are active.
 
+### Debug Helper
+
+Use `printConfig()` to format the result of `loadExtended()` as a readable table:
+
+```typescript
+import c, { printConfig } from "@meltstudio/config-loader";
+
+const result = c
+  .schema({
+    host: c.string({ defaultValue: "localhost" }),
+    port: c.number({ env: "PORT" }),
+    debug: c.bool({ cli: true }),
+  })
+  .loadExtended({ env: true, args: true, files: "./config.yaml" });
+
+printConfig(result);
+```
+
+Output:
+
+```
+┌───────┬───────────┬─────────┬────────────────┐
+│ Path  │ Value     │ Source  │ Detail         │
+├───────┼───────────┼─────────┼────────────────┤
+│ host  │ localhost │ default │                │
+│ port  │ 8080      │ env     │ PORT           │
+│ debug │ true      │ args    │ --debug        │
+└───────┴───────────┴─────────┴────────────────┘
+```
+
+Options:
+
+- `printConfig(result, { silent: true })` — returns the string without printing to console
+- `printConfig(result, { maxValueLength: 30 })` — truncate long values (default: 50)
+
 ## Error Handling
 
 When validation fails, config-loader throws a `ConfigLoadError` with structured error details:

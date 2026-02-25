@@ -20,7 +20,8 @@
       "@/types": ["src/types"],
       "@/utils": ["src/utils"],
       "@/fileLoader": ["src/fileLoader"],
-      "@/envFileLoader": ["src/envFileLoader"]
+      "@/envFileLoader": ["src/envFileLoader"],
+      "@/printConfig": ["src/printConfig"]
     }
   },
   "include": ["src", "tests", "example"]
