@@ -274,7 +274,12 @@ class Settings<T extends Node> {
   private addArg(node: OptionBase, path: Path = []): void {
     if (node.params.cli) {
       const ident = path.join(".");
-      this.program.option(`--${ident} <value>`, node.params.help);
+      let help = node.params.help;
+      if (node.params.oneOf) {
+        const allowed = node.params.oneOf.map(String).join(", ");
+        help = help ? `${help} (one of: ${allowed})` : `one of: ${allowed}`;
+      }
+      this.program.option(`--${ident} <value>`, help);
     }
   }
 

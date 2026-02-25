@@ -30,6 +30,8 @@ interface OptionPropsArgs<T> {
   defaultValue?: T | (() => T);
   /** Help text shown in CLI `--help` output. */
   help?: string;
+  /** Restrict the value to a fixed set of allowed values. Checked after type coercion, before `validate`. */
+  oneOf?: readonly T[];
   /** Standard Schema validator run after type coercion. Accepts Zod, Valibot, ArkType, or any Standard Schema v1 implementation. */
   validate?: StandardSchemaV1;
 }
@@ -63,32 +65,42 @@ const DEFAULTS = {
 
 /**
  * Creates a string configuration option.
- * @param opts - Option configuration (env, cli, required, defaultValue, help).
+ * @param opts - Option configuration (env, cli, required, defaultValue, help, oneOf).
  * @returns A `PrimitiveOption<"string">` for use in a schema.
  * @example
  * c.string({ env: "HOST", defaultValue: "localhost" })
+ * c.string({ env: "NODE_ENV", oneOf: ["development", "staging", "production"] })
  */
-const string = (opts?: OptionPropsArgs<string>): PrimitiveOption<"string"> => {
+function string<const V extends readonly string[]>(
+  opts: OptionPropsArgs<string> & { oneOf: V },
+): PrimitiveOption<"string", V[number]>;
+function string(opts?: OptionPropsArgs<string>): PrimitiveOption<"string">;
+function string(opts?: OptionPropsArgs<string>): PrimitiveOption<"string"> {
   return new PrimitiveOption({
     kind: "string",
     ...DEFAULTS,
     ...opts,
   });
-};
+}
 /**
  * Creates a number configuration option. String values from env/CLI are coerced to numbers.
- * @param opts - Option configuration (env, cli, required, defaultValue, help).
+ * @param opts - Option configuration (env, cli, required, defaultValue, help, oneOf).
  * @returns A `PrimitiveOption<"number">` for use in a schema.
  * @example
  * c.number({ env: "PORT", defaultValue: 3000 })
+ * c.number({ env: "LOG_LEVEL", oneOf: [0, 1, 2, 3] })
  */
-const number = (opts?: OptionPropsArgs<number>): PrimitiveOption<"number"> => {
+function number<const V extends readonly number[]>(
+  opts: OptionPropsArgs<number> & { oneOf: V },
+): PrimitiveOption<"number", V[number]>;
+function number(opts?: OptionPropsArgs<number>): PrimitiveOption<"number">;
+function number(opts?: OptionPropsArgs<number>): PrimitiveOption<"number"> {
   return new PrimitiveOption({
     kind: "number",
     ...DEFAULTS,
     ...opts,
   });
-};
+}
 /**
  * Creates a boolean configuration option. String values `"true"`/`"false"` are coerced.
  * @param opts - Option configuration (env, cli, required, defaultValue, help).
@@ -96,13 +108,13 @@ const number = (opts?: OptionPropsArgs<number>): PrimitiveOption<"number"> => {
  * @example
  * c.bool({ env: "DEBUG", defaultValue: false })
  */
-const bool = (opts?: OptionPropsArgs<boolean>): PrimitiveOption<"boolean"> => {
+function bool(opts?: OptionPropsArgs<boolean>): PrimitiveOption<"boolean"> {
   return new PrimitiveOption({
     kind: "boolean",
     ...DEFAULTS,
     ...opts,
   });
-};
+}
 /**
  * Creates an array configuration option containing items of a given type.
  * @param opts - Must include `item` defining the element schema.

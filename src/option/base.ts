@@ -46,6 +46,7 @@ interface OptionClassParams<T extends OptionKind> {
   cli: boolean;
   help: string;
   defaultValue?: TypedDefaultValue<T>;
+  oneOf?: ReadonlyArray<string | number | boolean>;
   validate?: StandardSchemaV1;
 }
 
@@ -166,6 +167,11 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
       envFileResults,
       errors,
     );
+
+    if (resolved && this.params.oneOf) {
+      const passed = this.runOneOfCheck(resolved, path, errors);
+      if (!passed) return resolved;
+    }
 
     if (resolved && this.params.validate) {
       this.runValidation(resolved, path, errors);
@@ -359,6 +365,35 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     }
 
     return null;
+  }
+
+  private runOneOfCheck(
+    node: ConfigNode,
+    path: Path,
+    errors?: OptionErrors,
+  ): boolean {
+    const allowed = this.params.oneOf;
+    if (!allowed) return true;
+
+    const value = node.value;
+    if (valueIsInvalid(value)) return true;
+
+    if (!allowed.includes(value as string | number | boolean)) {
+      const ident = path.join(".");
+      const source =
+        node.file ?? node.variableName ?? node.argName ?? node.sourceType;
+      const allowedStr = allowed.map((v) => `'${String(v)}'`).join(", ");
+      errors?.errors.push({
+        message: `Value '${typeof value === "object" ? JSON.stringify(value) : String(value)}' for '${ident}' is not one of: ${allowedStr}.`,
+        path: ident,
+        source,
+        kind: "validation",
+        line: node.line ?? undefined,
+        column: node.column ?? undefined,
+      });
+      return false;
+    }
+    return true;
   }
 
   private runValidation(

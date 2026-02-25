@@ -63,8 +63,9 @@ export type SchemaValue<T extends OptionBase | Node> = T extends OptionBase
     ? SchemaValue<T["item"]>[]
     : T extends ObjectOption<infer R>
       ? { [K in keyof R]: SchemaValue<R[K]> }
-      : T extends PrimitiveOption<infer R>
-        ? TypeOfPrimitiveKind<R>
+      : // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        T extends PrimitiveOption<infer _R, infer Narrowed>
+        ? Narrowed
         : never
   : T extends Node
     ? {

@@ -84,3 +84,33 @@ const host: string = result.config.host;
 const port: number = result.config.port;
 void host;
 void port;
+
+// --- oneOf type narrowing ---
+
+// Valid: oneOf narrows string type
+c.string({ oneOf: ["dev", "staging", "prod"] });
+c.number({ oneOf: [0, 1, 2, 3] });
+
+// @ts-expect-error — number values are not assignable to string oneOf
+c.string({ oneOf: [1, 2, 3] });
+
+// @ts-expect-error — string values are not assignable to number oneOf
+c.number({ oneOf: ["a", "b"] });
+
+// Verify narrowing through SchemaValue
+const narrowedResult = c
+  .schema({
+    env: c.string({ oneOf: ["dev", "staging", "prod"] }),
+    level: c.number({ oneOf: [0, 1, 2, 3] }),
+    plain: c.string(),
+  })
+  .load({ env: false, args: false, files: false });
+
+// Narrowed types
+const env: "dev" | "staging" | "prod" = narrowedResult.env;
+const level: 0 | 1 | 2 | 3 = narrowedResult.level;
+// Non-narrowed type
+const plain: string = narrowedResult.plain;
+void env;
+void level;
+void plain;
