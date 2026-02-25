@@ -1,6 +1,6 @@
 {
   "name": "@meltstudio/config-loader",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Melt Studio's tool for loading configurations into a Node.js application.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

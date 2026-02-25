@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/MeltStudio/config-loader/compare/v3.0.1...v3.0.2) (2026-02-25)
+
+
+### Bug Fixes
+
+* also correct docs route path in llms.txt ([7b8be12](https://github.com/MeltStudio/config-loader/commit/7b8be12424f7596889bfacca8908af86d019218b))
+
 ## [3.0.1](https://github.com/MeltStudio/config-loader/compare/v3.0.0...v3.0.1) (2026-02-25)
 
 
