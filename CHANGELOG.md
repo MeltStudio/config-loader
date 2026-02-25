@@ -1,3 +1,31 @@
+# [3.0.0](https://github.com/MeltStudio/config-loader/compare/v2.0.1...v3.0.0) (2026-02-25)
+
+
+* feat!: remove console output and exitOnError, return warnings from loadExtended ([282f32a](https://github.com/MeltStudio/config-loader/commit/282f32a4a5936b0f39284d80595c5b36ccc063b3)), closes [#77](https://github.com/MeltStudio/config-loader/issues/77) [#78](https://github.com/MeltStudio/config-loader/issues/78)
+
+
+### Bug Fixes
+
+* normalize type coercion across all types ([b4df29f](https://github.com/MeltStudio/config-loader/commit/b4df29f741d930f7639d0a96bc63d4da1e497f09)), closes [#76](https://github.com/MeltStudio/config-loader/issues/76)
+* report clear errors for null values in config files ([a9669ba](https://github.com/MeltStudio/config-loader/commit/a9669ba681040d9a1c2fc2393d47b1abddd0894c)), closes [#75](https://github.com/MeltStudio/config-loader/issues/75)
+* resolve all lint errors in test files ([8fbba15](https://github.com/MeltStudio/config-loader/commit/8fbba15f3a2ec10c128eb3f3c1465e83c0a3d7f7))
+* treat empty string env vars as valid values ([f9bc52c](https://github.com/MeltStudio/config-loader/commit/f9bc52c9816555a0b5b1f753e6baf3833459bac6)), closes [#74](https://github.com/MeltStudio/config-loader/issues/74)
+* warn when options have env mappings but env loading is disabled ([12b8053](https://github.com/MeltStudio/config-loader/commit/12b8053786eec8530e6f722ebc7bf67645678301)), closes [#79](https://github.com/MeltStudio/config-loader/issues/79)
+
+
+### Features
+
+* add strict mode to promote warnings to errors ([6eaf442](https://github.com/MeltStudio/config-loader/commit/6eaf442d27a98efde15e8fa452ca364f3cd0b57f)), closes [#80](https://github.com/MeltStudio/config-loader/issues/80)
+
+
+### BREAKING CHANGES
+
+* `loadExtended()` now returns `{ data, warnings }` instead of
+a raw `NodeTree`. The `exitOnError` option has been removed — errors always
+throw `ConfigLoadError`. The library no longer calls `console.warn`,
+`console.error`, or `process.exit`. Warnings are accessible via
+`loadExtended().warnings` or `ConfigLoadError.warnings`.
+
 ## [2.0.1](https://github.com/MeltStudio/config-loader/compare/v2.0.0...v2.0.1) (2026-02-24)
 
 
