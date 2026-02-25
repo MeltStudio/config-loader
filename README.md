@@ -4,6 +4,8 @@ A type-safe configuration loader for Node.js. Define your schema once, load from
 
 > **Upgrading from v1?** v1.x is deprecated. v2 includes breaking changes to the public API, object schema syntax, and requires Node.js >= 20. Install the latest version with `npm install @meltstudio/config-loader@latest` or `yarn add @meltstudio/config-loader@latest`.
 
+**[Full documentation](https://meltstudio.github.io/config-loader/)**
+
 ## Why config-loader?
 
 Most config libraries give you `Record<string, unknown>` and leave you to cast or validate manually. config-loader infers TypeScript types directly from your schema definition:
