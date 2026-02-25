@@ -22,7 +22,10 @@
       "@/fileLoader": ["src/fileLoader"],
       "@/envFileLoader": ["src/envFileLoader"],
       "@/printConfig": ["src/printConfig"],
-      "@/maskSecrets": ["src/maskSecrets"]
+      "@/maskSecrets": ["src/maskSecrets"],
+      "@/sourceValidation": ["src/sourceValidation"],
+      "@/watcher": ["src/watcher"],
+      "@/diffConfig": ["src/diffConfig"]
     }
   },
   "include": ["src", "tests", "example"]

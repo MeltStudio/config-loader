@@ -36,6 +36,12 @@ Run a single test: `yarn test -- --testNamePattern "test name"`
 8. `SchemaValue<T>` (`src/types.ts`) provides compile-time type inference from schema definitions, including `oneOf` type narrowing via phantom types
 9. `OptionErrors` (`src/option/errors.ts`) collects warnings/errors; errors throw `ConfigLoadError`
 
+**Watch mode:**
+
+- `watch()` (`src/watcher.ts`) — watches config files for changes, reloads automatically with debouncing
+- `diffConfig()` (`src/diffConfig.ts`) — compares two config objects, returns list of changes with sensitive field masking
+- File watchers are `.unref()`'d so they don't keep the process alive
+
 **Utilities:**
 
 - `printConfig()` (`src/printConfig.ts`) — formats `loadExtended()` results as a Unicode table; auto-masks `sensitive` fields
@@ -54,7 +60,7 @@ Run a single test: `yarn test -- --testNamePattern "test name"`
 
 **Validation pipeline:** resolve value → type coerce → `oneOf` check → `validate` schema. If `oneOf` fails, `validate` is skipped.
 
-**Path aliases** (defined in tsconfig.json and jest.config.js): `@/builder`, `@/nodes/*`, `@/option/*`, `@/settings`, `@/types`, `@/utils`, `@/fileLoader`, `@/envFileLoader`, `@/printConfig`, `@/maskSecrets`.
+**Path aliases** (defined in tsconfig.json and jest.config.js): `@/builder`, `@/nodes/*`, `@/option/*`, `@/settings`, `@/types`, `@/utils`, `@/fileLoader`, `@/envFileLoader`, `@/printConfig`, `@/maskSecrets`, `@/sourceValidation`, `@/watcher`, `@/diffConfig`.
 
 ## Testing Conventions
 

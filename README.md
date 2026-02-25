@@ -54,6 +54,7 @@ const config = c
 - **Strict mode** — promote warnings to errors for production safety
 - **Default values** — static or computed (via functions)
 - **Multiple files / directory loading** — load from a list of files or an entire directory
+- **File watching** — `watch()` reloads config on file changes with debouncing, change detection, and error recovery
 
 ## Installation
 
@@ -72,7 +73,7 @@ Requires Node.js >= 20.
 See the **[full documentation](https://meltstudio.github.io/config-loader/)** for:
 
 - [Schema API](https://meltstudio.github.io/config-loader/schema-api) — primitives, objects, arrays, `oneOf`, `sensitive`, validation
-- [Loading & Sources](https://meltstudio.github.io/config-loader/loading-and-sources) — `load()`, `loadExtended()`, file/env/CLI/.env sources, `printConfig()`, `maskSecrets()`, error handling, strict mode
+- [Loading & Sources](https://meltstudio.github.io/config-loader/loading-and-sources) — `load()`, `loadExtended()`, `watch()`, file/env/CLI/.env sources, `printConfig()`, `maskSecrets()`, error handling, strict mode
 - [TypeScript Utilities](https://meltstudio.github.io/config-loader/typescript-utilities) — `SchemaValue`, exported types, type narrowing
 
 ## Examples

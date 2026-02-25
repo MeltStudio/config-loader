@@ -4,6 +4,8 @@ import type { Node, OptionTypes } from "./option";
 import { ArrayOption, ObjectOption, PrimitiveOption } from "./option";
 import type { SchemaValue, StandardSchemaV1 } from "./types";
 
+export type { ConfigChange } from "./diffConfig";
+export { diffConfig } from "./diffConfig";
 export type { ConfigErrorEntry } from "./errors";
 export { ConfigFileError, ConfigLoadError } from "./errors";
 export { maskSecrets } from "./maskSecrets";
@@ -18,6 +20,7 @@ export type {
   SettingsSources,
   StandardSchemaV1,
 } from "./types";
+export type { ConfigWatcher, WatchOptions } from "./watcher";
 
 /** Options for configuring a primitive (`string`, `number`, `bool`) schema field. */
 interface OptionPropsArgs<T> {

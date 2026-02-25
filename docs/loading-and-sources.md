@@ -244,6 +244,77 @@ const masked = maskSecrets(result);
 
 The original config object is never mutated — `maskSecrets()` always returns a new copy.
 
+## Watch Mode
+
+Use `watch()` to automatically reload config when files change. File watchers are `.unref()`'d so they don't prevent the process from exiting.
+
+```typescript
+import c from "@meltstudio/config-loader";
+
+const schema = {
+  port: c.number({ env: "PORT", defaultValue: 3000 }),
+  host: c.string({ env: "HOST", defaultValue: "localhost" }),
+  apiKey: c.string({ env: "API_KEY", sensitive: true }),
+};
+
+const watcher = c.schema(schema).watch(
+  { env: true, args: false, files: "./config.yaml" },
+  {
+    onChange: (newConfig, oldConfig, changes) => {
+      console.log("Config updated:");
+      for (const change of changes) {
+        console.log(
+          `  ${change.path}: ${change.oldValue} → ${change.newValue}`,
+        );
+      }
+    },
+    onError: (err) => {
+      console.error("Config reload failed:", err.message);
+    },
+    debounce: 100, // milliseconds (default: 100)
+  },
+);
+
+// Access the current config at any time
+console.log(watcher.config.port);
+
+// Stop watching when done
+watcher.close();
+```
+
+### How it works
+
+- The initial load happens synchronously — if it fails, `watch()` throws immediately (same as `load()`)
+- On file changes, config is reloaded after the debounce interval
+- If the reload succeeds and values changed, `onChange` is called with the new config, old config, and a list of changes
+- If the reload fails (parse error, validation error), `onError` is called and the previous config is retained
+- Sensitive fields are masked with `"***"` in the change list
+- `close()` stops all watchers and is idempotent
+
+### `ConfigChange`
+
+Each change in the `changes` array has:
+
+```typescript
+interface ConfigChange {
+  path: string; // Dot-separated path (e.g. "db.host")
+  oldValue: unknown; // Previous value (undefined if added)
+  newValue: unknown; // New value (undefined if removed)
+  type: "added" | "removed" | "changed";
+}
+```
+
+### `diffConfig`
+
+You can also use `diffConfig()` directly to compare two config objects:
+
+```typescript
+import { diffConfig } from "@meltstudio/config-loader";
+
+const changes = diffConfig(oldConfig, newConfig, schema);
+// schema is optional — when provided, sensitive fields are masked
+```
+
 ## Error Handling
 
 When validation fails, config-loader throws a `ConfigLoadError` with structured error details:

@@ -28,6 +28,9 @@ module.exports = {
     "^@/envFileLoader$": "<rootDir>/src/envFileLoader",
     "^@/printConfig$": "<rootDir>/src/printConfig",
     "^@/maskSecrets$": "<rootDir>/src/maskSecrets",
+    "^@/sourceValidation$": "<rootDir>/src/sourceValidation",
+    "^@/watcher$": "<rootDir>/src/watcher",
+    "^@/diffConfig$": "<rootDir>/src/diffConfig",
   },
   reporters: [
     "default",

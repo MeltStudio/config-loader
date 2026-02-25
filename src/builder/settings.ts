@@ -1,6 +1,8 @@
 import type { Node } from "@/option";
 import Settings from "@/settings";
 import type { ExtendedResult, SchemaValue, SettingsSources } from "@/types";
+import type { ConfigWatcher, WatchOptions } from "@/watcher";
+import { createWatcher } from "@/watcher";
 
 /** Fluent builder that takes a schema and resolves configuration from multiple sources. */
 export class SettingsBuilder<T extends Node> {
@@ -35,5 +37,20 @@ export class SettingsBuilder<T extends Node> {
       data: settings.getExtended(),
       warnings: settings.getWarnings(),
     };
+  }
+
+  /**
+   * Watches config files for changes and reloads automatically.
+   * File watchers are `.unref()`'d so they don't prevent the process from exiting.
+   * @param sources - Which sources to read (env, args, files, etc.).
+   * @param options - Callbacks and debounce configuration.
+   * @returns A `ConfigWatcher` with the current config and a `close()` method.
+   * @throws {ConfigLoadError} If the initial load fails.
+   */
+  public watch(
+    sources: SettingsSources<SchemaValue<T>>,
+    options: WatchOptions<SchemaValue<T>>,
+  ): ConfigWatcher<SchemaValue<T>> {
+    return createWatcher(this.schema, sources, options);
   }
 }

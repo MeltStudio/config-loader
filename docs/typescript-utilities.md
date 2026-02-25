@@ -17,8 +17,14 @@ import c, {
   ConfigNodeArray, // Class representing an array of ConfigNode values
   type RecursivePartial, // Deep partial utility used by the defaults option
   type StandardSchemaV1, // Standard Schema v1 interface for validators
+  type ConfigChange, // A single change detected between config reloads
+  type ConfigWatcher, // Handle returned by watch() with config and close()
+  type WatchOptions, // Options for the watch() method
   maskSecrets, // Create a safe-to-log copy with sensitive values masked
   printConfig, // Format loadExtended() result as a readable table
+  diffConfig, // Compare two config objects and return a list of changes
+  ConfigLoadError, // Structured error thrown on validation failure
+  ConfigFileError, // Error thrown on file parse failure
 } from "@meltstudio/config-loader";
 ```
 
