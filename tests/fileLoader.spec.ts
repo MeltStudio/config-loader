@@ -72,9 +72,11 @@ describe("loadConfigFile", () => {
   });
 
   it("should handle non-Error throw during YAML parsing", () => {
-    const yaml = require("js-yaml");
+    const yaml = require("js-yaml") as {
+      load: (...args: unknown[]) => unknown;
+    };
     const originalLoad = yaml.load;
-    yaml.load = () => {
+    yaml.load = (): never => {
       throw "string error";
     };
     try {

@@ -149,6 +149,15 @@ export default tseslint.config(
       ...jest.configs["flat/recommended"].rules,
       "jest/no-disabled-tests": "error",
       "max-lines": "off",
+      // Jest matchers (expect.stringContaining, etc.) return `any`
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/only-throw-error": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      // Test files may use relative imports for internal modules
+      "no-restricted-imports": "off",
     },
   },
 );

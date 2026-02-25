@@ -25,6 +25,16 @@ function getLoadErrors(fn: () => unknown): ConfigErrorEntry[] {
   throw new Error("Expected function to throw");
 }
 
+function getLoadError(fn: () => unknown): ConfigLoadError {
+  try {
+    fn();
+  } catch (e) {
+    if (e instanceof ConfigLoadError) return e;
+    throw e;
+  }
+  throw new Error("Expected function to throw");
+}
+
 let savedProcessEnv: NodeJS.ProcessEnv;
 
 let savedProcessArgs: string[];
@@ -367,7 +377,6 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
               /Cannot convert value '\{"max":400,"min":200\}' for 'hardware\.size' to string in tests\/__mocks__\/settings\/no-cli-no-env\/nestedStringWrongType\.yaml(:\d+:\d+)?\./,
             ),
@@ -590,7 +599,6 @@ describe("Settings", () => {
         ].forEach((pattern) => {
           expect(loadErrors).toContainEqual(
             expect.objectContaining({
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               message: expect.stringMatching(pattern),
             }),
           );
@@ -619,7 +627,6 @@ describe("Settings", () => {
         );
         expect(loadErrors).toContainEqual(
           expect.objectContaining({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             message: expect.stringMatching(
               /Invalid state\. Invalid kind in tests\/__mocks__\/settings\/no-cli-no-env\/nestedNumberArrayWrongType\.yaml(:\d+:\d+)?/,
             ),
@@ -719,7 +726,6 @@ describe("Settings", () => {
         errorPatterns.forEach((pattern) => {
           expect(loadErrors).toContainEqual(
             expect.objectContaining({
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               message: expect.stringMatching(pattern),
             }),
           );
@@ -825,7 +831,6 @@ describe("Settings", () => {
         errorPatterns.forEach((pattern) => {
           expect(loadErrors).toContainEqual(
             expect.objectContaining({
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
               message: expect.stringMatching(pattern),
             }),
           );
@@ -2842,7 +2847,7 @@ describe("Settings", () => {
     });
 
     it("should clear warnings when promoting them to errors", () => {
-      try {
+      const err = getLoadError(() =>
         option
           .schema({
             host: option.string({ env: "DB_HOST", defaultValue: "localhost" }),
@@ -2851,15 +2856,10 @@ describe("Settings", () => {
             env: false,
             args: false,
             strict: true,
-          });
-      } catch (e) {
-        if (e instanceof ConfigLoadError) {
-          expect(e.warnings).toHaveLength(0);
-          expect(e.errors.length).toBeGreaterThan(0);
-          return;
-        }
-      }
-      throw new Error("Expected ConfigLoadError to be thrown");
+          }),
+      );
+      expect(err.warnings).toHaveLength(0);
+      expect(err.errors.length).toBeGreaterThan(0);
     });
   });
 
