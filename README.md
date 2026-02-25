@@ -422,6 +422,35 @@ Enable `strict: true` to promote all warnings to errors, causing `ConfigLoadErro
 
 This is useful in production environments where you want to catch type coercions, null values, and other ambiguous config early rather than silently accepting them.
 
+## TypeScript Utilities
+
+config-loader exports several types for advanced use cases:
+
+```typescript
+import c, {
+  type SchemaValue, // Infer the resolved config type from a schema
+  type SettingsSources, // Type for the sources object passed to load()
+  type ExtendedResult, // Return type of loadExtended()
+  type NodeTree, // Tree of ConfigNode objects (ExtendedResult.data)
+  ConfigNode, // Class representing a resolved value with source metadata
+  ConfigNodeArray, // Class representing an array of ConfigNode values
+  type RecursivePartial, // Deep partial utility used by the defaults option
+  type StandardSchemaV1, // Standard Schema v1 interface for validators
+} from "@meltstudio/config-loader";
+```
+
+The most commonly needed is `SchemaValue`, which infers the plain TypeScript type from a schema:
+
+```typescript
+const mySchema = {
+  port: c.number({ env: "PORT" }),
+  db: c.object({ item: { host: c.string(), port: c.number() } }),
+};
+
+type MyConfig = SchemaValue<typeof mySchema>;
+// { port: number; db: { host: string; port: number } }
+```
+
 ## CLI Arguments
 
 Set `cli: true` on an option to allow overriding via command line:

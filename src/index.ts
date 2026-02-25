@@ -6,7 +6,16 @@ import type { SchemaValue, StandardSchemaV1 } from "./types";
 
 export type { ConfigErrorEntry } from "./errors";
 export { ConfigFileError, ConfigLoadError } from "./errors";
-export type { ExtendedResult, StandardSchemaV1 } from "./types";
+export { default as ConfigNode } from "./nodes/configNode";
+export { default as ConfigNodeArray } from "./nodes/configNodeArray";
+export type {
+  ExtendedResult,
+  NodeTree,
+  RecursivePartial,
+  SchemaValue,
+  SettingsSources,
+  StandardSchemaV1,
+} from "./types";
 
 /** Options for configuring a primitive (`string`, `number`, `bool`) schema field. */
 interface OptionPropsArgs<T> {
