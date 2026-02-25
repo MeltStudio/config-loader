@@ -446,7 +446,14 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
         });
         return new InvalidValue();
       }
-      if (val == null) {
+      if (val === undefined) {
+        return new InvalidValue();
+      }
+      if (val === null) {
+        errors?.errors.push({
+          message: `Option '${path.join(".")}' is null — expected an object to traverse into`,
+          kind: "null_value",
+        });
         return new InvalidValue();
       }
       return this.findInObject(val, rest, errors);
@@ -454,6 +461,19 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     if (path.length === 1) {
       const val = obj[path[0]];
 
+      if (val === null) {
+        if (this.params.required) {
+          errors?.errors.push({
+            message: `Option '${path.join(".")}' is null — expected a ${this.params.kind}`,
+            kind: "null_value",
+          });
+        } else {
+          errors?.warnings.push(
+            `Option '${path.join(".")}' is null and will be treated as unset`,
+          );
+        }
+        return new InvalidValue();
+      }
       if (
         (!Array.isArray(val) && typeof val === "object" && val) ||
         typeof val === "string" ||

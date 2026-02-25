@@ -2509,7 +2509,7 @@ describe("Settings", () => {
   });
 
   describe("null values in config files", () => {
-    it("should throw when a required field has a null value in the YAML file", () => {
+    it("should produce a clear null_value error for a null leaf field", () => {
       const errors = getLoadErrors(() =>
         option
           .schema({
@@ -2521,10 +2521,35 @@ describe("Settings", () => {
             files: "tests/__mocks__/nullValues.yaml",
           }),
       );
-      expect(errors.length).toBeGreaterThan(0);
+      expect(errors).toContainEqual(
+        expect.objectContaining({
+          kind: "null_value",
+          message: expect.stringContaining("is null"),
+        }),
+      );
     });
 
-    it("should throw when a required nested field has a null value", () => {
+    it("should mention the expected type in the null error message", () => {
+      const errors = getLoadErrors(() =>
+        option
+          .schema({
+            nullField: option.number({ required: true }),
+          })
+          .load({
+            env: false,
+            args: false,
+            files: "tests/__mocks__/nullValues.yaml",
+          }),
+      );
+      expect(errors).toContainEqual(
+        expect.objectContaining({
+          kind: "null_value",
+          message: expect.stringContaining("expected a number"),
+        }),
+      );
+    });
+
+    it("should produce a clear null_value error for a null intermediate object", () => {
       const errors = getLoadErrors(() =>
         option
           .schema({
@@ -2540,7 +2565,30 @@ describe("Settings", () => {
             files: "tests/__mocks__/nullValues.yaml",
           }),
       );
-      expect(errors.length).toBeGreaterThan(0);
+      expect(errors).toContainEqual(
+        expect.objectContaining({
+          kind: "null_value",
+          message: expect.stringContaining("is null"),
+        }),
+      );
+    });
+
+    it("should not throw for optional fields with null values but emit a warning", () => {
+      const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+      const data = option
+        .schema({
+          name: option.string({ required: true }),
+          nullField: option.string(),
+        })
+        .load({
+          env: false,
+          args: false,
+          files: "tests/__mocks__/nullValues.yaml",
+        });
+      expect(data.name).toBe("test");
+      expect(data.nullField).toBeUndefined();
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("is null"));
+      warnSpy.mockRestore();
     });
   });
 
