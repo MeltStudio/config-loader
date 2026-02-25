@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/MeltStudio/config-loader/compare/v3.0.2...v3.1.0) (2026-02-25)
+
+
+### Features
+
+* add Standard Schema validation support ([d77e3b0](https://github.com/MeltStudio/config-loader/commit/d77e3b0e2a5d21d45ec2058106171fe1b217a80a)), closes [#73](https://github.com/MeltStudio/config-loader/issues/73)
+
 ## [3.0.2](https://github.com/MeltStudio/config-loader/compare/v3.0.1...v3.0.2) (2026-02-25)
 
 
