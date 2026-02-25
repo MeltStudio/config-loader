@@ -8,6 +8,7 @@ import type {
   OptionKind,
   Path,
   PrimitiveKind,
+  StandardSchemaV1,
   TypeOfPrimitiveKind,
 } from "@/types";
 import { InvalidValue } from "@/types";
@@ -45,9 +46,7 @@ interface OptionClassParams<T extends OptionKind> {
   cli: boolean;
   help: string;
   defaultValue?: TypedDefaultValue<T>;
-  // properties: {
-  //   [key: string]: Option;
-  // };
+  validate?: StandardSchemaV1;
 }
 
 function lookupLocation(
@@ -140,6 +139,42 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
   }
 
   public getValue<U>(
+    sourceFile: string | string[],
+    env: { [key: string]: string | undefined },
+    args: { [key: string]: string | boolean },
+    path: Path,
+    defaultValues?: Partial<U>,
+    objectFromArray?: {
+      value: ConfigFileData;
+      file: string;
+      sourceMap?: {
+        lookup(
+          path: string | string[],
+        ): { line: number; column: number } | undefined;
+      } | null;
+    },
+    envFileResults?: EnvFileResult[],
+    errors?: OptionErrors,
+  ): ConfigNode | null {
+    const resolved = this.resolveValue(
+      sourceFile,
+      env,
+      args,
+      path,
+      defaultValues,
+      objectFromArray,
+      envFileResults,
+      errors,
+    );
+
+    if (resolved && this.params.validate) {
+      this.runValidation(resolved, path, errors);
+    }
+
+    return resolved;
+  }
+
+  private resolveValue<U>(
     sourceFile: string | string[],
     env: { [key: string]: string | undefined },
     args: { [key: string]: string | boolean },
@@ -308,6 +343,35 @@ export default class OptionBase<T extends OptionKind = OptionKind> {
     }
 
     return null;
+  }
+
+  private runValidation(
+    node: ConfigNode,
+    path: Path,
+    errors?: OptionErrors,
+  ): void {
+    const validator = this.params.validate;
+    if (!validator) return;
+
+    const value = node.value;
+    if (valueIsInvalid(value)) return;
+
+    const result = validator["~standard"].validate(value);
+    if ("issues" in result && result.issues) {
+      const ident = path.join(".");
+      const source =
+        node.file ?? node.variableName ?? node.argName ?? node.sourceType;
+      for (const issue of result.issues) {
+        errors?.errors.push({
+          message: `Validation failed for '${ident}': ${issue.message}`,
+          path: ident,
+          source,
+          kind: "validation",
+          line: node.line ?? undefined,
+          column: node.column ?? undefined,
+        });
+      }
+    }
   }
 
   private resolveFromFileData(

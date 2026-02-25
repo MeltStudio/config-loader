@@ -84,3 +84,27 @@ export interface ConfigFileData extends ConfigFileStructure<ConfigFileData> {}
 export type ArrayValue = Array<string | number | boolean | ConfigFileData>;
 
 export class InvalidValue {}
+
+/**
+ * A single issue returned by a Standard Schema validator.
+ * Mirrors the Standard Schema v1 spec (https://github.com/standard-schema/standard-schema).
+ */
+export interface StandardSchemaIssue {
+  message: string;
+  path?: ReadonlyArray<PropertyKey>;
+}
+
+/**
+ * Minimal Standard Schema v1 interface for value validation.
+ * Any object with a `~standard.validate()` method is accepted — this covers
+ * Zod 3.24+, Valibot 1.0+, ArkType 2.1+, and custom validators.
+ */
+export interface StandardSchemaV1<Output = unknown> {
+  "~standard": {
+    version: 1;
+    vendor: string;
+    validate(
+      value: unknown,
+    ): { value: Output } | { issues: ReadonlyArray<StandardSchemaIssue> };
+  };
+}

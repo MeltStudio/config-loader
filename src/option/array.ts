@@ -1,4 +1,9 @@
-import type { ConfigFileData, Path, SchemaValue } from "@/types";
+import type {
+  ConfigFileData,
+  Path,
+  SchemaValue,
+  StandardSchemaV1,
+} from "@/types";
 import { InvalidValue } from "@/types";
 
 import type { OptionTypes } from ".";
@@ -12,6 +17,7 @@ interface ArrayOptionClassParams<T extends OptionTypes> {
   required: boolean;
   defaultValue?: SchemaValue<T>[] | (() => SchemaValue<T>[]);
   item: T;
+  validate?: StandardSchemaV1;
 }
 export default class ArrayOption<
   T extends OptionTypes,
