@@ -1,3 +1,23 @@
+# [4.0.0](https://github.com/MeltStudio/config-loader/compare/v3.7.1...v4.0.0) (2026-02-26)
+
+
+* feat!: ship dual CJS+ESM, migrate from yarn to pnpm ([b382bb2](https://github.com/MeltStudio/config-loader/commit/b382bb221bedd52b69bbda0d208a01478ff82ca7))
+
+
+### BREAKING CHANGES
+
+* Package now ships both CJS and ESM formats via the
+`exports` field in package.json. This resolves compatibility issues with
+TypeScript 5.9's `verbatimModuleSyntax` when using ESM imports.
+
+- Build outputs: dist/index.js (CJS), dist/index.mjs (ESM), plus .d.ts
+  and .d.mts type declarations
+- Migrated from yarn to pnpm across all CI workflows, scripts, docs,
+  CONTRIBUTING.md, Husky hooks, and VS Code config
+- Added pnpm to installation instructions alongside npm and yarn
+- Updated dependabot to also track GitHub Actions versions
+- Added pnpm-lock.yaml to .prettierignore
+
 ## [3.7.1](https://github.com/MeltStudio/config-loader/compare/v3.7.0...v3.7.1) (2026-02-26)
 
 
