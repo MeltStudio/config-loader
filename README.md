@@ -2,7 +2,7 @@
 
 A type-safe configuration loader for Node.js. Define your schema once, load from YAML, JSON, or TOML files, `.env` files, environment variables, and CLI arguments — and get a fully typed result with zero manual type annotations.
 
-> **Upgrading from v1?** v1.x is deprecated and no longer maintained. Install the latest version with `npm install @meltstudio/config-loader@latest` or `yarn add @meltstudio/config-loader@latest`.
+> **Upgrading from v1?** v1.x is deprecated and no longer maintained. Install the latest version with `npm install @meltstudio/config-loader@latest`.
 
 **[Full documentation](https://meltstudio.github.io/config-loader/)**
 
@@ -63,6 +63,10 @@ npm install @meltstudio/config-loader
 ```
 
 ```bash
+pnpm add @meltstudio/config-loader
+```
+
+```bash
 yarn add @meltstudio/config-loader
 ```
 
@@ -115,8 +119,8 @@ The [`example/`](./example) directory contains runnable examples:
 - **[Advanced](./example/advanced)** — TOML config, `.env` files, `oneOf` constraints, `sensitive` fields, validation, `printConfig()`, `maskSecrets()`, error handling
 
 ```bash
-yarn example:basic
-yarn example:advanced
+pnpm example:basic
+pnpm example:advanced
 ```
 
 ## Documentation for AI Agents

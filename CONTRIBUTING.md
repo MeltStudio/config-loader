@@ -7,19 +7,20 @@ Thank you for your interest in contributing! Here's how to get started.
 ```bash
 git clone https://github.com/MeltStudio/config-loader.git
 cd config-loader
-yarn install
+pnpm install
 ```
 
 ## Development Commands
 
 ```bash
-yarn test           # Run all tests (Jest, verbose)
-yarn lint           # ESLint with --max-warnings=0 --fix
-yarn type-check     # TypeScript type checking (tsc --noEmit)
-yarn build          # Build to dist/ with tsup (includes .d.ts)
-yarn example:run    # Run the example app
-yarn docs:start     # Start Docusaurus dev server
-yarn docs:build     # Build docs site
+pnpm test           # Run all tests (Jest, verbose)
+pnpm lint           # ESLint with --max-warnings=0 --fix
+pnpm type-check     # TypeScript type checking (tsc --noEmit)
+pnpm build          # Build to dist/ with tsup (includes .d.ts)
+pnpm example:basic  # Run basic example
+pnpm example:advanced # Run advanced example
+pnpm docs:start     # Start Docusaurus dev server
+pnpm docs:build     # Build docs site
 ```
 
 Run a single test file:
@@ -39,9 +40,9 @@ npx jest --testNamePattern "should validate string options"
 1. Create a branch from `main`
 2. Write tests first (in `tests/`)
 3. Implement your changes (in `src/`)
-4. Update `README.md` and `docs/intro.md` if user-facing
-5. Run `yarn build` and verify the types in `dist/index.d.ts`
-6. All checks must pass: `yarn test && yarn lint && yarn type-check`
+4. Update `README.md` and docs pages in `docs/` if user-facing
+5. Run `pnpm build` and verify the types in `dist/index.d.ts`
+6. All checks must pass: `pnpm test && pnpm lint && pnpm type-check`
 7. Open a pull request against `main`
 
 Use [conventional commits](https://www.conventionalcommits.org/) for your commit messages — semantic-release uses them to determine version bumps:
@@ -58,12 +59,16 @@ src/
 ├── types.ts           # Type definitions, SchemaValue inference, StandardSchemaV1
 ├── errors.ts          # ConfigLoadError, ConfigErrorEntry
 ├── settings.ts        # Settings orchestrator — loads files, resolves values, checks errors
-├── fileLoader.ts      # YAML/JSON file parsing with caching
+├── fileLoader.ts      # YAML/JSON/TOML file parsing with caching
 ├── envFileLoader.ts   # .env file parsing
 ├── sourceValidation.ts# File/dir validation
+├── watcher.ts         # Watch mode — fs.watch with unref, debouncing, auto-reload
+├── diffConfig.ts      # Config diffing with sensitive field masking
+├── printConfig.ts     # Debug table output for loadExtended results
+├── maskSecrets.ts     # Safe-to-log config copies with sensitive values masked
 ├── utils.ts           # Shared utilities
 ├── builder/
-│   └── settings.ts    # SettingsBuilder — fluent API (load, loadExtended)
+│   └── settings.ts    # SettingsBuilder — fluent API (load, loadExtended, watch)
 ├── nodes/
 │   ├── configNode.ts  # ConfigNode — value + source metadata
 │   └── configNodeArray.ts
@@ -76,8 +81,10 @@ src/
     └── errors.ts      # OptionErrors collector
 
 tests/               # Jest tests with mocks in __mocks__/
-docs/                # Docusaurus documentation (intro.md)
-example/             # Example app
+docs/                # Docusaurus documentation (4 pages)
+example/
+├── basic/           # Basic example — schema, YAML, nested objects, arrays
+└── advanced/        # Advanced example — TOML, .env, oneOf, sensitive, watch mode
 ```
 
 ## Path Aliases

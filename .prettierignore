@@ -5,4 +5,5 @@ build/
 node_modules/
 tests/__mocks__/invalidSyntax.*
 CHANGELOG.md
+pnpm-lock.yaml
 CLAUDE.md

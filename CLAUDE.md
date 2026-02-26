@@ -9,16 +9,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-yarn test                # Run Jest tests (verbose)
-yarn build               # Build with tsup (outputs to ./dist)
-yarn lint                # ESLint with --max-warnings=0 --fix
-yarn type-check          # tsc --noEmit
-yarn example:basic       # Run basic example with ts-node
-yarn example:advanced    # Run advanced example with ts-node
+pnpm test                # Run Jest tests (verbose)
+pnpm build               # Build with tsup (outputs to ./dist)
+pnpm lint                # ESLint with --max-warnings=0 --fix
+pnpm type-check          # tsc --noEmit
+pnpm example:basic       # Run basic example with ts-node
+pnpm example:advanced    # Run advanced example with ts-node
 ```
 
-Run a single test file: `yarn test -- --testPathPatterns=settings`
-Run a single test: `yarn test -- --testNamePattern "test name"`
+Run a single test file: `pnpm test -- --testPathPatterns=settings`
+Run a single test: `pnpm test -- --testNamePattern "test name"`
 
 ## Architecture
 
