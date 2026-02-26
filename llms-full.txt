@@ -73,6 +73,7 @@ No separate interface to maintain. No `as` casts. The types flow from the schema
 - **Strict mode** — promote warnings to errors for production safety
 - **Default values** — static or computed (via functions)
 - **Multiple files / directory loading** — load from a list of files or an entire directory
+- **File watching** — [`watch()`](./loading-and-sources#watch-mode) reloads config on file changes with debouncing, change detection, and error recovery
 
 ## Requirements
 
