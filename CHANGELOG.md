@@ -1,3 +1,10 @@
+## [3.7.1](https://github.com/MeltStudio/config-loader/compare/v3.7.0...v3.7.1) (2026-02-26)
+
+
+### Bug Fixes
+
+* clear envFile cache on watch reload, add watch mode README example ([2085ccc](https://github.com/MeltStudio/config-loader/commit/2085cccc97d986939e8d74a1b8db8f6c3df34167))
+
 # [3.7.0](https://github.com/MeltStudio/config-loader/compare/v3.6.0...v3.7.0) (2026-02-25)
 
 
