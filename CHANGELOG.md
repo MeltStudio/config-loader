@@ -1,3 +1,10 @@
+## [4.0.3](https://github.com/MeltStudio/config-loader/compare/v4.0.2...v4.0.3) (2026-02-26)
+
+
+### Bug Fixes
+
+* **ci:** use npm instead of pnpm in release workflow for OIDC auth ([d98dd69](https://github.com/MeltStudio/config-loader/commit/d98dd695279bb124312d4f1d97926697df4ea9e4))
+
 ## [4.0.2](https://github.com/MeltStudio/config-loader/compare/v4.0.1...v4.0.2) (2026-02-26)
 
 
