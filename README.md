@@ -68,6 +68,37 @@ yarn add @meltstudio/config-loader
 
 Requires Node.js >= 20.
 
+## Watch Mode
+
+Automatically reload config when files change. Watchers use `.unref()` so they don't prevent the process from exiting.
+
+```typescript
+const watcher = c
+  .schema({
+    port: c.number({ env: "PORT", defaultValue: 3000 }),
+    host: c.string({ defaultValue: "localhost" }),
+  })
+  .watch(
+    { env: true, args: false, files: "./config.yaml" },
+    {
+      onChange: (newConfig, oldConfig, changes) => {
+        for (const change of changes) {
+          console.log(
+            `${change.path}: ${String(change.oldValue)} → ${String(change.newValue)}`,
+          );
+        }
+      },
+      onError: (err) => console.error("Reload failed:", err.message),
+    },
+  );
+
+// Access current config anytime
+console.log(watcher.config.port);
+
+// Stop watching
+watcher.close();
+```
+
 ## Documentation
 
 See the **[full documentation](https://meltstudio.github.io/config-loader/)** for:

@@ -400,4 +400,79 @@ describe("watch()", () => {
       watcher.close();
     }
   });
+
+  it("should watch envFile for changes", async () => {
+    const envFilePath = path.join(tmpDir, ".env");
+    fs.writeFileSync(envFilePath, "APP_HOST=from-env\n");
+
+    const schema = {
+      host: optionFn.string({ env: "APP_HOST", defaultValue: "default" }),
+    };
+
+    const changes: unknown[] = [];
+
+    const watcher = optionFn.schema(schema).watch(
+      { env: false, args: false, envFile: envFilePath },
+      {
+        onChange: (newConfig) => {
+          changes.push(newConfig);
+        },
+        debounce: 50,
+      },
+    );
+
+    try {
+      expect(watcher.config).toEqual({ host: "from-env" });
+
+      await wait(100);
+
+      fs.writeFileSync(envFilePath, "APP_HOST=updated-env\n");
+
+      await wait(500);
+
+      expect(changes.length).toBeGreaterThanOrEqual(1);
+      expect(watcher.config.host).toBe("updated-env");
+    } finally {
+      watcher.close();
+    }
+  });
+
+  it("should watch multiple envFiles for changes", async () => {
+    const envFile1 = path.join(tmpDir, ".env");
+    const envFile2 = path.join(tmpDir, ".env.local");
+    fs.writeFileSync(envFile1, "APP_HOST=base\n");
+    fs.writeFileSync(envFile2, "APP_HOST=local\n");
+
+    const schema = {
+      host: optionFn.string({ env: "APP_HOST", defaultValue: "default" }),
+    };
+
+    const changes: unknown[] = [];
+
+    const watcher = optionFn.schema(schema).watch(
+      { env: false, args: false, envFile: [envFile1, envFile2] },
+      {
+        onChange: (newConfig) => {
+          changes.push(newConfig);
+        },
+        debounce: 50,
+      },
+    );
+
+    try {
+      // .env.local overrides .env
+      expect(watcher.config).toEqual({ host: "local" });
+
+      await wait(100);
+
+      fs.writeFileSync(envFile2, "APP_HOST=changed-local\n");
+
+      await wait(500);
+
+      expect(changes.length).toBeGreaterThanOrEqual(1);
+      expect(watcher.config.host).toBe("changed-local");
+    } finally {
+      watcher.close();
+    }
+  });
 });

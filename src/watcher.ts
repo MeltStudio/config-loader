@@ -1,5 +1,6 @@
 import * as fs from "fs";
 
+import { clearEnvFileCache } from "@/envFileLoader";
 import { clearFileCache } from "@/fileLoader";
 import type { Node } from "@/option";
 import Settings from "@/settings";
@@ -77,6 +78,7 @@ export function createWatcher<T extends Node>(
 
     try {
       clearFileCache();
+      clearEnvFileCache();
       const settings = new Settings(schema, sources);
       const newConfig = settings.get() as SchemaValue<T>;
 
