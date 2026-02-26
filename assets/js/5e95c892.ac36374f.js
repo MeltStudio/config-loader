@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_meltstudio_config_loader=self.webpackChunk_meltstudio_config_loader||[]).push([[647],{2325(e,s,r){r.r(s),r.d(s,{default:()=>d});r(9471);var t=r(3526),u=r(8052),a=r(9623),c=r(7377),l=r(5123),o=r(2615);function d(e){return(0,o.jsx)(a.e3,{className:(0,t.A)(u.G.wrapper.docsPages),children:(0,o.jsx)(l.A,{children:(0,c.v)(e.route.routes)})})}}}]);
