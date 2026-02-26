@@ -52,6 +52,7 @@
     "lint": "eslint --max-warnings=0 --fix .",
     "type-check": "tsc --noEmit",
     "test": "jest --verbose",
+    "test:coverage": "jest --verbose --coverage",
     "replace-tspaths": "./scripts/replace-tspaths/index.mjs",
     "example:basic": "ts-node -r tsconfig-paths/register ./example/basic/index.ts",
     "example:advanced": "ts-node -r tsconfig-paths/register ./example/advanced/index.ts",
