@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/MeltStudio/config-loader/compare/v4.0.0...v4.0.1) (2026-02-26)
+
+
+### Bug Fixes
+
+* **ci:** add registry-url for npm OIDC auth, use pnpm exec for semantic-release ([4fb7b75](https://github.com/MeltStudio/config-loader/commit/4fb7b7546ea87d6105494cdbb5871612a619ab44))
+
 # [4.0.0](https://github.com/MeltStudio/config-loader/compare/v3.7.1...v4.0.0) (2026-02-26)
 
 
