@@ -10,6 +10,7 @@ This file provides guidance to AI coding agents when working with this repositor
 
 ```bash
 pnpm test                # Run Jest tests (verbose)
+pnpm test:coverage       # Run tests with coverage report
 pnpm build               # Build with tsup (outputs to ./dist)
 pnpm lint                # ESLint with --max-warnings=0 --fix
 pnpm type-check          # tsc --noEmit
@@ -22,7 +23,9 @@ Run a single test: `pnpm test -- --testNamePattern "test name"`
 
 ## Architecture
 
-**Public API** (`src/index.ts`): Exports factory functions `string()`, `number()`, `bool()`, `array()`, `object()`, and `schema()` which return a `SettingsBuilder`. Also exports `printConfig()`, `maskSecrets()`, types, and error classes.
+**Public API** (`src/index.ts`): Exports factory functions `string()`, `number()`, `bool()`, `array()`, `object()`, and `schema()` which return a `SettingsBuilder`. Also exports `printConfig()`, `maskSecrets()`, `diffConfig()`, types, and error classes.
+
+**Build output:** Dual CJS + ESM format via tsup (`--format cjs,esm`). Outputs `index.js` (CJS), `index.mjs` (ESM), `index.d.ts`, `index.d.mts` to `./dist`.
 
 **Core flow:**
 
