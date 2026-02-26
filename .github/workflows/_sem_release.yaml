@@ -26,6 +26,7 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
+          registry-url: "https://registry.npmjs.org"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build to dist folder
@@ -33,4 +34,4 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: pnpm exec semantic-release
